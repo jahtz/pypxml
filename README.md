@@ -1,5 +1,3 @@
-from src.pypxml import XMLSchema
-
 # PyPXML
 A python library for parsing, converting and modifying PageXML files.
 
