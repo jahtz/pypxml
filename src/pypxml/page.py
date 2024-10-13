@@ -11,6 +11,7 @@ from .resources.xml_types import XMLType
 
 
 class Page:
+    """ Represents a page of a PageXML file. """
     def __init__(self, attributes: Optional[dict[str, str]] = None):
         self.__attributes: dict[str, str] = attributes if attributes else {}
         self.__reading_order: list[str] = []  # region id's
@@ -228,12 +229,15 @@ class Page:
     def clear_elements(self) -> None:
         """ Remove all Element objects from the list of elements. """
         self.__elements.clear()
+        self.clear_reading_order()
 
     def clear_regions(self) -> None:
         """ Remove all Element objects from the list of elements, that are regions. """
         for element in self.__elements:
             if element.is_region():
                 self.__elements.remove(element)
+                if element.id and element.id in self.__reading_order:
+                    self.__reading_order.remove(element.id)
 
     def clear_reading_order(self) -> None:
         """ Reset the reading order. """

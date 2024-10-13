@@ -14,6 +14,7 @@ from .resources.xml_schema import XMLSchema
 
 
 class PageXML:
+    """ Represents a PageXML file. """
     def __init__(self, creator: str, created: str, changed: str) -> None:
         self.__creator: str = creator
         self.__created: str = created

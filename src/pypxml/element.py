@@ -10,6 +10,7 @@ from .resources.xml_types import XMLType
 
 
 class Element:
+    """ Represents an element inside a page. """
     def __init__(self, _type: XMLType, attributes: Optional[dict[str, str]] = None):
         self.__type: XMLType = _type
         self.__attributes: dict[str, str] = attributes if attributes else {}
