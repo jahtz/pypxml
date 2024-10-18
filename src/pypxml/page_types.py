@@ -5,7 +5,7 @@
 from enum import Enum
 
 
-class XMLType(Enum):
+class PageType(Enum):
     """
     https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
     """

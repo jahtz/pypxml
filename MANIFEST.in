@@ -1,5 +1,4 @@
-recursive-include src/pypxml/resources *
-recursive-include src/pypxml *.py
+recursive-include src/pypxml *
 recursive-include src/cli *.py
 
 # Include the README and LICENSE files
