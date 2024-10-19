@@ -10,7 +10,7 @@ version = "2.0"
 readme = "README.md"
 license = { text = "MIT License" }
 authors = [
-    { name="Janik Haitz", email="jahtz.dev@proton.me" },
+    { name = "Janik Haitz", email = "jahtz.dev@proton.me" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
