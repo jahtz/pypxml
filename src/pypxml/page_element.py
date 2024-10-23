@@ -21,6 +21,10 @@ class PageElement:
         self.__elements: list[PageElement] = []
         self.__text: Optional[str] = None
 
+    def __repr__(self) -> str:
+        address = object.__repr__(self).split(' ')[-1].replace('>', '')
+        return f'<PageElement (PageType.{self.type.value}) at {address}>'
+
     def __len__(self):
         """Returns the number of sub elements."""
         return len(self.__elements)
@@ -142,7 +146,7 @@ class PageElement:
         if skip_unknown and not is_valid_type(etype):
             print(f'WARNING: skipping unknown element `{etype}`')
             return None
-        element = cls(PageType(etype, **dict(tree.items())))
+        element = cls(PageType(etype), **dict(tree.items()))
         element.text = tree.text
         for child in tree:
             element.add_element(PageElement.from_etree(child))
@@ -243,3 +247,33 @@ class PageElement:
     def clear_elements(self) -> None:
         """Remove all PagElement objects from the list of elements."""
         self.__elements.clear()
+
+    def find(self, type: PageType, recursive: bool = False) -> Optional[Self]:
+        """
+        Find the first element in the list of elements of a specified type.
+        :param type: The PageType to search for.
+        :param recursive: If set to true, search recursively.
+        :return: The found object or None if it does not exist.
+        """
+        for element in self.__elements:
+            if element.type == type:
+                return element
+            if recursive:
+                if (res := element.find(type, recursive=True)) is not None:
+                    return res
+        return None
+
+    def find_all(self, type: PageType, recursive: bool = False) -> list[Self]:
+        """
+        Find all elements in the list of elements of a specified type.
+        :param type: The PageType to search for.
+        :param recursive: If set to true, search recursively.
+        :return: A list of found PageElement objects.
+        """
+        result: list[PageElement] = []
+        for element in self.__elements:
+            if element.type == type:
+                result.append(element)
+            if recursive:
+                result.extend(element.find_all(type, recursive=True))
+        return result

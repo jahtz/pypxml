@@ -389,6 +389,36 @@ class PageXML:
         self.__elements.clear()
         self.clear_reading_order()
 
+    def find(self, type: PageType, recursive: bool = False) -> Optional[PageElement]:
+        """
+        Find the first element in the list of elements of a specified type.
+        :param type: The PageType to search for.
+        :param recursive: If set to true, search recursively.
+        :return: The found object or None if it does not exist.
+        """
+        for element in self.__elements:
+            if element.type == type:
+                return element
+            if recursive:
+                if (res := element.find(type, recursive=True)) is not None:
+                    return res
+        return None
+
+    def find_all(self, type: PageType, recursive: bool = False) -> list[PageElement]:
+        """
+        Find all elements in the list of elements of a specified type.
+        :param type: The PageType to search for.
+        :param recursive: If set to true, search recursively.
+        :return: A list of found PageElement objects.
+        """
+        result: list[PageElement] = []
+        for element in self.__elements:
+            if element.type == type:
+                result.append(element)
+            if recursive:
+                result.extend(element.find_all(type, recursive=True))
+        return result
+
     def clear_regions(self) -> None:
         """Remove all PageElement objects from the list of elements, that are regions."""
         for element in self.__elements:
