@@ -3,6 +3,7 @@
 # See the LICENSE file in the root directory for more details.
 
 from enum import Enum
+from typing import Union, Self
 
 
 class PageType(Enum):
@@ -57,3 +58,8 @@ class PageType(Enum):
     UserAttribute = "UserAttribute"
     UserDefined = "UserDefined"
     Word = "Word"
+
+
+def is_valid_type(value: str) -> bool:
+    """ Returns true if string is a valid XML type """
+    return value in PageType.__members__

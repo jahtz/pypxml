@@ -6,7 +6,7 @@ from typing import Optional, Union, Self
 
 import lxml.etree
 
-from .page_types import PageType
+from .page_types import PageType, is_valid_type
 
 
 class PageElement:
@@ -131,13 +131,18 @@ class PageElement:
         return cls(_type, **attributes)
 
     @classmethod
-    def from_etree(cls, tree: lxml.etree.Element) -> Self:
+    def from_etree(cls, tree: lxml.etree.Element, skip_unknown: bool = False) -> Optional[Self]:
         """
         Create a new PageElement object from a lxml etree object.
         :param tree: lxml etree object.
+        :param skip_unknown: Skip unknown elements. Else raise error
         :return: PageElement object that represents the passed etree object.
         """
-        element = cls(PageType(tree.tag.split("}")[1]), **dict(tree.items()))
+        etype = tree.tag.split("}")[1]
+        if skip_unknown and not is_valid_type(etype):
+            print(f'WARNING: skipping unknown element `{etype}`')
+            return None
+        element = cls(PageType(etype, **dict(tree.items())))
         element.text = tree.text
         for child in tree:
             element.add_element(PageElement.from_etree(child))

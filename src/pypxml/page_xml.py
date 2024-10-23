@@ -206,10 +206,11 @@ class PageXML:
         return cls(creator, datetime.now().isoformat(), datetime.now().isoformat(), **attributes)
 
     @classmethod
-    def from_etree(cls, tree: etree.Element) -> Self:
+    def from_etree(cls, tree: etree.Element, skip_unknown: bool = False) -> Self:
         """
         Create a new PageXML object from a lxml etree object.
         :param tree: lxml etree object.
+        :param skip_unknown: Skip unknown elements.
         :return: PageXML object that represents the passed etree object.
         """
         if (page := tree.find("./{*}Page")) is not None:
@@ -233,7 +234,8 @@ class PageXML:
                 tree.remove(ro)
             # Elements
             for element in page:
-                pxml.add_element(PageElement.from_etree(element), ro=False)
+                if (pe := PageElement.from_etree(element, skip_unknown=skip_unknown)) is not None:
+                    pxml.add_element(pe, ro=False)
             return pxml
         else:
             raise ValueError("Page not found")
@@ -273,16 +275,17 @@ class PageXML:
         return root
 
     @classmethod
-    def from_xml(cls, fp: Union[Path, str], encoding: str = "utf-8") -> Self:
+    def from_xml(cls, fp: Union[Path, str], encoding: str = "utf-8", skip_unknown: bool = False) -> Self:
         """
         Create a new PageXML object from a PageXML file.
         :param fp: Path of PageXML file.
         :param encoding: Set custom encoding.
+        :param skip_unknown: Skip unknown elements.
         :return: PageXML object.
         """
         parser = etree.XMLParser(remove_blank_text=True, encoding=encoding)
         tree = etree.parse(fp, parser).getroot()
-        return cls.from_etree(tree)
+        return cls.from_etree(tree, skip_unknown=skip_unknown)
 
     def to_xml(self, fp: Union[Path, str], version: str = "2019", schema_file: Optional[Path] = None,
                encoding: str = "utf-8") -> None:
