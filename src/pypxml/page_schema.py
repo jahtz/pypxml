@@ -8,12 +8,12 @@ from typing import Union
 
 
 DEFAULT_SCHEMA = {
-    "2019": {
+    "2017": {
         "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15",
         "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
         "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15/pagecontent.xsd",
     },
-    "2017": {
+    "2019": {
         "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15",
         "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
         "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd",
