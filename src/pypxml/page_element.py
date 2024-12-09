@@ -4,9 +4,9 @@
 
 from typing import Optional, Union, Self
 
-from lxml import etree
+import lxml.etree
 
-from .page_types import PageType
+from .page_types import PageType, is_valid_type
 
 
 class PageElement:
@@ -21,17 +21,21 @@ class PageElement:
         self.__elements: list[PageElement] = []
         self.__text: Optional[str] = None
 
+    def __repr__(self) -> str:
+        address = object.__repr__(self).split(' ')[-1].replace('>', '')
+        return f'<PageElement (PageType.{self.type.value}) at {address}>'
+
     def __len__(self):
-        """ Returns the number of sub elements. """
+        """Returns the number of sub elements."""
         return len(self.__elements)
 
     def __iter__(self) -> Self:
-        """ Iterator: starting point for iterating over all elements. """
+        """Iterator: starting point for iterating over all elements."""
         self.__n = 0
         return self
 
     def __next__(self) -> Self:
-        """ Iterator: yield next element. """
+        """Iterator: yield next element."""
         if self.__n < len(self.__elements):
             self.__n += 1
             return self.__elements[self.__n - 1]
@@ -62,7 +66,7 @@ class PageElement:
         elif isinstance(key, str):
             self.__attributes[key] = value
         else:
-            raise ValueError('Invalid key or value')
+            raise ValueError("Invalid key or value")
 
     def __contains__(self, key: Union[Self, str]) -> bool:
         """
@@ -78,45 +82,45 @@ class PageElement:
 
     @property
     def type(self) -> PageType:
-        """ Type of this PageElement object. """
+        """Type of this PageElement object."""
         return self.__type
 
     @type.setter
     def type(self, value: PageType) -> None:
-        """ Type of this PageElement object. """
+        """Type of this PageElement object."""
         self.__type = value
 
     @property
     def attributes(self) -> dict[str, str]:
-        """ List of all attributes. """
+        """List of all attributes."""
         return self.__attributes
 
     @property
     def elements(self) -> list[Self]:
-        """ List of all elements. """
+        """List of all elements."""
         return self.__elements
 
     @property
     def id(self) -> Optional[str]:
-        """ ID attribute. """
-        return self.__attributes.get('id', None)
+        """ID attribute."""
+        return self.__attributes.get("id", None)
 
     @id.setter
     def id(self, value: Optional[str]) -> None:
-        """ ID attribute. """
+        """ID attribute."""
         if value is None:
-            self.__attributes.pop('id', None)
+            self.__attributes.pop("id", None)
         else:
-            self.__attributes['id'] = value
+            self.__attributes["id"] = value
 
     @property
     def text(self) -> Optional[str]:
-        """ XML element text. """
+        """XML element text."""
         return self.__text
 
     @text.setter
     def text(self, value: Optional[str]) -> None:
-        """ XML element text. """
+        """XML element text."""
         self.__text = None if value is None else str(value)
 
     @classmethod
@@ -131,24 +135,29 @@ class PageElement:
         return cls(_type, **attributes)
 
     @classmethod
-    def from_etree(cls, tree: etree.Element) -> Self:
+    def from_etree(cls, tree: lxml.etree.Element, skip_unknown: bool = False) -> Optional[Self]:
         """
         Create a new PageElement object from a lxml etree object.
         :param tree: lxml etree object.
+        :param skip_unknown: Skip unknown elements. Else raise error
         :return: PageElement object that represents the passed etree object.
         """
-        element = cls(PageType(tree.tag.split('}')[1]), **dict(tree.items()))
+        etype = tree.tag.split("}")[1]
+        if skip_unknown and not is_valid_type(etype):
+            print(f'WARNING: skipping unknown element `{etype}`')
+            return None
+        element = cls(PageType(etype), **dict(tree.items()))
         element.text = tree.text
         for child in tree:
             element.add_element(PageElement.from_etree(child))
         return element
 
-    def to_etree(self) -> etree.Element:
+    def to_etree(self) -> lxml.etree.Element:
         """
         Convert the PageElement object to a lxml etree object.
         :return: A lxml etree object that represents this PageElement object.
         """
-        element = etree.Element(self.__type.value, **self.__attributes)
+        element = lxml.etree.Element(self.__type.value, **self.__attributes)
         if self.__text is not None:
             element.text = self.__text
         for child in self.__elements:
@@ -156,8 +165,8 @@ class PageElement:
         return element
 
     def is_region(self) -> bool:
-        """ Returns True, if the Element object is a region. """
-        return self.__type.value.endswith('Region')
+        """Returns True, if the Element object is a region."""
+        return self.__type.value.endswith("Region")
 
     def get_attribute(self, key: str) -> Optional[str]:
         """
@@ -186,14 +195,14 @@ class PageElement:
         return self.__attributes.pop(str(key), None)
 
     def get_coords(self) -> Optional[Self]:
-        """ Return the first direct child PageElement object of type Coords. """
+        """Return the first direct child PageElement object of type Coords."""
         for element in self.__elements:
             if element.type == PageType.Coords:
                 return element
         return None
 
     def get_baseline(self) -> Optional[Self]:
-        """ Return the first direct child PageElement object of type Baseline. """
+        """Return the first direct child PageElement object of type Baseline."""
         for element in self.__elements:
             if element.type == PageType.Baseline:
                 return element
@@ -210,7 +219,7 @@ class PageElement:
         else:
             self.__elements.insert(min(index, len(self.__elements) - 1), element)
 
-    def create_element(self, _type: PageType, index: int = None, **attributes: str) -> Self:
+    def create_element(self, _type: PageType, index: Optional[int] = None, **attributes: str) -> Self:
         """
         Create a new PageElement object and add it to the list of elements.
         :param _type: PageType of new element.
@@ -236,5 +245,35 @@ class PageElement:
         return None
 
     def clear_elements(self) -> None:
-        """ Remove all PagElement objects from the list of elements. """
+        """Remove all PagElement objects from the list of elements."""
         self.__elements.clear()
+
+    def find(self, type: PageType, recursive: bool = False) -> Optional[Self]:
+        """
+        Find the first element in the list of elements of a specified type.
+        :param type: The PageType to search for.
+        :param recursive: If set to true, search recursively.
+        :return: The found object or None if it does not exist.
+        """
+        for element in self.__elements:
+            if element.type == type:
+                return element
+            if recursive:
+                if (res := element.find(type, recursive=True)) is not None:
+                    return res
+        return None
+
+    def find_all(self, type: PageType, recursive: bool = False) -> list[Self]:
+        """
+        Find all elements in the list of elements of a specified type.
+        :param type: The PageType to search for.
+        :param recursive: If set to true, search recursively.
+        :return: A list of found PageElement objects.
+        """
+        result: list[PageElement] = []
+        for element in self.__elements:
+            if element.type == type:
+                result.append(element)
+            if recursive:
+                result.extend(element.find_all(type, recursive=True))
+        return result

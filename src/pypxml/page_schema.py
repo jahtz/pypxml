@@ -2,28 +2,28 @@
 # Copyright (c) 2024 Janik Haitz
 # See the LICENSE file in the root directory for more details.
 
-from typing import Literal, Union
-from pathlib import Path
 import json
+from pathlib import Path
+from typing import Union
 
 
 DEFAULT_SCHEMA = {
-    '2019': {
-        'xmlns': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15',
-        'xmlns_xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-        'xsi_schema_location': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15/pagecontent.xsd'
+    "2017": {
+        "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15",
+        "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15/pagecontent.xsd",
     },
-    '2017': {
-        'xmlns': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15',
-        'xmlns_xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-        'xsi_schema_location': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd'
-    }
+    "2019": {
+        "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15",
+        "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd",
+    },
 }
 
 
 class PageSchema:
     @staticmethod
-    def get(version: str = '2019') -> dict[str, str]:
+    def get(version: str = "2019") -> dict[str, str]:
         """
         Returns the xml schema values of a specified PageXML version.
         :param version: The PageXML version to use. Currently supported: `2017`, `2019`
