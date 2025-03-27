@@ -6,27 +6,28 @@ build-backend = "setuptools.build_meta"
 name = "pypxml"
 description = "A python library for parsing, converting and modifying PageXML files. "
 keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
-version = "2.1.1"
+version = "3.0.0"
 readme = "README.md"
-license = { text = "MIT License" }
+license = { text = "Apache 2.0" }
 authors = [
     { name = "Janik Haitz", email = "jahtz.dev@proton.me" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "lxml ~= 5.3.0",
-    "click ~= 8.1.7",
+    "lxml ~= 5.3.1",
 ]
 requires-python = ">=3.11"
-scripts = { pypxml = "cli.pypxml_cli:cli" }
 
 [project.urls]
-repository = "https://github.com/jahtz/pypxml"
+Repository = "https://github.com/jahtz/pypxml"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["tests", "assets"]
+
+[tool.setuptools.package-data]
+pypxml = ["resources/schema.json"]
