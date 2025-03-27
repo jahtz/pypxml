@@ -146,32 +146,35 @@ class PageType(Enum):
     
     Baseline = "Baseline"
     """
-    
+    Multiple connected points that mark the baseline of the glyphs.
     """
     
     Border = "Border"
     """
-    
+    Border of the actual page (if the scanned image contains parts not belonging to the page).
     """
     
     Coords = "Coords"
     """
-    
+    Polygon outline of the element as a path of points. No points may lie outside the outline of its parent, which in 
+    the case of Border is the bounding rectangle of the root image. Paths are closed by convention, i.e. the last point 
+    logically connects with the first (and at least 3 points are required to span an area). 
+    Paths must be planar (i.e. must not self-intersect).
     """
     
     Glyph = "Glyph"
     """
-    
+    No official annotation.
     """
     
     GraphemeGroup = "GraphemeGroup"
     """
-    
+    No official annotation.
     """
     
     Graphemes = "Graphemes"
     """
-    
+    No official annotation.
     """
 
     Grid = "Grid"
@@ -196,7 +199,7 @@ class PageType(Enum):
     
     Layer = "Layer"
     """
-    
+    No official annotation.
     """
     
     Layers = "Layers"
@@ -207,27 +210,32 @@ class PageType(Enum):
     
     Metadata = "Metadata"
     """
-    
+    No official annotation.
     """
     
     NonPrintingChar = "NonPrintingChar"
     """
-    
+    A glyph component without visual representation but with Unicode code point. 
+    Non-visual / non-printing / control character. Part of grapheme container (of glyph) or grapheme sub group.
     """
     
     PlainText = "PlainText"
     """
-    
+    Text in a "simple" form (ASCII or extended ASCII as mostly used for typing). I.e. no use of special characters for 
+    ligatures (should be stored as two separate characters) etc.
     """
     
     PrintSpace = "PrintSpace"
     """
-    
+    Determines the effective area on the paper of a printed page. Its size is equal for all pages of a book 
+    (exceptions: titlepage, multipage pictures). It contains all living elements (except marginals) like body type, 
+    footnotes, headings, running titles. It does not contain pagenumber (if not part of running title), marginals, 
+    signature mark, preview words.   
     """
     
     Relations = "Relations"
     """
-    
+    Container for one-to-one relations between layout objects (for example: DropCap - paragraph, caption - image).
     """
     
     Roles = "Roles"
@@ -237,47 +245,48 @@ class PageType(Enum):
     
     TextEquiv = "TextEquiv"
     """
-    
+    No official annotation.
     """
     
     TextLine = "TextLine"
     """
-    
+    No official annotation.
     """
     
     TextStyle = "TextStyle"
     """
-    Default text style.
+    Monospace (fixed-pitch, non-proportional) or proportional font.
     """
     
     Unicode = "Unicode"
     """
-    
+    Correct encoding of the original, always using the corresponding Unicode code point. I.e. ligatures have to be 
+    represented as one character etc.
     """
     
     UserAttribute = "UserAttribute"
     """
-    
+    Structured custom data defined by name, type and value.
     """
     
     UserDefined = "UserDefined"
     """
-    
+    Container for user-defined attributes.
     """
     
     Word = "Word"
     """
-    
+    No official annotation.
     """
 
 
 def is_valid(value: str) -> bool:
-    """ Returns true if string is a valid XML type """
+    """ Returns true if string is a valid PageXML type. """
     return value in PageType.__members__
 
 
 def is_region(value: str) -> bool:
-    """ Returns true if string is a valid XML region type """
+    """ Returns true if string is a valid PageXML region type """
     return value in [PageType.AdvertRegion,
                      PageType.ChartRegion,
                      PageType.ChemRegion,
