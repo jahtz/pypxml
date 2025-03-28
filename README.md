@@ -15,7 +15,7 @@ pip install pypxml
 2. Install package: `cd pypxml && pip install .`
 
 ## API
-PyXML provides a feature rich Python API for working with PageXML files.
+PyPXML provides a feature rich Python API for working with PageXML files.
 
 Full [documentation](docs/DOCUMENTATION.md)
   
