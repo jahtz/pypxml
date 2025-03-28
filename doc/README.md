@@ -1332,6 +1332,23 @@ Returns the PageXML object as an lxml etree object.
 
   A lxml etree object that represents the PageXML object.
 
+**Schema File Example**
+
+```json
+{
+    "2017": {
+        "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15",
+        "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15/pagecontent.xsd"
+    },
+    "2019": {
+        "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15",
+        "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd"
+    }
+}
+```
+
 <a id="pypxml.pagexml.PageXML.to_file"></a>
 
 #### to\_file
@@ -1351,6 +1368,10 @@ Write the PageXML object to a file.
 - `encoding` - Set custom encoding. Defaults to "utf-8".
 - `schema_version` - Which schema version to use. Available by default: "2017", "2019". Defaults to "2019".
 - `schema_file` - Set a custom schema json file (see documentation for further information). Defaults to None.
+
+**Schema File Example**
+
+See above
 
 <a id="pypxml.pagexml.PageXML.find_by_id"></a>
 
