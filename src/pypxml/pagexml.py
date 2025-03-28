@@ -59,17 +59,25 @@ class PageXML:
         self.__elements: list[PageElement] = []  # content of page
         self.__xml: Optional[Path] = xml  # file path of the pagexml file if it was loaded from a file
     
+    def __str__(self) -> str:
+        """ Returns the string representation of the PageXML object. """
+        return f"<PageXML {self.__attributes}>"
+    
+    def __repr__(self) -> str:
+        """ Returns the string representation of the PageXML object. """
+        return self.__str__()
+        
     def __len__(self) -> int:
         """ Returns the number of region elements in the PageXML object. """
         return len([element for element in self.__elements if element.is_region()])
     
     def __iter__(self) -> Self:
-        """ Iterate over all region elements of the page. """
+        """ Iterate over all elements of the page. """
         self.__n = 0
         return self
 
     def __next__(self) -> PageElement:
-        """ Yield next region element of the page. """
+        """ Yield next element of the page. """
         if self.__n < len(self.__elements):
             self.__n += 1
             return self.__elements[self.__n - 1]

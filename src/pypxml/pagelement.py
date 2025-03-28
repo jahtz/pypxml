@@ -41,6 +41,14 @@ class PageElement:
         self.__elements: list[PageElement] = []
         self.__text: Optional[str] = None
         
+    def __str__(self) -> str:
+        """ Returns the string representation of the PageElement object. """
+        return f"<PageElement ({self.__pagetype.value}) {self.__attributes}>"
+    
+    def __repr__(self) -> str:
+        """ Returns the string representation of the PageElement object. """
+        return self.__str__()
+        
     def __len__(self) -> int:
         """ Returns the number elements in this element. """
         return len(self.__elements)
