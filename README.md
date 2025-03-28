@@ -2,7 +2,7 @@
 A python library for parsing, converting and modifying PageXML files.
 
 ## Setup
->[!INFO]
+>[!NOTE]
 >Python version `>=3.11`
 
 ### Install from PyPI
