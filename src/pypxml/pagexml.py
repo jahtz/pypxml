@@ -224,7 +224,7 @@ class PageXML:
         """
         attributes = {str(k): str(v) for k, v in attributes.items() if v is not None}
         return cls(creator=creator, created=datetime.now().isoformat(), changed=datetime.now().isoformat(), 
-                   attributes=attributes)
+                   **attributes)
         
     @classmethod
     def from_etree(cls, tree: etree.Element, skip_unknown: bool = False) -> Self:
@@ -295,8 +295,7 @@ class PageXML:
         """
         self.__changed = datetime.now().isoformat()
         if schema_file is None:
-            schema_file = importlib.resources.files("pypxml").joinpath("resources", "schema.json")
-            print(schema_file)
+            schema_file = importlib.resources.files("pypxml").parent.joinpath("resources", "schema.json")
         with open(schema_file) as stream:
             schema = json.load(stream)[schema_version]
         
