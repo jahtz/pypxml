@@ -30,4 +30,4 @@ where = ["src"]
 exclude = ["tests", "assets"]
 
 [tool.setuptools.package-data]
-pypxml = ["resources/schema.json"]
+pypxml = ["../resources/schema.json"]
