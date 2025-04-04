@@ -14,7 +14,6 @@
 
 from pathlib import Path
 from typing import Optional
-import csv
 
 import rich_click as click
 from rich import print as rprint
@@ -28,7 +27,7 @@ from . import util
 @click.argument("directory",
                 type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
                 callback=util.path_callback, required=True)
-@click.argument("search", 
+@click.argument("string", 
                 type=click.STRING, required=True)
 @click.option("-g", "--glob", "glob",
               help="Glob pattern for matching PageXML files in directory passed in DIRECTORY.",
@@ -50,9 +49,12 @@ from . import util
 @click.option("-c", "--count", "count",
               help="If set, the output will contain the number of occurrences of the search string.",
               is_flag=True, default=False)
-def search_string_cli(directory: Path, search: str, glob: str = "**/*.xml", output: Optional[Path] = None, 
+@click.option("-t", "--total", "total",
+              help="If set, the output will only contain the total number of occurrences of the search string.",
+              is_flag=True, default=False)
+def search_string_cli(directory: Path, string: str, glob: str = "**/*.xml", output: Optional[Path] = None, 
                       delimiter: str = ",", index: Optional[int] = None, lines: bool = False, 
-                      count: bool = False) -> None:
+                      count: bool = False, total: bool = False) -> None:
     """
     Search for a string in PageXML files.
     """
@@ -64,7 +66,6 @@ def search_string_cli(directory: Path, search: str, glob: str = "**/*.xml", outp
     if output is not None:
         output.parent.mkdir(exist_ok=True, parents=True)
     
-    header = ["File", "Count", "Lines"]
     results = []  # stores data in the format: [filepath, counter, line id's]
         
     with util.progress as p:
@@ -81,20 +82,32 @@ def search_string_cli(directory: Path, search: str, glob: str = "**/*.xml", outp
                     uc = textequiv.find_by_type(PageType.Unicode)
                     if uc is None:
                         continue
-                    if uc[0].text and search in uc[0].text:
-                        page_res[1] += uc[0].text.count(search)
+                    if uc[0].text and string in uc[0].text:
+                        page_res[1] += uc[0].text.count(string)
                         if textline["id"] not in page_res[2]:
                             page_res[2].append(textline["id"])
             if page_res[1] != 0:
                 results.append(page_res)
             p.update(task, advance=1)
-            
-    rules = [True, count, lines]
-    header = [h for i, h in enumerate(header) if rules[i]]
-    for row in results:
-        data = [r for i, r in enumerate(row) if rules[i]]
-        row.clear()
-        row.extend(data)     
+    
+    if total:
+        header = ["Search", "Pages"]
+        res = [[string, len(results)]]
+        if lines:
+            header.append("Lines")
+            res[0].append(sum([len(r[2]) for r in results]))
+        if count:
+            header.append("Total Count")
+            res[0].append(sum([r[1] for r in results]))
+        results = res
+    else:
+        header = ["File", "Count", "Lines"]
+        rules = [True, count, lines]
+        header = [h for i, h in enumerate(header) if rules[i]]
+        for row in results:
+            data = [r for i, r in enumerate(row) if rules[i]]
+            row.clear()
+            row.extend(data)     
 
     if output is None:       
         util.csv_print(results, header=header) 
@@ -108,7 +121,7 @@ def search_string_cli(directory: Path, search: str, glob: str = "**/*.xml", outp
 @click.argument("directory",
                 type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
                 callback=util.path_callback, required=True)
-@click.argument("search", 
+@click.argument("pagetype", 
                 type=click.STRING, callback=util.pagetype_callback, required=True)
 @click.option("-g", "--glob", "glob",
               help="Glob pattern for matching PageXML files in directory passed in DIRECTORY.",
@@ -124,8 +137,12 @@ def search_string_cli(directory: Path, search: str, glob: str = "**/*.xml", outp
 @click.option("-c", "--count", "count",
               help="If set, the output will contain the number of occurrences of the PageType in each file.",
               is_flag=True, default=False)
-def search_type_cli(directory: Path, search: tuple[PageType, str], glob: str = "**/*.xml", 
-                    output: Optional[Path] = None, delimiter: str = ",", count: bool = False) -> None:
+@click.option("-t", "--total", "total",
+              help="If set, the output will only contain the total number of occurrences of the search type.",
+              is_flag=True, default=False)
+def search_type_cli(directory: Path, pagetype: tuple[PageType, str], glob: str = "**/*.xml", 
+                    output: Optional[Path] = None, delimiter: str = ",", count: bool = False, 
+                    total: bool = False) -> None:
     """
     Search for a PageType in PageXML files.
     
@@ -143,7 +160,6 @@ def search_type_cli(directory: Path, search: tuple[PageType, str], glob: str = "
     if output is not None:
         output.parent.mkdir(exist_ok=True, parents=True)
     
-    header = ["File", "Count"]
     results = []  # stores data in the format: [filepath, counter, line id's]
     
     with util.progress as p:
@@ -152,20 +168,29 @@ def search_type_cli(directory: Path, search: tuple[PageType, str], glob: str = "
             p.update(task, filename=Path(*fp.parts[-min(len(fp.parts), 4):]))
             page_res = [fp.as_posix(), 0]
             pagexml = PageXML.from_file(fp, skip_unknown=True)
-            regions = pagexml.find_by_type(search[0], recursive=True)
-            if search[1] is not None:
-                regions = [r for r in regions if r["type"] == search[1]]
+            regions = pagexml.find_by_type(pagetype[0], recursive=True)
+            if pagetype[1] is not None:
+                regions = [r for r in regions if r["type"] == pagetype[1]]
             page_res[1] = len(regions)
             if page_res[1] != 0:
                 results.append(page_res)
             p.update(task, advance=1)
     
-    rules = [True, count]
-    header = [h for i, h in enumerate(header) if rules[i]]
-    for row in results:
-        data = [r for i, r in enumerate(row) if rules[i]]
-        row.clear()
-        row.extend(data)     
+    if total:
+        header = ["Search", "Pages"]
+        res = [[str(pagetype[0].value) + (f" ({pagetype[1]})" if pagetype[1] else ""), len(results)]]
+        if count:
+            header.append("Total Count")
+            res[0].append(sum([r[1] for r in results]))
+        results = res
+    else:
+        header = ["File", "Count"]
+        rules = [True, count]
+        header = [h for i, h in enumerate(header) if rules[i]]
+        for row in results:
+            data = [r for i, r in enumerate(row) if rules[i]]
+            row.clear()
+            row.extend(data)     
 
     if output is None:       
         util.csv_print(results, header=header) 
