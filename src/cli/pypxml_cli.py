@@ -15,6 +15,8 @@
 import rich_click as click
 
 from .search_cli import search_string_cli, search_type_cli
+from .stats_cli import stats_type_cli
+
 
 __version__ = "3.0.0"
 __prog__ = "pypxml"
@@ -53,3 +55,4 @@ def cli(**kwargs):
 cli.add_command(search_string_cli)
 cli.add_command(search_type_cli)
 
+cli.add_command(stats_type_cli)
