@@ -14,12 +14,17 @@
 
 import rich_click as click
 
+from .search_cli import search_string_cli, search_type_cli
+
 __version__ = "3.0.0"
 __prog__ = "pypxml"
 
 click.rich_click.SHOW_ARGUMENTS = True
 click.rich_click.MAX_WIDTH = 90
-click.rich_click.RANGE_STRING = ""
+#click.rich_click.RANGE_STRING = ""
+click.rich_click.SHOW_METAVARS_COLUMN = False
+click.rich_click.APPEND_METAVARS_HELP = True
+click.rich_click.FOOTER_TEXT = f"Developed at Centre for Philology and Digitality (ZPD), University of Würzburg"
 click.rich_click.OPTION_GROUPS = {
     "pypxml": [
         {
@@ -43,3 +48,8 @@ def cli(**kwargs):
     A python library for parsing, converting and modifying PageXML files.
     """
     pass
+
+
+cli.add_command(search_string_cli)
+cli.add_command(search_type_cli)
+
