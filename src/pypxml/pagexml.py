@@ -359,12 +359,13 @@ class PageXML:
                     return found
         return None
    
-    def find_by_type(self, pagetype: Union[PageType, list[PageType]], recursive: bool = False) -> list[PageElement]:
+    def find_by_type(self, pagetype: Union[PageType, list[PageType]], recursive: bool = False, **attributes: str) -> list[PageElement]:
         """
         Find all elements by their type.
         Args:
             pagetype: Type of the elements to find.
             recursive: If set, search in all child elements. Defaults to False.
+            attributes: Named arguments which represent the attributes that the elements must have.
         Returns:
             A list of PageElement objects with the given type. Returns an empty list, if no match was found.
         """
@@ -373,9 +374,10 @@ class PageXML:
         found_elements: list[PageElement] = []
         for element in self.__elements:
             if element.pagetype in pagetype:
-                found_elements.append(element)
+                if not attributes or all(element.get_attribute(str(k)) == str(v) for k, v in attributes.items()):
+                    found_elements.append(element)
             if recursive:
-                found_elements.extend(element.find_by_type(pagetype, recursive))
+                found_elements.extend(element.find_by_type(pagetype, recursive, **attributes))
         return found_elements
     
     def create_element(self, pagetype: PageType, index: Optional[int] = None, **attributes: str) -> PageElement:
