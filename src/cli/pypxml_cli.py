@@ -14,8 +14,9 @@
 
 import rich_click as click
 
-from .search_cli import search_string_cli, search_type_cli
-from .stats_cli import stats_type_cli
+from .analytics_cli import list_regions_cli
+from .search_cli import search_text_cli, search_type_cli
+from .transformation_cli import remove_elements_cli
 
 
 __version__ = "3.0.0"
@@ -31,8 +32,63 @@ click.rich_click.OPTION_GROUPS = {
     "pypxml": [
         {
             "name": "Help",
-            "options": ["--help",
-                        "--version"],
+            "options": ["--help", "--version"],
+        }
+    ],
+    "pypxml list-regions": [
+        {
+            "name": "Input",
+            "options": ["directory", "--glob"],
+        },
+        {
+            "name": "Options",
+            "options": ["--pages", "--count"],
+        },
+        {
+            "name": "Output",
+            "options": ["--output", "--delimiter"],
+        }
+    ],
+    "pypxml remove-elements": [
+        {
+            "name": "Input",
+            "options": ["PageXML", "--glob"],
+        },
+        {
+            "name": "Options",
+            "options": ["--type", "--attribute"],
+        },
+        {
+            "name": "Output",
+            "options": ["--output"],
+        }
+    ],
+    "pypxml search-text": [
+        {
+            "name": "Input",
+            "options": ["directory", "string", "--glob", "--index"],
+        },
+        {
+            "name": "Options",
+            "options": ["--lines", "--count", "--total"],
+        },
+        {
+            "name": "Output",
+            "options": ["--output", "--delimiter"],
+        }
+    ],
+    "pypxml search-type": [
+        {
+            "name": "Input",
+            "options": ["directory", "pagetype", "--glob"],
+        },
+        {
+            "name": "Options",
+            "options": ["--count", "--total"],
+        },
+        {
+            "name": "Output",
+            "options": ["--output", "--delimiter"],
         }
     ],
 }
@@ -52,7 +108,12 @@ def cli(**kwargs):
     pass
 
 
-cli.add_command(search_string_cli)
+# analytics
+cli.add_command(list_regions_cli)
+
+# search
+cli.add_command(search_text_cli)
 cli.add_command(search_type_cli)
 
-cli.add_command(stats_type_cli)
+# transformation
+cli.add_command(remove_elements_cli)

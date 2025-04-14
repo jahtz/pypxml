@@ -17,12 +17,12 @@ from typing import Optional
 
 import rich_click as click
 from rich import print as rprint
-from pypxml import PageXML, PageType
+from pypxml import PageXML
 
 from . import util
 
 
-@click.command("stats-type", short_help="List all PageXML types in a directory.")
+@click.command("list-regions", short_help="List all PageXML regions in a directory.")
 @click.help_option("--help", hidden=True)
 @click.argument("directory",
                 type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
@@ -44,10 +44,10 @@ from . import util
 @click.option("-c", "--count", "count",
               help="If set, the output will contain the number of occurrences of each PageType.",
               is_flag=True, default=False)
-def stats_type_cli(directory: Path, glob: str = "**/*.xml", output: Optional[Path] = None, 
-                   delimiter: str = ",", pages: bool = False, count: bool = False) -> None:
+def list_regions_cli(directory: Path, glob: str = "**/*.xml", output: Optional[Path] = None, 
+                     delimiter: str = ",", pages: bool = False, count: bool = False) -> None:
     """
-    List all PageXML types in a directory.
+    List all PageXML regions in a directory.
     """
     files = util.expand_paths(directory, glob)
     if not files:
@@ -75,6 +75,7 @@ def stats_type_cli(directory: Path, glob: str = "**/*.xml", output: Optional[Pat
                     found.append(pagetype)
                     results[pagetype][0] += 1
             p.advance(task)
+        p.update(task, filename="Done")
     
     header = ["Type"]
     if pages: 

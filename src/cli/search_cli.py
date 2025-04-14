@@ -22,7 +22,7 @@ from pypxml import PageXML, PageType
 from . import util
 
 
-@click.command("search-string", short_help="Search for a string in PageXML files.")
+@click.command("search-text", short_help="Search for a string in PageXML files.")
 @click.help_option("--help", hidden=True)
 @click.argument("directory",
                 type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
@@ -52,9 +52,9 @@ from . import util
 @click.option("-t", "--total", "total",
               help="If set, the output will only contain the total number of occurrences of the search string.",
               is_flag=True, default=False)
-def search_string_cli(directory: Path, string: str, glob: str = "**/*.xml", output: Optional[Path] = None, 
-                      delimiter: str = ",", index: Optional[int] = None, lines: bool = False, 
-                      count: bool = False, total: bool = False) -> None:
+def search_text_cli(directory: Path, string: str, glob: str = "**/*.xml", output: Optional[Path] = None, 
+                    delimiter: str = ",", index: Optional[int] = None, lines: bool = False, count: bool = False, 
+                    total: bool = False) -> None:
     """
     Search for a string in PageXML files.
     """
@@ -89,6 +89,7 @@ def search_string_cli(directory: Path, string: str, glob: str = "**/*.xml", outp
             if page_res[1] != 0:
                 results.append(page_res)
             p.update(task, advance=1)
+        p.update(task, filename="Done")
     
     if total:
         header = ["Search", "Pages"]
@@ -175,6 +176,7 @@ def search_type_cli(directory: Path, pagetype: tuple[PageType, str], glob: str =
             if page_res[1] != 0:
                 results.append(page_res)
             p.update(task, advance=1)
+        p.update(task, filename="Done")
     
     if total:
         header = ["Search", "Pages"]
