@@ -18,6 +18,11 @@ pip install pypxml
 PyPXML provides a feature rich Python API for working with PageXML files.
 
 Full [documentation](docs/DOCUMENTATION.md)
+
+## CLI
+```bash
+pypxml --help
+```
   
 ## ZPD
 Developed at Centre for [Philology and Digitality](https://www.uni-wuerzburg.de/en/zpd/) (ZPD), [University of Würzburg](https://www.uni-wuerzburg.de/en/).

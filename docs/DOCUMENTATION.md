@@ -441,7 +441,8 @@ Find an element by its id.
 
 ```python
 def find_by_type(pagetype: Union[PageType, list[PageType]],
-                 recursive: bool = False) -> list[Self]
+                 recursive: bool = False,
+                 **attributes: str) -> list[Self]
 ```
 
 Find all elements by their type.
@@ -450,6 +451,7 @@ Find all elements by their type.
 
 - `pagetype` - Type of the elements to find.
 - `recursive` - If set, search in all child elements. Defaults to False.
+- `attributes` - Named arguments which represent the attributes that the elements must have.
 
 **Returns**:
 
@@ -1398,7 +1400,8 @@ Find an element by its id.
 
 ```python
 def find_by_type(pagetype: Union[PageType, list[PageType]],
-                 recursive: bool = False) -> list[PageElement]
+                 recursive: bool = False,
+                 **attributes) -> list[PageElement]
 ```
 
 Find all elements by their type.
@@ -1407,6 +1410,7 @@ Find all elements by their type.
 
 - `pagetype` - Type of the elements to find.
 - `recursive` - If set, search in all child elements. Defaults to False.
+- `attributes` - Named arguments which represent the attributes that the elements must have.
 
 **Returns**:
 
