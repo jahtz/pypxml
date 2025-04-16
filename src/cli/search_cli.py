@@ -74,7 +74,7 @@ def search_text_cli(directory: Path, string: str, glob: str = "**/*.xml", output
             p.update(task, filename=Path(*fp.parts[-min(len(fp.parts), 4):]))
             page_res = [fp.as_posix(), 0, []]
             pagexml = PageXML.from_file(fp, skip_unknown=True)
-            for textline in pagexml.find_by_type(PageType.TextLine, recursive=True):
+            for textline in pagexml.find_by_type(PageType.TextLine, depth=-1):
                 for textequiv in textline.find_by_type(PageType.TextEquiv):
                     if index is not None:
                         if textequiv["index"] is None or textequiv["index"] != str(index):
@@ -169,7 +169,7 @@ def search_type_cli(directory: Path, pagetype: tuple[PageType, str], glob: str =
             p.update(task, filename=Path(*fp.parts[-min(len(fp.parts), 4):]))
             page_res = [fp.as_posix(), 0]
             pagexml = PageXML.from_file(fp, skip_unknown=True)
-            regions = pagexml.find_by_type(pagetype[0], recursive=True)
+            regions = pagexml.find_by_type(pagetype[0], depth=-1)
             if pagetype[1] is not None:
                 regions = [r for r in regions if r["type"] == pagetype[1]]
             page_res[1] = len(regions)

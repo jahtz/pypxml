@@ -63,7 +63,7 @@ def remove_elements_cli(pagexml: list[Path], glob: str = "*.xml", output: Option
             p.update(task, filename=Path(*fp.parts[-min(len(fp.parts), 4):]))
             pxml = PageXML.from_file(fp, skip_unknown=True)
             if pagetype is not None:
-                for element in pxml.find_by_type(pagetype[0], recursive=True, **attributes):
+                for element in pxml.find_by_type(pagetype[0], depth=-1, **attributes):
                     element.parent.remove_element(element)
             else:
                 pxml.clear_elements()

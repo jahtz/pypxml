@@ -209,29 +209,31 @@ class PageElement:
             element.append(child.to_etree())
         return element
     
-    def find_by_id(self, id: str, recursive: bool = False) -> Optional[Self]:
+    def find_by_id(self, id: str, depth: int = 0) -> Optional[Self]:
         """
         Find an element by its id.
         Args:
             id: ID of the element to find.
-            recursive: If set, search in all child elements. Defaults to False.
+            depth: Determines the depth of the search. `0` searches only the current level, `-1` searches all levels 
+                   recursively and `>0` limits the search to that many levels deep.
         Returns:
             The PageElement object with the given ID. Returns None, if no match was found.
         """
         for element in self.__elements:
             if element.get_attribute("id") == id:
                 return element
-            if recursive:
-                if (found := element.find_by_id(id, recursive)) is not None:
+            if depth != 0:
+                if (found := element.find_by_id(id, max(-1, depth - 1))) is not None:
                     return found
         return None
    
-    def find_by_type(self, pagetype: Union[PageType, list[PageType]], recursive: bool = False, **attributes: str) -> list[Self]:
+    def find_by_type(self, pagetype: Union[PageType, list[PageType]], depth: int = 0, **attributes: str) -> list[Self]:
         """
         Find all elements by their type.
         Args:
             pagetype: Type of the elements to find.
-            recursive: If set, search in all child elements. Defaults to False.
+            depth: Determines the depth of the search. `0` searches only the current level, `-1` searches all levels 
+                   recursively and `>0` limits the search to that many levels deep.
             attributes: Named arguments which represent the attributes that the elements must have.
         Returns:
             A list of PageElement objects with the given type. Returns an empty list, if no match was found.
@@ -243,8 +245,8 @@ class PageElement:
             if element.pagetype in pagetype:
                 if not attributes or all(element.get_attribute(str(k)) == str(v) for k, v in attributes.items()):
                     found_elements.append(element)
-            if recursive:
-                found_elements.extend(element.find_by_type(pagetype, recursive))
+            if depth != 0:
+                found_elements.extend(element.find_by_type(pagetype, max(-1, depth - 1), **attributes))
         return found_elements
 
     def create_element(self, pagetype: PageType, index: Optional[int] = None, **attributes: str) -> Self:
