@@ -19,7 +19,7 @@ from .search_cli import search_text_cli, search_type_cli
 from .transformation_cli import remove_elements_cli
 
 
-__version__ = "3.1.0"
+__version__ = "3.2.0"
 __prog__ = "pypxml"
 
 click.rich_click.SHOW_ARGUMENTS = True
