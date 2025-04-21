@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Self, Optional, Union
+from typing import Self, Optional, Union, Literal
 from datetime import datetime
 from pathlib import Path
 import importlib.resources
@@ -191,13 +191,8 @@ class PageXML:
     
     @property
     def reading_order(self) -> list[str]:
-        """ Returns the reading order of the page. """
-        return self.__reading_order
-    
-    @reading_order.setter
-    def reading_order(self, order: Optional[list[str]]) -> None:
-        """ Set the reading order of the page. """
-        self.__reading_order = [] if not order else [str(i) for i in order if i is not None]
+        """ Returns a copy of the reading order of the page. """
+        return self.__reading_order.copy()
         
     @property
     def xml(self) -> Optional[Path]:
@@ -254,11 +249,11 @@ class PageXML:
                 pagexml = cls.new(**attributes)
             
             # ReadingOrder
-            if (ro := tree.find("./{*}ReadingOrder")) is not None:
-                if (ro_elements := tree.findall("../{*}RegionRefIndexed")) is not None:
-                    page._ro = list([i.get("regionRef") for i in sorted(list(ro_elements),
-                                                                        key=lambda i: i.get("index"))])
-                tree.remove(ro)
+            if (ro := page.find("./{*}ReadingOrder")) is not None:
+                if (ro_elements := ro.findall(".//{*}RegionRefIndexed")) is not None:
+                    pagexml._PageXML__reading_order = list([e.get("regionRef") for e in sorted(list(ro_elements), 
+                                                                                               key=lambda x: int(x.get("index")))])
+                page.remove(ro)
                 
             # PageElements
             for element in page:
@@ -436,16 +431,22 @@ class PageXML:
         Returns:
             The removed element, if it was found. Else None.
         """
-        if isinstance(element, int) and element < len(self.__elements) - 1:
-            return self.__elements.pop(element)
+        if isinstance(element, int) and element < len(self.__elements):
+            removed = self.__elements.pop(element)
+            if "id" in removed and removed["id"] in self.__reading_order:
+                self.__reading_order.remove(removed["id"])
+            return removed
         elif isinstance(element, PageElement) and element in self.__elements:
             self.__elements.remove(element)
+            if "id" in element and element["id"] in self.__reading_order:
+                self.__reading_order.remove(element["id"])
             return element
         return None
     
     def clear_elements(self) -> None:
         """ Remove all elements from the list of elements. This will not remove the element itself. """
         self.__elements.clear() 
+        self.__reading_order.clear()
     
     def get_attribute(self, key: str) -> Optional[str]:
         """
@@ -483,3 +484,70 @@ class PageXML:
         """ Remove all attributes from the PageXML object. """
         self.__attributes = {}
         
+    def sync_reading_order(self) -> None:
+        """ Sorts the elements based on the reading order """
+        order = {_id: index for index, _id in enumerate(self.__reading_order)}
+        def sort_key(obj: PageElement):
+            if not obj.is_region():  # elements that are not regions (Such as AlternativeImage, ...) comes first
+                return (0, 0)
+            elif "id" in obj and obj["id"] in order:  # the sorted regions come next
+                return (1, order[obj["id"]])
+            else:  # remaining regions at the end
+                return (2, 0)
+        self.__elements.sort(key=sort_key)
+        
+    def set_reading_order(self, reading_order: list[str], sync: bool = False) -> None:
+        """
+        Set the reading order of the PageXML.
+        Args:
+            reading_order: A list of region id's.
+            sync: Resort the order of elements in the PageXML based on the passed reading order. Defaults to False.
+        """
+        self.__reading_order = reading_order
+        if sync:
+            self.sync_reading_order()
+            
+    def create_reading_order(self, overwrite: bool = False):
+        """
+        Creates a new reading order based on the current region order.
+
+        Args:
+            overwrite: If set to True, overwrites an existing reading order. 
+                       False will only create an reading order if the current one empty. Defaults to False.
+        """
+        if not self.__reading_order or overwrite:
+            self.__reading_order = list([e["id"] for e in self.regions if "id" in e])
+        
+    
+    def sort_regions(self, base: Literal["minimum", "maximum", "centroid"] = "minimum",
+                     direction: Literal["top-bottom", "bottom-top", "left-right", "right-left"] = "top-bottom",
+                     sync: bool = True) -> None:
+        """
+        Sort the regions of the PageXML.
+        Args:
+            base: If set to `centroid`, the regions are sorted based on the direction and their centroid. 
+                  If set to `minimum`, the minimum coordinate value in the sort direction is used. 
+                  `Maximum` uses the maximum coordinate value in sort direction. Defaults to "minimum".
+            direction: In which direction the regions are sorted. Defaults to "top-bottom".
+            sync: Resort the actual element order in the PageXML. If set to False, only write to the reading order.
+                  Defaults to True.
+        """
+        def sort_key(obj: PageElement):
+            if not obj.is_region():
+                return (0, 0)
+            elif (coords := obj.find_by_type(PageType.Coords)) and "points" in coords[0]:
+                points = [tuple(map(int, xy.split(','))) for xy in coords[0]["points"].split()]
+                axis = 1 if direction in ["top-bottom", "bottom-top"] else 0
+                if base == "minimum":
+                    key = min(p[axis] for p in points)
+                elif base == "maximum":
+                    key = max(p[axis] for p in points)
+                else:
+                    key = sum(p[axis] for p in points) / len(points)
+                if direction in ["bottom-top", "right-left"]:
+                    return (1, -key)
+                return (1, key) 
+            else:
+                return (2, 0)
+        sorted_elements = sorted(self.__elements, key=sort_key)
+        self.set_reading_order([e["id"] for e in sorted_elements if e.is_region() and "id" in e], sync=sync)
