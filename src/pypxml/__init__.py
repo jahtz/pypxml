@@ -1,3 +1,3 @@
 from .pagexml import PageXML
-from .pagelement import PageElement
+from .pageelement import PageElement
 from .pagetype import PageType
