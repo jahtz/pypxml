@@ -1,5 +1,5 @@
 # PyPXML
-A python library for parsing, converting and modifying PageXML files.
+A python library for parsing, creating and modifying PageXML files.
 
 ## Setup
 >[!NOTE]
@@ -10,7 +10,7 @@ A python library for parsing, converting and modifying PageXML files.
 pip install pypxml
 ```
 
-### Install from source
+### Install upstream frrom source
 1. Clone repository: `git clone https://github.com/jahtz/pypxml`
 2. Install package: `cd pypxml && pip install .`
 

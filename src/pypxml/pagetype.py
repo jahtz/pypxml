@@ -13,11 +13,12 @@
 # limitations under the License.
 
 from enum import Enum
+from typing import Union, Self
 
 
 class PageType(Enum):
     """
-    https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
+    Reference: https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
     """
 
     # ReadingOrder
@@ -172,7 +173,7 @@ class PageType(Enum):
     No official annotation.
     """
     
-    Graphemes = "Graphemes"
+    Grapheme = "Grapheme"
     """
     No official annotation.
     """
@@ -278,27 +279,27 @@ class PageType(Enum):
     """
     No official annotation.
     """
-
-
-def is_valid(value: str) -> bool:
-    """ Returns true if string is a valid PageXML type. """
-    return value in PageType.__members__
-
-
-def is_region(value: str) -> bool:
-    """ Returns true if string is a valid PageXML region type """
-    return value in [PageType.AdvertRegion,
-                     PageType.ChartRegion,
-                     PageType.ChemRegion,
-                     PageType.CustomRegion,
-                     PageType.GraphicRegion,
-                     PageType.ImageRegion,
-                     PageType.LineDrawingRegion,
-                     PageType.MapRegion,
-                     PageType.MathsRegion,
-                     PageType.MusicRegion,
-                     PageType.NoiseRegion,
-                     PageType.SeparatorRegion,
-                     PageType.TableRegion,
-                     PageType.TextRegion,
-                     PageType.UnknownRegion]
+    
+    def __repr__(self):
+        return self.name
+    
+    def __str__(self):
+        return self.name
+    
+    def __eq__(self, other: Union[str, Self]):
+        """ Compare PageType with either another PageType or a string """
+        if isinstance(other, str):
+            return self.value == other
+        return super().__eq__(other)
+    
+    @property
+    def is_region(self):
+        return self.value in ["AdvertRegion", "ChartRegion", "ChemRegion", "CustomRegion", "GraphicRegion", 
+                              "ImageRegion", "LineDrawingRegion", "MapRegion", "MathsRegion", "MusicRegion", 
+                              "NoiseRegion", "SeparatorRegion", "TableRegion", "TextRegion", "UnknownRegion"]
+    
+    @classmethod
+    def is_valid(cls, value: str) -> bool:
+        """ Returns True if the input is a valid PageXML type """
+        return value in cls.__members__
+        
