@@ -14,9 +14,9 @@
 
 import json
 import logging
-import importlib
 from pathlib import Path
 from datetime import datetime, timezone
+import importlib.resources as resources
 from typing import Union, Optional, Literal, Self
 
 from lxml import etree
@@ -61,7 +61,7 @@ class PageXML:
         self.creator: str = "pypxml" if creator is None else str(creator)
         
         # class setters for the equivalent private values
-        self.attributes = attributes  # height, width and filename has higher priority
+        self.attributes = attributes  # height, width and filename have higher priority
         self.height = height
         self.width = width
         self.filename = filename
@@ -303,7 +303,7 @@ class PageXML:
         """
         self.__last_change = datetime.now().isoformat()
         if schema_file is None:
-            schema_file = importlib.resources.files("pypxml").parent.joinpath("resources", "schema.json")
+            schema_file = resources.files("pypxml").parent.joinpath("resources", "schema.json")
         with open(schema_file) as stream:
             schema = json.load(stream)[schema_version]
         xsi_qname = etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")
@@ -311,7 +311,7 @@ class PageXML:
         root = etree.Element( "PcGts", {xsi_qname: schema["xsi_schema_location"]}, nsmap=nsmap)
         # Metadata
         metadata = etree.SubElement(root, "Metadata")
-        etree.SubElement(metadata, "Creator").text = self.__creator
+        etree.SubElement(metadata, "Creator").text = self.creator
         etree.SubElement(metadata, "Created").text = self.__created
         etree.SubElement(metadata, "LastChange").text = self.__last_change
         # Page
@@ -432,7 +432,7 @@ class PageXML:
         """
         if ro and element.is_region and element["id"]:
             if element["id"] in self.__reading_order:
-                raise ValueError(f"id {element["id"]} is already in reading order")
+                raise ValueError(f"id {element['id']} is already in reading order")
             self.__reading_order.insert(index if index is not None else len(self.__reading_order), element["id"])
         self.__elements.insert(index if index is not None else len(self.__elements), element)
         if element.parent is not self:
