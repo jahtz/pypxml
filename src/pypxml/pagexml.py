@@ -20,11 +20,13 @@ import importlib.resources as resources
 from typing import Union, Optional, Literal, Self
 
 from lxml import etree
+from rich.logging import RichHandler
 
 from .pagetype import PageType
 from .pageelement import PageElement
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.ERROR, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(markup=True)])
+logger = logging.getLogger("pagexml")
 
 
 class PageXML:
@@ -143,11 +145,13 @@ class PageXML:
     @height.setter
     def height(self, value: Union[str, int]) -> None:
         """ The height of the image in pixels """
-        if isinstance(value, str):
+        if isinstance(value, (str, int)):
             value = int(value)
-        if value < 0:
-            logger.warning("Negative imageWidth attribute was set to 0")
-        self.__height = max(0, value)
+            if value < 0:
+                logger.warning("Negative imageWidth attribute was set to 0")
+            self.__height = max(0, value)
+        else:
+            raise TypeError(f"Expected a integer or string, got {type(value).__name__}")
     
     @property
     def width(self) -> int:
@@ -157,11 +161,13 @@ class PageXML:
     @width.setter
     def width(self, value: Union[str, int]) -> None:
         """ The width of the image in pixels """
-        if isinstance(value, str):
+        if isinstance(value, (str, int)):
             value = int(value)
-        if value < 0:
-            logger.warning("Negative imageWidth attribute was set to 0")
-        self.__width = max(0, value)
+            if value < 0:
+                logger.warning("Negative imageWidth attribute was set to 0")
+            self.__width = max(0, value)
+        else:
+            raise TypeError(f"Expected a integer or string, got {type(value).__name__}")
         
     @property
     def filename(self) -> str:
@@ -171,7 +177,10 @@ class PageXML:
     @filename.setter
     def filename(self, value: Union[Path, str]) -> None:
         """ The name of the image file including the file extension """
-        self.__filename = value if isinstance(value, str) else value.name
+        if isinstance(value, (Path, str)):
+            self.__filename = value if isinstance(value, str) else value.name
+        else:
+            raise TypeError(f"Expected a Path or string, got {type(value).__name__}") 
         
     @property
     def xml(self) -> Optional[Path]:
@@ -181,7 +190,12 @@ class PageXML:
     @xml.setter
     def xml(self, value: Optional[Union[Path, str]]) -> None:
         """ Optionally, the path to the matching xml file """
-        self.__xml = None if value is None else Path(value).absolute()
+        if value is None:
+            self.__xml = None
+        elif isinstance(value, (Path, str)):
+            self.__xml = Path(value).absolute()
+        else:
+            raise TypeError(f"Expected a Path or string, got {type(value).__name__}") 
     
     @property
     def created(self) -> str:
@@ -340,6 +354,7 @@ class PageXML:
         Returns:
             PageXML object that represents the passed PageXML file.
         """
+        logger.info(f"Parsing {file}")
         parser = etree.XMLParser(remove_blank_text=True, encoding=encoding)
         tree = etree.parse(file, parser).getroot()
         pagexml = cls.from_etree(tree, raise_on_error)
@@ -361,6 +376,7 @@ class PageXML:
             tree = etree.tostring(self.to_etree(schema_version, schema_file), pretty_print=True, encoding=encoding, 
                                   xml_declaration=True)
             f.write(tree)
+        logger.info(f"PageXML written to {file}")
             
     def find_by_id(self, id: str, depth: int = 0) -> Optional[PageElement]:
         """

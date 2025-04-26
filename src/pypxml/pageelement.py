@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import TYPE_CHECKING, Self, Optional, Union
+from typing import TYPE_CHECKING, Self, Optional, Union, Literal
 
 from lxml import etree
 
@@ -21,7 +21,7 @@ from .pagetype import PageType
 if TYPE_CHECKING:
     from .pagexml import PageXML
     
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("pagexml")
     
     
 class PageElement:
@@ -39,6 +39,8 @@ class PageElement:
         Returns:
             An empty PageXML object.
         """
+        if parent.__class__.__name__ not in ("PageXML", "PageElement"):  # PageXML is not imported at runtime
+            raise TypeError(f"Expected a PageXML or PageElement for parent, got {type(parent).__name__}")
         self.__parent: Union["PageXML", PageElement] = parent
         self.__elements: list[PageElement] = []
         self.__text: Optional[str] = None
@@ -113,16 +115,16 @@ class PageElement:
         return self.__pagetype
     
     @pagetype.setter
-    def pagetype(self, pagetype: PageType) -> None:
+    def pagetype(self, pagetype: Union[PageType, str]) -> None:
         """ Type of the PageElement object """
         if isinstance(pagetype, str):
             if not PageType.is_valid(pagetype):
-                raise ValueError("Invalid PageXML element string.")
+                raise ValueError(f"Invalid PageType string: {pagetype}")
             self.__pagetype = PageType[pagetype]
         elif isinstance(pagetype, PageType):
             self.__pagetype = pagetype
         else:
-            raise ValueError("Invalid PageXML element type.")
+            raise TypeError(f"Expected a PageType or string, got {type(pagetype).__name__}")
         
     @property
     def is_region(self) -> bool:
@@ -241,6 +243,55 @@ class PageElement:
             if depth != 0:
                 results.extend(element.find_by_type(pagetype, max(-1, depth - 1), **attributes))
         return results
+    
+    def find_coords(self) -> Optional[Self]:
+        """
+        Find the coords element of the current element.
+        Returns:
+            The PageType.Coords element of the current object if it exists as a direct child.
+        """
+        if self.pagetype == PageType.Coords:
+            return self
+        elif (coords := self.find_by_type(PageType.Coords, depth=0)):
+            return coords[0]
+        return None
+    
+    def find_baseline(self) -> Optional[Self]:
+        """
+        Find the baseline element of the current element.
+        Returns:
+            The PageType.Baseline element of the current object if it exists as a direct child.
+        """
+        if self.pagetype == PageType.Baseline:
+            return self
+        elif (baselines := self.find_by_type(PageType.Baseline, depth=0)):
+            return baselines[0]
+        return None
+    
+    def find_text(self, index: Optional[int] = None, 
+                  source: Literal[PageType.Unicode, PageType.PlainText] = PageType.Unicode) -> Optional[str]:
+        """
+        Find the text of the current element.
+        Args:
+            index: Select a certain TextEquiv element index. If index is not set and multiple TextEquiv elements are 
+                   found, the first one with the lowest or no index is picked. Only applied if the current element is 
+                   a level above the TextEquivs.
+            source: Select, if the text from Unicode or PlainText is picked.
+        Returns:
+            The text of the current element if it was found.
+        """
+        if self.pagetype in [PageType.Unicode, PageType.PlainText]:
+            return self.text
+        if self.pagetype == PageType.TextEquiv:
+            textequivs = [self]
+        else:
+            textequivs = self.find_by_type(PageType.TextEquiv, depth=0, index=index)
+        if len(textequivs) > 1:
+            logger.warning("Multiple TextEquiv elements found. Selecting the element with the lowest index")
+            textequivs.sort(key = lambda x: -1 if "index" not in x else int(x["index"]))
+        if textequivs and (textelement := textequivs[0].find_by_type(source, depth=0)):
+            return textelement[0].text
+        return None
         
     def create_element(self, pagetype: PageType, index: Optional[int] = None, **attributes: str) -> Self:
         """
@@ -283,42 +334,4 @@ class PageElement:
     def clear_elements(self) -> None:
         """ Remove all elements from the list of child elements """
         self.__elements.clear()
-    
-    def find_coords(self) -> Optional[Self]:
-        """
-        Find the coords element.
-        Returns:
-            The PageType.Coords element of the current object if it exists.
-        """
-        if (coords := self.find_by_type(PageType.Coords, depth=0)):
-            if "points" in coords[0]:
-                return coords[0]
-        return None
-    
-    def find_baseline(self) -> Optional[Self]:
-        """
-        Find the baseline element.
-        Returns:
-            The PageType.Baseline element of the current object if it exists.
-        """
-        if (baselines := self.find_by_type(PageType.Baseline, depth=0)):
-            if "points" in baselines[0]:
-                return baselines[0]
-        return None
-    
-    def find_text(self, index: Optional[int] = None) -> Optional[str]:
-        """
-        Find a PageType.TextEquiv element of the current element and return the text of its child 
-        PageType.Unicode element.
-        Args:
-            index: Should be specified if multiple TextEquiv. Defaults to None.
-        Returns:
-            The text of the PageType.Unicode element found in the deepest PageType.TextEquiv element.
-        """
-        text_equivs = self.find_by_type(PageType.TextEquiv, index=index)
-        if len(text_equivs) > 1:
-            logger.warning("Multiple TextEquiv elements found")
-        if text_equivs and (uc := text_equivs[0].find_by_type(PageType.Unicode)):
-            return uc[0].text
-        return None
         
