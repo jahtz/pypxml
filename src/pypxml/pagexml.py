@@ -12,18 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime, timezone
+import importlib.resources as resources
 import json
 import logging
 from pathlib import Path
-from datetime import datetime, timezone
-import importlib.resources as resources
 from typing import Union, Optional, Literal, Self
 
 from lxml import etree
 from rich.logging import RichHandler
 
-from .pagetype import PageType
 from .pageelement import PageElement
+from .pagetype import PageType
+
 
 logging.basicConfig(level=logging.ERROR, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(markup=True)])
 logger = logging.getLogger("pagexml")

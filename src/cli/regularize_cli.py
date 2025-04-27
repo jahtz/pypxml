@@ -15,8 +15,8 @@
 from pathlib import Path
 from typing import Optional
 
-import rich_click as click
 from pypxml import PageXML, PageType
+import rich_click as click
 
 from . import util
 

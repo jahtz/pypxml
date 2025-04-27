@@ -20,7 +20,8 @@ from lxml import etree
 from .pagetype import PageType
 if TYPE_CHECKING:
     from .pagexml import PageXML
-    
+   
+ 
 logger = logging.getLogger("pagexml")
     
     

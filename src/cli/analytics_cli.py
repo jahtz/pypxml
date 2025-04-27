@@ -12,19 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-from pathlib import Path
-from typing import Optional, Literal
 from collections import Counter
-import unicodedata as ud
+from pathlib import Path
 import string
+from typing import Optional, Literal
+import unicodedata as ud
 
-import rich_click as click
 from pypxml import PageXML, PageType
+import rich_click as click
 
 from . import util
-
-logger = logging.getLogger("pagexml")
 
 
 @click.command("get-codec", short_help="Extract the character set from PageXML files.")
