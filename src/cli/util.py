@@ -35,23 +35,23 @@ progress = Progress(TextColumn("[progress.description]{task.description}"),
 
 # Callbacks
 def callback_path(ctx, param, value: Optional[str]) -> Optional[Path]:
-    """ Parse a click path to a pathlib Path object """
+    """ Parses a click path into a pathlib Path object. """
     return None if value is None else Path(value)
 
 def callback_paths(ctx, param, value: Optional[list[str]]) -> list[Path]:
-    """ Parse a list of click paths to a list of pathlib Path objects """
+    """ Parses a list of click paths into a list of pathlib Path objects. """
     return [] if value is None else list([Path(p) for p in value])
 
 def callback_suffix(ctx, param, value: Optional[str]) -> Optional[str]:
-    """ Parses a string to a valid suffix """
+    """ Parses a string into a valid suffix. """
     return None if value is None else (value if value.startswith('.') else f".{value}")
 
 def callback_logging(ctx, param, value: Optional[int]) -> int:
-    """ Returns the logging level based on a verbosity counter (`0`: ERROR, `1`: WARNING, `2`: INFO, `>2`: DEBUG) """
+    """ Returns the logging level based on a verbosity counter ("0": ERROR, "1": WARNING, "2": INFO, ">2": DEBUG). """
     return 40 if value is None else 40 - (min(3, value) * 10)
 
 def callback_pagetype(ctx, param, value: Optional[str]) -> Optional[PageType]:
-    """ Returns a PageType from a string """
+    """ Returns a PageType from a string. """
     if value is None:
         return None
     elif PageType.is_valid(value):
@@ -61,7 +61,7 @@ def callback_pagetype(ctx, param, value: Optional[str]) -> Optional[PageType]:
     
 def callback_region_rules(ctx, param, value: tuple[str]) -> dict[str, tuple[PageType, Optional[str]]]:
     """ 
-    Parses a list or tuple with rule strings to a dictionary (keys are strings of format pagetype.subtype or pagetype 
+    Parses a list or tuple with rule strings into a dictionary (keys are strings of format pagetype.subtype or pagetype 
     and represent the source) and values are tuples of type (PageType, subtype). 
     All PageTypes have to be valid and regions.
     """
@@ -100,7 +100,7 @@ def callback_region_rules(ctx, param, value: tuple[str]) -> dict[str, tuple[Page
 
 # Helper
 def expand_paths(paths: Union[Path, list[Path]], glob: str = '*') -> list[Path]:
-    """Expands a list of paths by unpacking directories."""
+    """ Expands a list of paths by unpacking directories. """
     result = []
     if isinstance(paths, list):
         for path in paths:

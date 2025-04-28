@@ -287,7 +287,6 @@ class PageType(Enum):
         return self.name
     
     def __eq__(self, other: Union[str, Self]):
-        """ Compare PageType with either another PageType or a string """
         if isinstance(other, str):
             return self.value == other
         return super().__eq__(other)
@@ -300,6 +299,5 @@ class PageType(Enum):
     
     @classmethod
     def is_valid(cls, value: str) -> bool:
-        """ Returns True if the input is a valid PageXML type """
         return value in cls.__members__
         

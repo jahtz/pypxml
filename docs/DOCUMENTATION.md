@@ -1,176 +1,180 @@
 # Table of Contents
-- [Table of Contents](#table-of-contents)
-- [pypxml.pagelement](#pypxmlpagelement)
-  - [PageElement Objects](#pageelement-objects)
-      - [\_\_init\_\_](#__init__)
-      - [\_\_str\_\_](#__str__)
-      - [\_\_repr\_\_](#__repr__)
-      - [\_\_len\_\_](#__len__)
-      - [\_\_iter\_\_](#__iter__)
-      - [\_\_next\_\_](#__next__)
-      - [\_\_getitem\_\_](#__getitem__)
-      - [\_\_setitem\_\_](#__setitem__)
-      - [\_\_contains\_\_](#__contains__)
-      - [pagetype](#pagetype)
-      - [pagetype](#pagetype-1)
-      - [parent](#parent)
-      - [attributes](#attributes)
-      - [attributes](#attributes-1)
-      - [elements](#elements)
-      - [text](#text)
-      - [text](#text-1)
-      - [new](#new)
-      - [from\_etree](#from_etree)
-      - [to\_etree](#to_etree)
-      - [find\_by\_id](#find_by_id)
-      - [find\_by\_type](#find_by_type)
-      - [create\_element](#create_element)
-      - [get\_element](#get_element)
-      - [set\_element](#set_element)
-      - [remove\_element](#remove_element)
-      - [clear\_elements](#clear_elements)
-      - [get\_attribute](#get_attribute)
-      - [set\_attribute](#set_attribute)
-      - [remove\_attribute](#remove_attribute)
-      - [clear\_attributes](#clear_attributes)
-      - [is\_region](#is_region)
-- [pypxml.pagetype](#pypxmlpagetype)
-  - [PageType Objects](#pagetype-objects)
-      - [ReadingOrder](#readingorder)
-      - [RegionRef](#regionref)
-      - [OrderedGroup](#orderedgroup)
-      - [UnorderedGroup](#unorderedgroup)
-      - [OrderedGroupIndexed](#orderedgroupindexed)
-      - [UnorderedGroupIndexed](#unorderedgroupindexed)
-      - [RegionRefIndexed](#regionrefindexed)
-      - [AdvertRegion](#advertregion)
-      - [ChartRegion](#chartregion)
-      - [ChemRegion](#chemregion)
-      - [CustomRegion](#customregion)
-      - [GraphicRegion](#graphicregion)
-      - [ImageRegion](#imageregion)
-      - [LineDrawingRegion](#linedrawingregion)
-      - [MapRegion](#mapregion)
-      - [MathsRegion](#mathsregion)
-      - [MusicRegion](#musicregion)
-      - [NoiseRegion](#noiseregion)
-      - [SeparatorRegion](#separatorregion)
-      - [TableRegion](#tableregion)
-      - [TextRegion](#textregion)
-      - [UnknownRegion](#unknownregion)
-      - [AlternativeImage](#alternativeimage)
-      - [Baseline](#baseline)
-      - [Border](#border)
-      - [Coords](#coords)
-      - [Glyph](#glyph)
-      - [GraphemeGroup](#graphemegroup)
-      - [Graphemes](#graphemes)
-      - [Grid](#grid)
-      - [GridPoints](#gridpoints)
-      - [Label](#label)
-      - [Labels](#labels)
-      - [Layer](#layer)
-      - [Layers](#layers)
-      - [Metadata](#metadata)
-      - [NonPrintingChar](#nonprintingchar)
-      - [PlainText](#plaintext)
-      - [PrintSpace](#printspace)
-      - [Relations](#relations)
-      - [Roles](#roles)
-      - [TextEquiv](#textequiv)
-      - [TextLine](#textline)
-      - [TextStyle](#textstyle)
-      - [Unicode](#unicode)
-      - [UserAttribute](#userattribute)
-      - [UserDefined](#userdefined)
-      - [Word](#word)
-      - [is\_valid](#is_valid)
-      - [is\_region](#is_region-1)
-- [pypxml.pagexml](#pypxmlpagexml)
-  - [PageXML Objects](#pagexml-objects)
-      - [\_\_init\_\_](#__init__-1)
-      - [\_\_str\_\_](#__str__-1)
-      - [\_\_repr\_\_](#__repr__-1)
-      - [\_\_len\_\_](#__len__-1)
-      - [\_\_iter\_\_](#__iter__-1)
-      - [\_\_next\_\_](#__next__-1)
-      - [\_\_getitem\_\_](#__getitem__-1)
-      - [\_\_setitem\_\_](#__setitem__-1)
-      - [\_\_contains\_\_](#__contains__-1)
-      - [creator](#creator)
-      - [creator](#creator-1)
-      - [created](#created)
-      - [created](#created-1)
-      - [changed](#changed)
-      - [changed](#changed-1)
-      - [attributes](#attributes-2)
-      - [attributes](#attributes-3)
-      - [elements](#elements-1)
-      - [regions](#regions)
-      - [reading\_order](#reading_order)
-      - [reading\_order](#reading_order-1)
-      - [xml](#xml)
-      - [xml](#xml-1)
-      - [new](#new-1)
-      - [from\_etree](#from_etree-1)
-      - [from\_file](#from_file)
-      - [to\_etree](#to_etree-1)
-      - [to\_file](#to_file)
-      - [find\_by\_id](#find_by_id-1)
-      - [find\_by\_type](#find_by_type-1)
-      - [create\_element](#create_element-1)
-      - [get\_element](#get_element-1)
-      - [set\_element](#set_element-1)
-      - [remove\_element](#remove_element-1)
-      - [clear\_elements](#clear_elements-1)
-      - [get\_attribute](#get_attribute-1)
-      - [set\_attribute](#set_attribute-1)
-      - [remove\_attribute](#remove_attribute-1)
-      - [clear\_attributes](#clear_attributes-1)
 
-<a id="pypxml.pagelement"></a>
+* [pypxml.pagexml](#pypxml.pagexml)
+  * [PageXML](#pypxml.pagexml.PageXML)
+    * [\_\_init\_\_](#pypxml.pagexml.PageXML.__init__)
+    * [\_\_repr\_\_](#pypxml.pagexml.PageXML.__repr__)
+    * [\_\_str\_\_](#pypxml.pagexml.PageXML.__str__)
+    * [\_\_len\_\_](#pypxml.pagexml.PageXML.__len__)
+    * [\_\_iter\_\_](#pypxml.pagexml.PageXML.__iter__)
+    * [\_\_next\_\_](#pypxml.pagexml.PageXML.__next__)
+    * [\_\_getitem\_\_](#pypxml.pagexml.PageXML.__getitem__)
+    * [\_\_setitem\_\_](#pypxml.pagexml.PageXML.__setitem__)
+    * [\_\_contains\_\_](#pypxml.pagexml.PageXML.__contains__)
+    * [height](#pypxml.pagexml.PageXML.height)
+    * [height](#pypxml.pagexml.PageXML.height)
+    * [width](#pypxml.pagexml.PageXML.width)
+    * [width](#pypxml.pagexml.PageXML.width)
+    * [filename](#pypxml.pagexml.PageXML.filename)
+    * [filename](#pypxml.pagexml.PageXML.filename)
+    * [xml](#pypxml.pagexml.PageXML.xml)
+    * [xml](#pypxml.pagexml.PageXML.xml)
+    * [created](#pypxml.pagexml.PageXML.created)
+    * [created](#pypxml.pagexml.PageXML.created)
+    * [last\_change](#pypxml.pagexml.PageXML.last_change)
+    * [last\_change](#pypxml.pagexml.PageXML.last_change)
+    * [attributes](#pypxml.pagexml.PageXML.attributes)
+    * [attributes](#pypxml.pagexml.PageXML.attributes)
+    * [reading\_order](#pypxml.pagexml.PageXML.reading_order)
+    * [elements](#pypxml.pagexml.PageXML.elements)
+    * [regions](#pypxml.pagexml.PageXML.regions)
+    * [from\_etree](#pypxml.pagexml.PageXML.from_etree)
+    * [to\_etree](#pypxml.pagexml.PageXML.to_etree)
+    * [from\_file](#pypxml.pagexml.PageXML.from_file)
+    * [to\_file](#pypxml.pagexml.PageXML.to_file)
+    * [find\_by\_id](#pypxml.pagexml.PageXML.find_by_id)
+    * [find\_by\_type](#pypxml.pagexml.PageXML.find_by_type)
+    * [create\_element](#pypxml.pagexml.PageXML.create_element)
+    * [set\_element](#pypxml.pagexml.PageXML.set_element)
+    * [delete\_element](#pypxml.pagexml.PageXML.delete_element)
+    * [clear\_elements](#pypxml.pagexml.PageXML.clear_elements)
+    * [apply\_reading\_order](#pypxml.pagexml.PageXML.apply_reading_order)
+    * [create\_reading\_order](#pypxml.pagexml.PageXML.create_reading_order)
+    * [clear\_reading\_order](#pypxml.pagexml.PageXML.clear_reading_order)
+    * [set\_reading\_order](#pypxml.pagexml.PageXML.set_reading_order)
+    * [sort\_reading\_order](#pypxml.pagexml.PageXML.sort_reading_order)
+* [pypxml.pageelement](#pypxml.pageelement)
+  * [PageElement](#pypxml.pageelement.PageElement)
+    * [\_\_init\_\_](#pypxml.pageelement.PageElement.__init__)
+    * [\_\_repr\_\_](#pypxml.pageelement.PageElement.__repr__)
+    * [\_\_str\_\_](#pypxml.pageelement.PageElement.__str__)
+    * [\_\_len\_\_](#pypxml.pageelement.PageElement.__len__)
+    * [\_\_iter\_\_](#pypxml.pageelement.PageElement.__iter__)
+    * [\_\_next\_\_](#pypxml.pageelement.PageElement.__next__)
+    * [\_\_getitem\_\_](#pypxml.pageelement.PageElement.__getitem__)
+    * [\_\_setitem\_\_](#pypxml.pageelement.PageElement.__setitem__)
+    * [\_\_contains\_\_](#pypxml.pageelement.PageElement.__contains__)
+    * [pagetype](#pypxml.pageelement.PageElement.pagetype)
+    * [pagetype](#pypxml.pageelement.PageElement.pagetype)
+    * [is\_region](#pypxml.pageelement.PageElement.is_region)
+    * [parent](#pypxml.pageelement.PageElement.parent)
+    * [attributes](#pypxml.pageelement.PageElement.attributes)
+    * [attributes](#pypxml.pageelement.PageElement.attributes)
+    * [elements](#pypxml.pageelement.PageElement.elements)
+    * [text](#pypxml.pageelement.PageElement.text)
+    * [text](#pypxml.pageelement.PageElement.text)
+    * [from\_etree](#pypxml.pageelement.PageElement.from_etree)
+    * [to\_etree](#pypxml.pageelement.PageElement.to_etree)
+    * [find\_by\_id](#pypxml.pageelement.PageElement.find_by_id)
+    * [find\_by\_type](#pypxml.pageelement.PageElement.find_by_type)
+    * [find\_coords](#pypxml.pageelement.PageElement.find_coords)
+    * [find\_baseline](#pypxml.pageelement.PageElement.find_baseline)
+    * [find\_text](#pypxml.pageelement.PageElement.find_text)
+    * [create\_element](#pypxml.pageelement.PageElement.create_element)
+    * [set\_element](#pypxml.pageelement.PageElement.set_element)
+    * [delete\_element](#pypxml.pageelement.PageElement.delete_element)
+    * [clear\_elements](#pypxml.pageelement.PageElement.clear_elements)
+* [pypxml.pagetype](#pypxml.pagetype)
+  * [PageType](#pypxml.pagetype.PageType)
+    * [ReadingOrder](#pypxml.pagetype.PageType.ReadingOrder)
+    * [RegionRef](#pypxml.pagetype.PageType.RegionRef)
+    * [OrderedGroup](#pypxml.pagetype.PageType.OrderedGroup)
+    * [UnorderedGroup](#pypxml.pagetype.PageType.UnorderedGroup)
+    * [OrderedGroupIndexed](#pypxml.pagetype.PageType.OrderedGroupIndexed)
+    * [UnorderedGroupIndexed](#pypxml.pagetype.PageType.UnorderedGroupIndexed)
+    * [RegionRefIndexed](#pypxml.pagetype.PageType.RegionRefIndexed)
+    * [AdvertRegion](#pypxml.pagetype.PageType.AdvertRegion)
+    * [ChartRegion](#pypxml.pagetype.PageType.ChartRegion)
+    * [ChemRegion](#pypxml.pagetype.PageType.ChemRegion)
+    * [CustomRegion](#pypxml.pagetype.PageType.CustomRegion)
+    * [GraphicRegion](#pypxml.pagetype.PageType.GraphicRegion)
+    * [ImageRegion](#pypxml.pagetype.PageType.ImageRegion)
+    * [LineDrawingRegion](#pypxml.pagetype.PageType.LineDrawingRegion)
+    * [MapRegion](#pypxml.pagetype.PageType.MapRegion)
+    * [MathsRegion](#pypxml.pagetype.PageType.MathsRegion)
+    * [MusicRegion](#pypxml.pagetype.PageType.MusicRegion)
+    * [NoiseRegion](#pypxml.pagetype.PageType.NoiseRegion)
+    * [SeparatorRegion](#pypxml.pagetype.PageType.SeparatorRegion)
+    * [TableRegion](#pypxml.pagetype.PageType.TableRegion)
+    * [TextRegion](#pypxml.pagetype.PageType.TextRegion)
+    * [UnknownRegion](#pypxml.pagetype.PageType.UnknownRegion)
+    * [AlternativeImage](#pypxml.pagetype.PageType.AlternativeImage)
+    * [Baseline](#pypxml.pagetype.PageType.Baseline)
+    * [Border](#pypxml.pagetype.PageType.Border)
+    * [Coords](#pypxml.pagetype.PageType.Coords)
+    * [Glyph](#pypxml.pagetype.PageType.Glyph)
+    * [GraphemeGroup](#pypxml.pagetype.PageType.GraphemeGroup)
+    * [Grapheme](#pypxml.pagetype.PageType.Grapheme)
+    * [Grid](#pypxml.pagetype.PageType.Grid)
+    * [GridPoints](#pypxml.pagetype.PageType.GridPoints)
+    * [Label](#pypxml.pagetype.PageType.Label)
+    * [Labels](#pypxml.pagetype.PageType.Labels)
+    * [Layer](#pypxml.pagetype.PageType.Layer)
+    * [Layers](#pypxml.pagetype.PageType.Layers)
+    * [Metadata](#pypxml.pagetype.PageType.Metadata)
+    * [NonPrintingChar](#pypxml.pagetype.PageType.NonPrintingChar)
+    * [PlainText](#pypxml.pagetype.PageType.PlainText)
+    * [PrintSpace](#pypxml.pagetype.PageType.PrintSpace)
+    * [Relations](#pypxml.pagetype.PageType.Relations)
+    * [Roles](#pypxml.pagetype.PageType.Roles)
+    * [TextEquiv](#pypxml.pagetype.PageType.TextEquiv)
+    * [TextLine](#pypxml.pagetype.PageType.TextLine)
+    * [TextStyle](#pypxml.pagetype.PageType.TextStyle)
+    * [Unicode](#pypxml.pagetype.PageType.Unicode)
+    * [UserAttribute](#pypxml.pagetype.PageType.UserAttribute)
+    * [UserDefined](#pypxml.pagetype.PageType.UserDefined)
+    * [Word](#pypxml.pagetype.PageType.Word)
 
-# pypxml.pagelement
+<a id="pypxml.pagexml"></a>
 
-<a id="pypxml.pagelement.PageElement"></a>
+# pypxml.pagexml
 
-## PageElement Objects
+<a id="pypxml.pagexml.PageXML"></a>
+
+## PageXML Objects
 
 ```python
-class PageElement()
+class PageXML()
 ```
 
-PageXML Element class.
+Represents a PageXML file and the "Page" element.
 
-<a id="pypxml.pagelement.PageElement.__init__"></a>
+<a id="pypxml.pagexml.PageXML.__init__"></a>
 
 #### \_\_init\_\_
 
 ```python
-def __init__(pagetype: PageType, parent: Union["PageXML", Self],
-             **attributes: str)
+def __init__(height: Union[str, int],
+             width: Union[str, int],
+             filename: Union[Path, str],
+             xml: Optional[Union[str, Path]] = None,
+             creator: str = "pypxml",
+             created: Optional[Union[str, datetime]] = None,
+             last_change: Optional[Union[str, datetime]] = None,
+             **attributes: str) -> Self
 ```
 
-PLEASE USE THE .new() METHOD TO CREATE A NEW PAGEELEMENT OBJECT.
-This constructor is only for internal use.
+Create a new empty PageXML object.
 
 **Arguments**:
 
-- `pagetype` - The type of the page element.
-- `parent` - The parent element of the page element.
-- `attributes` - Named arguments which represent the attributes of the `PageElement` object.
+- `height` - The height of the image in pixels.
+- `width` - The width of the image in pixels.
+- `filename` - The name of the image file, including the file extension.
+  If a Path object is provided, only the filename is used.
+- `xml` - Optionally, the path to the matching XML file can be provided. Defaults to None.
+- `creator` - The creator of the PageXML. Defaults to "pypxml".
+- `created` - The timestamp (ISO 8601) of the creation of the PageXML file. The timestamp must be in UTC
+  (Coordinated Universal Time) and not local time. Defaults to the current time.
+- `last_change` - The timestamp (ISO 8601) of the last change. The timestamp must be in UTC
+  (Coordinated Universal Time) and not local time. Defaults to the current time.
+- `attributes` - Named arguments that represent the optional attributes of the "Page" element.
 
-<a id="pypxml.pagelement.PageElement.__str__"></a>
+**Returns**:
 
-#### \_\_str\_\_
+  An empty PageXML object.
 
-```python
-def __str__() -> str
-```
-
-Returns the string representation of the PageElement object.
-
-<a id="pypxml.pagelement.PageElement.__repr__"></a>
+<a id="pypxml.pagexml.PageXML.__repr__"></a>
 
 #### \_\_repr\_\_
 
@@ -178,9 +182,19 @@ Returns the string representation of the PageElement object.
 def __repr__() -> str
 ```
 
-Returns the string representation of the PageElement object.
+Returns a text representation of the object for debugging.
 
-<a id="pypxml.pagelement.PageElement.__len__"></a>
+<a id="pypxml.pagexml.PageXML.__str__"></a>
+
+#### \_\_str\_\_
+
+```python
+def __str__() -> str
+```
+
+Returns a text representation of the object for printing.
+
+<a id="pypxml.pagexml.PageXML.__len__"></a>
 
 #### \_\_len\_\_
 
@@ -188,114 +202,212 @@ Returns the string representation of the PageElement object.
 def __len__() -> int
 ```
 
-Returns the number elements in this element.
+Returns the number of child elements of this object (excluding the reading order).
 
-<a id="pypxml.pagelement.PageElement.__iter__"></a>
+<a id="pypxml.pagexml.PageXML.__iter__"></a>
 
 #### \_\_iter\_\_
 
 ```python
-def __iter__() -> Self
+def __iter__() -> PageElement
 ```
 
-Iterate over all elements in this element.
+Iterates over all child elements of this object.
 
-<a id="pypxml.pagelement.PageElement.__next__"></a>
+<a id="pypxml.pagexml.PageXML.__next__"></a>
 
 #### \_\_next\_\_
 
 ```python
-def __next__() -> Self
+def __next__() -> PageElement
 ```
 
-Yield next element.
+Yields the next element.
 
-<a id="pypxml.pagelement.PageElement.__getitem__"></a>
+<a id="pypxml.pagexml.PageXML.__getitem__"></a>
 
 #### \_\_getitem\_\_
 
 ```python
-def __getitem__(key: Union[int, str]) -> Optional[Union[Self, str]]
+def __getitem__(key: str) -> Optional[str]
 ```
 
-Get an PageElement object by its index or an attribute value by its key
+Gets an attribute value by its key.
 
 **Arguments**:
 
-- `key` - Index (integer) of an PageElement object or a key (string) of an attribute.
+- `key` - The key of an attribute.
 
 **Returns**:
 
-  The PageElement of passed index (returns last object if the key is out of range) or the value of the
-  selected attribute. Returns None, if no match was found.
+  The value of the selected attribute. Returns None if no match is found.
 
-<a id="pypxml.pagelement.PageElement.__setitem__"></a>
+<a id="pypxml.pagexml.PageXML.__setitem__"></a>
 
 #### \_\_setitem\_\_
 
 ```python
-def __setitem__(key: Union[int, str], value: Union[Self, str]) -> None
+def __setitem__(key: str, value: Optional[str]) -> None
 ```
 
-Set an PageElement object or an attribute value.
+Sets an attribute value.
 
 **Arguments**:
 
-- `key` - Index (integer) for an PageElement object or a key (string) for an attribute.
-- `value` - PageElement object (if key is of type integer) or a string (if key is of type string).
+- `key` - The key of the attribute.
+- `value` - The value of the attribute. If the value is None, the attribute is removed.
 
-<a id="pypxml.pagelement.PageElement.__contains__"></a>
+<a id="pypxml.pagexml.PageXML.__contains__"></a>
 
 #### \_\_contains\_\_
 
 ```python
-def __contains__(key: Union[Self, str]) -> bool
+def __contains__(key: Union[PageElement, str]) -> bool
 ```
 
-Checks if an PageElement object or an attribute exists.
+Checks if a child element or an attribute exists.
 
 **Arguments**:
 
-- `key` - PageElement object or attribute key.
+- `key` - A child element or attribute key.
 
 **Returns**:
 
-  True, if either the passed PageElement object or the attribute exists. Else return False.
+  True if the passed child element or attribute exists.
 
-<a id="pypxml.pagelement.PageElement.pagetype"></a>
+<a id="pypxml.pagexml.PageXML.height"></a>
 
-#### pagetype
-
-```python
-@property
-def pagetype() -> PageType
-```
-
-Get the type of the page element.
-
-<a id="pypxml.pagelement.PageElement.pagetype"></a>
-
-#### pagetype
-
-```python
-@pagetype.setter
-def pagetype(pagetype: PageType) -> None
-```
-
-Set the type of the page element.
-
-<a id="pypxml.pagelement.PageElement.parent"></a>
-
-#### parent
+#### height
 
 ```python
 @property
-def parent() -> Union["PageXML", Self]
+def height() -> int
 ```
 
-Get the parent of the page element.
+The height of the image in pixels.
 
-<a id="pypxml.pagelement.PageElement.attributes"></a>
+<a id="pypxml.pagexml.PageXML.height"></a>
+
+#### height
+
+```python
+@height.setter
+def height(value: Union[str, int]) -> None
+```
+
+Sets the height of the image in pixels.
+
+<a id="pypxml.pagexml.PageXML.width"></a>
+
+#### width
+
+```python
+@property
+def width() -> int
+```
+
+The width of the image in pixels.
+
+<a id="pypxml.pagexml.PageXML.width"></a>
+
+#### width
+
+```python
+@width.setter
+def width(value: Union[str, int]) -> None
+```
+
+Sets the width of the image in pixels.
+
+<a id="pypxml.pagexml.PageXML.filename"></a>
+
+#### filename
+
+```python
+@property
+def filename() -> str
+```
+
+The name of the image file, including the file extension.
+
+<a id="pypxml.pagexml.PageXML.filename"></a>
+
+#### filename
+
+```python
+@filename.setter
+def filename(value: Union[Path, str]) -> None
+```
+
+Sets the name of the image file, including the file extension.
+
+<a id="pypxml.pagexml.PageXML.xml"></a>
+
+#### xml
+
+```python
+@property
+def xml() -> Optional[Path]
+```
+
+Optionally, the path to the matching XML file.
+
+<a id="pypxml.pagexml.PageXML.xml"></a>
+
+#### xml
+
+```python
+@xml.setter
+def xml(value: Optional[Union[Path, str]]) -> None
+```
+
+Sets the path to the matching XML file.
+
+<a id="pypxml.pagexml.PageXML.created"></a>
+
+#### created
+
+```python
+@property
+def created() -> str
+```
+
+The timestamp (ISO 8601) of the creation of the PageXML file.
+
+<a id="pypxml.pagexml.PageXML.created"></a>
+
+#### created
+
+```python
+@created.setter
+def created(value: Optional[Union[str, datetime]]) -> None
+```
+
+Sets the timestamp (ISO 8601) of the creation of the PageXML file.
+
+<a id="pypxml.pagexml.PageXML.last_change"></a>
+
+#### last\_change
+
+```python
+@property
+def last_change() -> str
+```
+
+The timestamp (ISO 8601) of the last change.
+
+<a id="pypxml.pagexml.PageXML.last_change"></a>
+
+#### last\_change
+
+```python
+@last_change.setter
+def last_change(value: Optional[Union[str, datetime]]) -> None
+```
+
+Sets the timestamp (ISO 8601) of the last change.
+
+<a id="pypxml.pagexml.PageXML.attributes"></a>
 
 #### attributes
 
@@ -304,20 +416,539 @@ Get the parent of the page element.
 def attributes() -> dict[str, str]
 ```
 
-Get the attributes of the page element.
+Gets a copy of the attributes of the page element.
 
-<a id="pypxml.pagelement.PageElement.attributes"></a>
+<a id="pypxml.pagexml.PageXML.attributes"></a>
 
 #### attributes
 
 ```python
 @attributes.setter
-def attributes(attributes: dict[str, str]) -> None
+def attributes(attributes: Optional[dict[str, str]]) -> None
 ```
 
-Set the attributes of the page element.
+Sets the attributes of the page element.
 
-<a id="pypxml.pagelement.PageElement.elements"></a>
+<a id="pypxml.pagexml.PageXML.reading_order"></a>
+
+#### reading\_order
+
+```python
+@property
+def reading_order() -> list[str]
+```
+
+Returns a copy of the reading order of the page.
+
+<a id="pypxml.pagexml.PageXML.elements"></a>
+
+#### elements
+
+```python
+@property
+def elements() -> list[PageElement]
+```
+
+Returns a copy of the list of child elements.
+
+<a id="pypxml.pagexml.PageXML.regions"></a>
+
+#### regions
+
+```python
+@property
+def regions() -> list[PageElement]
+```
+
+Returns a copy of the list of child regions.
+
+<a id="pypxml.pagexml.PageXML.from_etree"></a>
+
+#### from\_etree
+
+```python
+@classmethod
+def from_etree(cls, tree: etree.Element, raise_on_error: bool = True) -> Self
+```
+
+Creates a new PageXML object from an lxml etree object.
+
+**Arguments**:
+
+- `tree` - An lxml etree object.
+- `raise_on_error` - If set to False, parsing errors are ignored. Defaults to True.
+
+**Raises**:
+
+- `ValueError` - If the element is not a valid PageXML element and raise_on_error is True.
+
+**Returns**:
+
+  A PageXML object that represents the passed etree element.
+
+<a id="pypxml.pagexml.PageXML.to_etree"></a>
+
+#### to\_etree
+
+```python
+def to_etree(schema_version: str = "2019",
+             schema_file: Optional[Union[Path, str]] = None) -> etree.Element
+```
+
+Returns the PageXML object as an lxml etree object.
+
+**Arguments**:
+
+- `schema_version` - The schema version to use. Available by default: "2017", "2019". Defaults to "2019".
+- `schema_file` - A custom schema JSON file (see documentation for further information). Defaults to None.
+
+**Returns**:
+
+  An lxml etree object that represents the PageXML object.
+
+<a id="pypxml.pagexml.PageXML.from_file"></a>
+
+#### from\_file
+
+```python
+@classmethod
+def from_file(cls,
+              file: Union[Path, str],
+              encoding: str = "utf-8",
+              raise_on_error: bool = True) -> Self
+```
+
+Creates a new PageXML object from a PageXML file.
+
+**Arguments**:
+
+- `file` - The path of the PageXML file.
+- `encoding` - Custom encoding. Defaults to "utf-8".
+- `raise_on_error` - If set to False, parsing errors are ignored. Defaults to True.
+
+**Returns**:
+
+  A PageXML object that represents the passed PageXML file.
+
+<a id="pypxml.pagexml.PageXML.to_file"></a>
+
+#### to\_file
+
+```python
+def to_file(file: Union[Path, str],
+            encoding="utf-8",
+            schema_version: str = "2019",
+            schema_file: Optional[Union[Path, str]] = None) -> None
+```
+
+Writes the PageXML object to a file.
+
+**Arguments**:
+
+- `file` - The file path to write the PageXML object to.
+- `encoding` - Custom encoding. Defaults to "utf-8".
+- `schema_version` - The schema version to use. Available by default: "2017", "2019". Defaults to "2019".
+- `schema_file` - A custom schema JSON file (see documentation for further information). Defaults to None.
+
+<a id="pypxml.pagexml.PageXML.find_by_id"></a>
+
+#### find\_by\_id
+
+```python
+def find_by_id(id: str, depth: int = 0) -> Optional[PageElement]
+```
+
+Finds a child element by its ID.
+
+**Arguments**:
+
+- `id` - The ID of the element to find.
+- `depth` - The depth level of the search.
+  "0" searches only the current level.
+  "-1" searches all levels recursively (no depth limit).
+  ">0" limits the search to the specified number of levels deep.
+
+**Returns**:
+
+  The PageElement object with the given ID. Returns None if no match is found.
+
+<a id="pypxml.pagexml.PageXML.find_by_type"></a>
+
+#### find\_by\_type
+
+```python
+def find_by_type(pagetype: Union[PageType, list[PageType]],
+                 depth: int = 0,
+                 **attributes: str) -> list[PageElement]
+```
+
+Finds elements by their type.
+
+**Arguments**:
+
+- `pagetype` - The type of the elements to find.
+- `depth` - The depth level of the search.
+  "0" searches only the current level.
+  "-1" searches all levels recursively (no depth limit).
+  ">0" limits the search to the specified number of levels deep.
+- `attributes` - Named arguments representing the attributes that the found elements must have.
+
+**Returns**:
+
+  A list of PageElement objects with the given type. Returns an empty list if no match is found.
+
+<a id="pypxml.pagexml.PageXML.create_element"></a>
+
+#### create\_element
+
+```python
+def create_element(pagetype: PageType,
+                   index: Optional[int] = None,
+                   **attributes: str) -> PageElement
+```
+
+Creates a new child element and adds it to the list of elements.
+
+**Arguments**:
+
+- `pagetype` - The PageType of the new child element.
+- `index` - If set, inserts the new element at this index. Otherwise, appends it to the list. Defaults to None.
+- `attributes` - Named arguments that represent the attributes of the "PageElement" object.
+
+**Returns**:
+
+  The newly created child element.
+
+<a id="pypxml.pagexml.PageXML.set_element"></a>
+
+#### set\_element
+
+```python
+def set_element(element: PageElement,
+                index: Optional[int] = None,
+                ro: bool = True) -> None
+```
+
+Adds an existing PageElement object to the list of elements.
+
+**Arguments**:
+
+- `element` - The PageElement to add.
+- `index` - If set, inserts the element at this index. Otherwise, appends it to the list. Defaults to None.
+- `ro` - If set to True, adds the element to the reading order at the specified index.
+  Only applies if the element is a region.
+
+<a id="pypxml.pagexml.PageXML.delete_element"></a>
+
+#### delete\_element
+
+```python
+def delete_element(element: PageElement) -> Optional[PageElement]
+```
+
+Removes an element from the list of child elements.
+
+**Arguments**:
+
+- `element` - The PageElement to remove.
+
+**Returns**:
+
+  The removed element if it was found. Otherwise, None.
+
+<a id="pypxml.pagexml.PageXML.clear_elements"></a>
+
+#### clear\_elements
+
+```python
+def clear_elements() -> None
+```
+
+Removes all elements from the list of child elements. This also clears the reading order.
+
+<a id="pypxml.pagexml.PageXML.apply_reading_order"></a>
+
+#### apply\_reading\_order
+
+```python
+def apply_reading_order() -> None
+```
+
+Sorts the child elements based on the current reading order.
+
+Non-region elements are placed first, followed by regions according to the reading order.
+Regions not included in the reading order are placed last.
+
+<a id="pypxml.pagexml.PageXML.create_reading_order"></a>
+
+#### create\_reading\_order
+
+```python
+def create_reading_order(force: bool = False) -> None
+```
+
+Creates a new reading order based on the current element sequence.
+
+**Arguments**:
+
+- `force` - If True, overwrites any existing reading order. If False, only creates a new reading order if none
+  currently exists. Defaults to False.
+
+<a id="pypxml.pagexml.PageXML.clear_reading_order"></a>
+
+#### clear\_reading\_order
+
+```python
+def clear_reading_order() -> None
+```
+
+Removes all elements from the reading order without deleting the actual elements.
+
+<a id="pypxml.pagexml.PageXML.set_reading_order"></a>
+
+#### set\_reading\_order
+
+```python
+def set_reading_order(reading_order: Optional[list[str]],
+                      sync: bool = True) -> None
+```
+
+Updates the reading order of regions in the PageXML document.
+
+**Arguments**:
+
+- `reading_order` - A list of region IDs defining the desired reading order. If an empty list or None is
+  provided, the reading order is cleared. (Note: Validity of IDs is not checked.)
+- `sync` - If True, orders the elements in the PageXML based on the passed reading order. Defaults to True.
+
+<a id="pypxml.pagexml.PageXML.sort_reading_order"></a>
+
+#### sort\_reading\_order
+
+```python
+def sort_reading_order(base: Literal["minimum", "maximum",
+                                     "centroid"] = "minimum",
+                       direction: Literal["top-bottom", "bottom-top",
+                                          "left-right",
+                                          "right-left"] = "top-bottom",
+                       sync: bool = True) -> None
+```
+
+Sorts the regions in the PageXML document by their location on the page.
+
+**Arguments**:
+
+- `base` - The method for determining the reference point used for sorting:
+  "minimum" sorts by the minimum coordinate value in the given direction.
+  "maximum" sorts by the maximum coordinate value in the given direction.
+  "centroid" sorts by the centroid position of each region. Defaults to "minimum".
+- `direction` - The primary direction in which regions are sorted. Defaults to "top-bottom".
+- `sync` - If True, also reorders the physical sequence of region elements in the PageXML. If False, only updates
+  the reading order element without changing the actual XML element order. Defaults to True.
+
+<a id="pypxml.pageelement"></a>
+
+# pypxml.pageelement
+
+<a id="pypxml.pageelement.PageElement"></a>
+
+## PageElement Objects
+
+```python
+class PageElement()
+```
+
+Represents a PageXML element within the "Page" element.
+
+<a id="pypxml.pageelement.PageElement.__init__"></a>
+
+#### \_\_init\_\_
+
+```python
+def __init__(pagetype: PageType, parent: Union["PageXML", Self],
+             **attributes: str) -> Self
+```
+
+Creates a new empty PageElement object.
+
+**Arguments**:
+
+- `pagetype` - The type of the PageElement.
+- `parent` - The parent element of the page element.
+- `attributes` - Named arguments that represent the attributes of the "PageElement" object.
+
+**Returns**:
+
+  An empty PageElement object.
+
+<a id="pypxml.pageelement.PageElement.__repr__"></a>
+
+#### \_\_repr\_\_
+
+```python
+def __repr__() -> str
+```
+
+Returns a text representation of the object for debugging.
+
+<a id="pypxml.pageelement.PageElement.__str__"></a>
+
+#### \_\_str\_\_
+
+```python
+def __str__() -> str
+```
+
+Returns a text representation of the object for printing.
+
+<a id="pypxml.pageelement.PageElement.__len__"></a>
+
+#### \_\_len\_\_
+
+```python
+def __len__() -> int
+```
+
+Returns the number of child elements of this object.
+
+<a id="pypxml.pageelement.PageElement.__iter__"></a>
+
+#### \_\_iter\_\_
+
+```python
+def __iter__() -> Self
+```
+
+Iterates over all child elements of this object.
+
+<a id="pypxml.pageelement.PageElement.__next__"></a>
+
+#### \_\_next\_\_
+
+```python
+def __next__() -> Self
+```
+
+Yields the next element.
+
+<a id="pypxml.pageelement.PageElement.__getitem__"></a>
+
+#### \_\_getitem\_\_
+
+```python
+def __getitem__(key: str) -> Optional[str]
+```
+
+Gets an attribute value by its key.
+
+**Arguments**:
+
+- `key` - The key of an attribute.
+
+**Returns**:
+
+  The value of the selected attribute. Returns None if no match is found.
+
+<a id="pypxml.pageelement.PageElement.__setitem__"></a>
+
+#### \_\_setitem\_\_
+
+```python
+def __setitem__(key: str, value: Optional[str]) -> None
+```
+
+Sets an attribute value.
+
+**Arguments**:
+
+- `key` - The key of the attribute.
+- `value` - The value of the attribute. If the value is None, the attribute is removed.
+
+<a id="pypxml.pageelement.PageElement.__contains__"></a>
+
+#### \_\_contains\_\_
+
+```python
+def __contains__(key: Union[Self, str]) -> bool
+```
+
+Checks if a child element or an attribute exists.
+
+**Arguments**:
+
+- `key` - A child element or attribute key.
+
+**Returns**:
+
+  True if the passed child element or attribute exists.
+
+<a id="pypxml.pageelement.PageElement.pagetype"></a>
+
+#### pagetype
+
+```python
+@property
+def pagetype() -> PageType
+```
+
+The type of the PageElement object.
+
+<a id="pypxml.pageelement.PageElement.pagetype"></a>
+
+#### pagetype
+
+```python
+@pagetype.setter
+def pagetype(pagetype: Union[PageType, str]) -> None
+```
+
+Sets the type of the PageElement object.
+
+<a id="pypxml.pageelement.PageElement.is_region"></a>
+
+#### is\_region
+
+```python
+@property
+def is_region() -> bool
+```
+
+Checks if the PageElement object is a region.
+
+<a id="pypxml.pageelement.PageElement.parent"></a>
+
+#### parent
+
+```python
+@property
+def parent() -> Union["PageXML", Self]
+```
+
+The parent of the PageElement object. This may be a PageXML or PageElement object.
+
+<a id="pypxml.pageelement.PageElement.attributes"></a>
+
+#### attributes
+
+```python
+@property
+def attributes() -> dict[str, str]
+```
+
+A dictionary containing key/value pairs that represent XML attributes.
+
+<a id="pypxml.pageelement.PageElement.attributes"></a>
+
+#### attributes
+
+```python
+@attributes.setter
+def attributes(attributes: Optional[dict[str, str]]) -> None
+```
+
+Sets the dictionary containing key/value pairs that represent XML attributes.
+
+<a id="pypxml.pageelement.PageElement.elements"></a>
 
 #### elements
 
@@ -326,9 +957,9 @@ Set the attributes of the page element.
 def elements() -> list[Self]
 ```
 
-Returns a copy of the elements list.
+Returns a copy of the list of child elements.
 
-<a id="pypxml.pagelement.PageElement.text"></a>
+<a id="pypxml.pageelement.PageElement.text"></a>
 
 #### text
 
@@ -337,9 +968,9 @@ Returns a copy of the elements list.
 def text() -> Optional[str]
 ```
 
-XML element text.
+The stored text.
 
-<a id="pypxml.pagelement.PageElement.text"></a>
+<a id="pypxml.pageelement.PageElement.text"></a>
 
 #### text
 
@@ -348,33 +979,9 @@ XML element text.
 def text(value: Optional[str]) -> None
 ```
 
-XML element text.
+Sets the stored text.
 
-<a id="pypxml.pagelement.PageElement.new"></a>
-
-#### new
-
-```python
-@classmethod
-def new(cls,
-        pagetype: PageType,
-        parent: Optional[Union["PageXML", Self]] = None,
-        **attributes: str) -> Self
-```
-
-Create a new empty PageElement object.
-
-**Arguments**:
-
-- `creator` - Set a custom PageXML `Metadata` creator. Defaults to "pypxml".
-- `parent` - The parent element of the page element.
-- `attributes` - Named arguments which represent the attributes of the `PageElement` object.
-
-**Returns**:
-
-  A empty PageXML object.
-
-<a id="pypxml.pagelement.PageElement.from_etree"></a>
+<a id="pypxml.pageelement.PageElement.from_etree"></a>
 
 #### from\_etree
 
@@ -383,26 +990,26 @@ Create a new empty PageElement object.
 def from_etree(cls,
                tree: etree.Element,
                parent: Union["PageXML", Self],
-               skip_unknown: bool = False) -> Self
+               raise_on_error: bool = True) -> Self
 ```
 
-Create a new PageElement object from an etree element.
+Creates a new PageElement object from an etree element.
 
 **Arguments**:
 
-- `tree` - lxml etree object.
+- `tree` - An lxml etree object.
 - `parent` - The parent element of this page element.
-- `skip_unknown` - Skip unknown elements. Else raise ValueError. Defaults to False.
+- `raise_on_error` - If set to False, parsing errors are ignored. Defaults to True.
 
 **Raises**:
 
-- `ValueError` - If the element is not a valid PageXML element and skip_unknown is False.
+- `ValueError` - If the element is not a valid PageXML element and raise_on_error is True.
 
 **Returns**:
 
-  PageElement object that represents the passed etree element.
+  A PageElement object that represents the passed etree element.
 
-<a id="pypxml.pagelement.PageElement.to_etree"></a>
+<a id="pypxml.pageelement.PageElement.to_etree"></a>
 
 #### to\_etree
 
@@ -410,54 +1017,112 @@ Create a new PageElement object from an etree element.
 def to_etree() -> etree.Element
 ```
 
-Convert the PageElement object to an etree element.
+Converts the PageElement object to an etree element.
 
 **Returns**:
 
-  A lxml etree object that represents this PageElement object.
+  An lxml etree object that represents this PageElement object.
 
-<a id="pypxml.pagelement.PageElement.find_by_id"></a>
+<a id="pypxml.pageelement.PageElement.find_by_id"></a>
 
 #### find\_by\_id
 
 ```python
-def find_by_id(id: str, recursive: bool = False) -> Optional[Self]
+def find_by_id(id: str, depth: int = 0) -> Optional[Self]
 ```
 
-Find an element by its id.
+Finds a child element by its ID.
 
 **Arguments**:
 
-- `id` - ID of the element to find.
-- `recursive` - If set, search in all child elements. Defaults to False.
+- `id` - The ID of the element to find.
+- `depth` - The depth level of the search.
+  "0" searches only the current level.
+  "-1" searches all levels recursively (no depth limit).
+  ">0" limits the search to the specified number of levels deep.
 
 **Returns**:
 
-  The PageElement object with the given ID. Returns None, if no match was found.
+  The PageElement object with the given ID. Returns None if no match is found.
 
-<a id="pypxml.pagelement.PageElement.find_by_type"></a>
+<a id="pypxml.pageelement.PageElement.find_by_type"></a>
 
 #### find\_by\_type
 
 ```python
 def find_by_type(pagetype: Union[PageType, list[PageType]],
-                 recursive: bool = False,
+                 depth: int = 0,
                  **attributes: str) -> list[Self]
 ```
 
-Find all elements by their type.
+Finds elements by their type.
 
 **Arguments**:
 
-- `pagetype` - Type of the elements to find.
-- `recursive` - If set, search in all child elements. Defaults to False.
-- `attributes` - Named arguments which represent the attributes that the elements must have.
+- `pagetype` - The type of the elements to find.
+- `depth` - The depth level of the search.
+  "0" searches only the current level.
+  "-1" searches all levels recursively (no depth limit).
+  ">0" limits the search to the specified number of levels deep.
+- `attributes` - Named arguments representing the attributes that the found elements must have.
 
 **Returns**:
 
-  A list of PageElement objects with the given type. Returns an empty list, if no match was found.
+  A list of PageElement objects with the given type. Returns an empty list if no match is found.
 
-<a id="pypxml.pagelement.PageElement.create_element"></a>
+<a id="pypxml.pageelement.PageElement.find_coords"></a>
+
+#### find\_coords
+
+```python
+def find_coords() -> Optional[Self]
+```
+
+Finds the coords element of the current element.
+
+**Returns**:
+
+  The PageType.Coords element of the current object if it exists as a direct child.
+
+<a id="pypxml.pageelement.PageElement.find_baseline"></a>
+
+#### find\_baseline
+
+```python
+def find_baseline() -> Optional[Self]
+```
+
+Finds the baseline element of the current element.
+
+**Returns**:
+
+  The PageType.Baseline element of the current object if it exists as a direct child.
+
+<a id="pypxml.pageelement.PageElement.find_text"></a>
+
+#### find\_text
+
+```python
+def find_text(
+    index: Optional[int] = None,
+    source: Literal[PageType.Unicode, PageType.PlainText] = PageType.Unicode
+) -> Optional[str]
+```
+
+Finds the text of the current element.
+
+**Arguments**:
+
+- `index` - Selects a certain TextEquiv element index. If index is not set and multiple TextEquiv elements are
+  found, the first one with the lowest or no index is picked. Only applied if the current element is
+  a level above the TextEquivs.
+- `source` - Selects whether the text from Unicode or PlainText is picked.
+
+**Returns**:
+
+  The text of the current element if it was found.
+
+<a id="pypxml.pageelement.PageElement.create_element"></a>
 
 #### create\_element
 
@@ -467,37 +1132,19 @@ def create_element(pagetype: PageType,
                    **attributes: str) -> Self
 ```
 
-Create a new PageElement object and add it to the list of elements.
+Creates a new child element and adds it to the list of elements.
 
 **Arguments**:
 
-- `pagetype` - PageType of the new PageElement object.
-- `index` - If set, insert the new element at this index. Else append to the list. Defaults to None.
-- `attributes` - Named arguments which represent the attributes of the `PageElement` object.
+- `pagetype` - The PageType of the new child element.
+- `index` - If set, inserts the new element at this index. Otherwise, appends it to the list. Defaults to None.
+- `attributes` - Named arguments that represent the attributes of the "PageElement" object.
 
 **Returns**:
 
-  The new PageElement object.
+  The newly created child element.
 
-<a id="pypxml.pagelement.PageElement.get_element"></a>
-
-#### get\_element
-
-```python
-def get_element(index: int) -> Optional[Self]
-```
-
-Get an PageElement object by its index.
-
-**Arguments**:
-
-- `index` - Index of the PageElement object.
-
-**Returns**:
-
-  The PageElement object of passed index (returns None if the index is out of range).
-
-<a id="pypxml.pagelement.PageElement.set_element"></a>
+<a id="pypxml.pageelement.PageElement.set_element"></a>
 
 #### set\_element
 
@@ -505,32 +1152,32 @@ Get an PageElement object by its index.
 def set_element(element: Self, index: Optional[int] = None) -> None
 ```
 
-Add an existing PageElement object to the list of elements.
+Adds an existing PageElement object to the list of child elements.
 
 **Arguments**:
 
-- `element` - The PageElement to add.
-- `index` - If set, insert the element at this index. Else append to the list. Defaults to None.
+- `element` - The PageElement to add as a child element.
+- `index` - If set, inserts the element at this index. Otherwise, appends it to the list. Defaults to None.
 
-<a id="pypxml.pagelement.PageElement.remove_element"></a>
+<a id="pypxml.pageelement.PageElement.delete_element"></a>
 
-#### remove\_element
+#### delete\_element
 
 ```python
-def remove_element(element: Union[Self, int]) -> Optional[Self]
+def delete_element(element: Self) -> Optional[Self]
 ```
 
-Remove an element from the list of elements.
+Removes an element from the list of child elements.
 
 **Arguments**:
 
-- `element` - The PageElement or the index of the PageElement to remove.
+- `element` - The PageElement to remove.
 
 **Returns**:
 
-  The removed element, if it was found. Else None.
+  The removed element if it was found. Otherwise, None.
 
-<a id="pypxml.pagelement.PageElement.clear_elements"></a>
+<a id="pypxml.pageelement.PageElement.clear_elements"></a>
 
 #### clear\_elements
 
@@ -538,82 +1185,7 @@ Remove an element from the list of elements.
 def clear_elements() -> None
 ```
 
-Remove all elements from the list of elements. This will not remove the element itself.
-
-<a id="pypxml.pagelement.PageElement.get_attribute"></a>
-
-#### get\_attribute
-
-```python
-def get_attribute(key: str) -> Optional[str]
-```
-
-Get an attribute value by its key.
-
-**Arguments**:
-
-- `key` - Key of the attribute.
-
-**Returns**:
-
-  The value of the attribute. Returns None, if no match was found.
-
-<a id="pypxml.pagelement.PageElement.set_attribute"></a>
-
-#### set\_attribute
-
-```python
-def set_attribute(key: str, value: Optional[str]) -> None
-```
-
-Set an attribute value.
-
-**Arguments**:
-
-- `key` - Key of the attribute. Creates a new attribute if it does not exist.
-- `value` - Value of the attribute. If None, remove the attribute.
-
-<a id="pypxml.pagelement.PageElement.remove_attribute"></a>
-
-#### remove\_attribute
-
-```python
-def remove_attribute(key: str) -> Optional[str]
-```
-
-Remove an attribute by its key.
-
-**Arguments**:
-
-- `key` - Key of the attribute.
-
-**Returns**:
-
-  The value of the removedattribute. Returns None, if no match was found.
-
-<a id="pypxml.pagelement.PageElement.clear_attributes"></a>
-
-#### clear\_attributes
-
-```python
-def clear_attributes() -> None
-```
-
-Remove all attributes from the PageElement object.
-
-<a id="pypxml.pagelement.PageElement.is_region"></a>
-
-#### is\_region
-
-```python
-def is_region() -> bool
-```
-
-Check if the page element is a region.
-
-**Returns**:
-
-  True, if the page element is a region. Else return False.
+Removes all elements from the list of child elements.
 
 <a id="pypxml.pagetype"></a>
 
@@ -627,7 +1199,7 @@ Check if the page element is a region.
 class PageType(Enum)
 ```
 
-https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
+Reference: https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
 
 <a id="pypxml.pagetype.PageType.ReadingOrder"></a>
 
@@ -806,9 +1378,9 @@ No official annotation.
 
 No official annotation.
 
-<a id="pypxml.pagetype.PageType.Graphemes"></a>
+<a id="pypxml.pagetype.PageType.Grapheme"></a>
 
-#### Graphemes
+#### Grapheme
 
 No official annotation.
 
@@ -933,633 +1505,3 @@ Container for user-defined attributes.
 
 No official annotation.
 
-<a id="pypxml.pagetype.is_valid"></a>
-
-#### is\_valid
-
-```python
-def is_valid(value: str) -> bool
-```
-
-Returns true if string is a valid PageXML type.
-
-<a id="pypxml.pagetype.is_region"></a>
-
-#### is\_region
-
-```python
-def is_region(value: str) -> bool
-```
-
-Returns true if string is a valid PageXML region type
-
-<a id="pypxml.pagexml"></a>
-
-# pypxml.pagexml
-
-<a id="pypxml.pagexml.PageXML"></a>
-
-## PageXML Objects
-
-```python
-class PageXML()
-```
-
-PageXML Root and Page element class.
-
-<a id="pypxml.pagexml.PageXML.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(creator: Optional[str] = None,
-             created: Optional[Union[datetime, str]] = None,
-             changed: Optional[Union[datetime, str]] = None,
-             xml: Optional[Path] = None,
-             **attributes: str) -> None
-```
-
-PLEASE USE THE .new() METHOD TO CREATE A NEW PAGEXML OBJECT.
-This constructor is only for internal use.
-
-**Arguments**:
-
-- `creator` - Metadata `Creator`. Defaults to None.
-- `created` - Metadata `Created` in UTC, not local time. Defaults to None.
-- `changed` - Metadata `LastChange` in UTC, not local time. Defaults to None.
-- `file` - Path of the PageXML file, if the object was created from a file. Defaults to None.
-- `attributes` - Named arguments which represent the attributes of the PageXML object.
-
-<a id="pypxml.pagexml.PageXML.__str__"></a>
-
-#### \_\_str\_\_
-
-```python
-def __str__() -> str
-```
-
-Returns the string representation of the PageXML object.
-
-<a id="pypxml.pagexml.PageXML.__repr__"></a>
-
-#### \_\_repr\_\_
-
-```python
-def __repr__() -> str
-```
-
-Returns the string representation of the PageXML object.
-
-<a id="pypxml.pagexml.PageXML.__len__"></a>
-
-#### \_\_len\_\_
-
-```python
-def __len__() -> int
-```
-
-Returns the number of region elements in the PageXML object.
-
-<a id="pypxml.pagexml.PageXML.__iter__"></a>
-
-#### \_\_iter\_\_
-
-```python
-def __iter__() -> Self
-```
-
-Iterate over all elements of the page.
-
-<a id="pypxml.pagexml.PageXML.__next__"></a>
-
-#### \_\_next\_\_
-
-```python
-def __next__() -> PageElement
-```
-
-Yield next element of the page.
-
-<a id="pypxml.pagexml.PageXML.__getitem__"></a>
-
-#### \_\_getitem\_\_
-
-```python
-def __getitem__(key: Union[int, str]) -> Optional[Union[PageElement, str]]
-```
-
-Get an PageElement object by its index or an attribute value by its key
-
-**Arguments**:
-
-- `key` - Index (integer) of an PageElement object or a key (string) of an attribute.
-
-**Returns**:
-
-  The PageElement of passed index (returns last object if the key is out of range) or the value of the
-  selected attribute. Returns None, if no match was found.
-
-<a id="pypxml.pagexml.PageXML.__setitem__"></a>
-
-#### \_\_setitem\_\_
-
-```python
-def __setitem__(key: Union[int, str], value: Union[PageElement, str]) -> None
-```
-
-Set an PageElement object or an attribute value.
-
-**Arguments**:
-
-- `key` - Index (integer) for an PageElement object or a key (string) for an attribute.
-- `value` - PageElement object (if key is of type integer) or a string (if key is of type string).
-
-<a id="pypxml.pagexml.PageXML.__contains__"></a>
-
-#### \_\_contains\_\_
-
-```python
-def __contains__(key: Union[PageElement, str]) -> bool
-```
-
-Checks if an PageElement object or an attribute exists.
-
-**Arguments**:
-
-- `key` - PageElement object or attribute key.
-
-**Returns**:
-
-  True, if either the passed PageElement object or the attribute exists. Else return False.
-
-<a id="pypxml.pagexml.PageXML.creator"></a>
-
-#### creator
-
-```python
-@property
-def creator() -> Optional[str]
-```
-
-Returns the metadata `Creator`.
-
-<a id="pypxml.pagexml.PageXML.creator"></a>
-
-#### creator
-
-```python
-@creator.setter
-def creator(value: str) -> None
-```
-
-Set the metadata `Creator`.
-
-<a id="pypxml.pagexml.PageXML.created"></a>
-
-#### created
-
-```python
-@property
-def created() -> Optional[str]
-```
-
-Returns the metadata `Created`.
-
-<a id="pypxml.pagexml.PageXML.created"></a>
-
-#### created
-
-```python
-@created.setter
-def created(value: Union[datetime, str]) -> None
-```
-
-Set the metadata `Created`.
-
-<a id="pypxml.pagexml.PageXML.changed"></a>
-
-#### changed
-
-```python
-@property
-def changed() -> Optional[str]
-```
-
-Returns the metadata `LastChange`.
-
-<a id="pypxml.pagexml.PageXML.changed"></a>
-
-#### changed
-
-```python
-@changed.setter
-def changed(value: Union[datetime, str]) -> None
-```
-
-Set the metadata `LastChange`.
-
-<a id="pypxml.pagexml.PageXML.attributes"></a>
-
-#### attributes
-
-```python
-@property
-def attributes() -> dict[str, str]
-```
-
-Get the attributes of the page element.
-
-<a id="pypxml.pagexml.PageXML.attributes"></a>
-
-#### attributes
-
-```python
-@attributes.setter
-def attributes(attributes: dict[str, str]) -> None
-```
-
-Set the attributes of the page element.
-
-<a id="pypxml.pagexml.PageXML.elements"></a>
-
-#### elements
-
-```python
-@property
-def elements() -> list[PageElement]
-```
-
-Returns a copy of the elements list.
-
-<a id="pypxml.pagexml.PageXML.regions"></a>
-
-#### regions
-
-```python
-@property
-def regions() -> list[PageElement]
-```
-
-Returns a copy of the regions list.
-
-<a id="pypxml.pagexml.PageXML.reading_order"></a>
-
-#### reading\_order
-
-```python
-@property
-def reading_order() -> list[str]
-```
-
-Returns the reading order of the page.
-
-<a id="pypxml.pagexml.PageXML.reading_order"></a>
-
-#### reading\_order
-
-```python
-@reading_order.setter
-def reading_order(order: Optional[list[str]]) -> None
-```
-
-Set the reading order of the page.
-
-<a id="pypxml.pagexml.PageXML.xml"></a>
-
-#### xml
-
-```python
-@property
-def xml() -> Optional[Path]
-```
-
-Returns the file path of the PageXML file.
-
-<a id="pypxml.pagexml.PageXML.xml"></a>
-
-#### xml
-
-```python
-@xml.setter
-def xml(file: Union[Path, str]) -> None
-```
-
-Set the file path of the PageXML file.
-
-<a id="pypxml.pagexml.PageXML.new"></a>
-
-#### new
-
-```python
-@classmethod
-def new(cls, creator: str = "pypxml", **attributes: str) -> Self
-```
-
-Create a new empty PageXML object.
-
-**Arguments**:
-
-- `creator` - Set a custom PageXML `Metadata` creator. Defaults to "pypxml".
-- `attributes` - Named arguments which represent the attributes of the `Page` object.
-
-**Returns**:
-
-  A empty PageXML object.
-
-<a id="pypxml.pagexml.PageXML.from_etree"></a>
-
-#### from\_etree
-
-```python
-@classmethod
-def from_etree(cls, tree: etree.Element, skip_unknown: bool = False) -> Self
-```
-
-Create a new PageXML object from an lxml etree object.
-
-**Arguments**:
-
-- `tree` - lxml etree object.
-- `skip_unknown` - Skip unknown elements. Else raise ValueError. Defaults to False.
-
-**Raises**:
-
-- `ValueError` - If the etree object does not contain a Page element.
-
-**Returns**:
-
-  PageXML object that represents the passed etree element.
-
-<a id="pypxml.pagexml.PageXML.from_file"></a>
-
-#### from\_file
-
-```python
-@classmethod
-def from_file(cls,
-              file: Union[Path, str],
-              encoding: str = "utf-8",
-              skip_unknown: bool = False) -> Self
-```
-
-Create a new PageXML object from a PageXML file.
-
-**Arguments**:
-
-- `file` - Path of the PageXML file.
-- `encoding` - Set custom encoding. Defaults to "utf-8".
-- `skip_unknown` - Skip unknown elements. Else raise ValueError. Defaults to False.
-
-**Returns**:
-
-  PageXML object that represents the passed PageXML file.
-
-<a id="pypxml.pagexml.PageXML.to_etree"></a>
-
-#### to\_etree
-
-```python
-def to_etree(schema_version: str = "2019",
-             schema_file: Optional[Union[Path, str]] = None) -> etree.Element
-```
-
-Returns the PageXML object as an lxml etree object.
-
-**Arguments**:
-
-- `schema_version` - Which schema version to use. Available by default: "2017", "2019". Defaults to "2019".
-- `schema_file` - Set a custom schema json file (see documentation for further information). Defaults to None.
-
-**Returns**:
-
-  A lxml etree object that represents the PageXML object.
-
-**Schema File Example**
-
-```json
-{
-    "2017": {
-        "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15",
-        "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
-        "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2017-07-15/pagecontent.xsd"
-    },
-    "2019": {
-        "xmlns": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15",
-        "xmlns_xsi": "http://www.w3.org/2001/XMLSchema-instance",
-        "xsi_schema_location": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd"
-    }
-}
-```
-
-<a id="pypxml.pagexml.PageXML.to_file"></a>
-
-#### to\_file
-
-```python
-def to_file(file: Union[Path, str],
-            encoding="utf-8",
-            schema_version: str = "2019",
-            schema_file: Optional[Union[Path, str]] = None) -> None
-```
-
-Write the PageXML object to a file.
-
-**Arguments**:
-
-- `file` - File path to write the PageXML object to.
-- `encoding` - Set custom encoding. Defaults to "utf-8".
-- `schema_version` - Which schema version to use. Available by default: "2017", "2019". Defaults to "2019".
-- `schema_file` - Set a custom schema json file (see documentation for further information). Defaults to None.
-
-**Schema File Example**
-
-See above
-
-<a id="pypxml.pagexml.PageXML.find_by_id"></a>
-
-#### find\_by\_id
-
-```python
-def find_by_id(id: str, recursive: bool = False) -> Optional[PageElement]
-```
-
-Find an element by its id.
-
-**Arguments**:
-
-- `id` - ID of the element to find.
-- `recursive` - If set, search in all child elements. Defaults to False.
-
-**Returns**:
-
-  The PageElement object with the given ID. Returns None, if no match was found.
-
-<a id="pypxml.pagexml.PageXML.find_by_type"></a>
-
-#### find\_by\_type
-
-```python
-def find_by_type(pagetype: Union[PageType, list[PageType]],
-                 recursive: bool = False,
-                 **attributes) -> list[PageElement]
-```
-
-Find all elements by their type.
-
-**Arguments**:
-
-- `pagetype` - Type of the elements to find.
-- `recursive` - If set, search in all child elements. Defaults to False.
-- `attributes` - Named arguments which represent the attributes that the elements must have.
-
-**Returns**:
-
-  A list of PageElement objects with the given type. Returns an empty list, if no match was found.
-
-<a id="pypxml.pagexml.PageXML.create_element"></a>
-
-#### create\_element
-
-```python
-def create_element(pagetype: PageType,
-                   index: Optional[int] = None,
-                   **attributes: str) -> PageElement
-```
-
-Create a new PageElement object and add it to the list of elements.
-
-**Arguments**:
-
-- `pagetype` - PageType of the new PageElement object.
-- `index` - If set, insert the new element at this index. Else append to the list. Defaults to None.
-- `attributes` - Named arguments which represent the attributes of the `PageElement` object.
-
-**Returns**:
-
-  The new PageElement object.
-
-<a id="pypxml.pagexml.PageXML.get_element"></a>
-
-#### get\_element
-
-```python
-def get_element(index: int) -> Optional[PageElement]
-```
-
-Get an PageElement object by its index.
-
-**Arguments**:
-
-- `index` - Index of the PageElement object.
-
-**Returns**:
-
-  The PageElement object of passed index (returns None if the index is out of range).
-
-<a id="pypxml.pagexml.PageXML.set_element"></a>
-
-#### set\_element
-
-```python
-def set_element(element: PageElement,
-                index: Optional[int] = None,
-                ro: bool = True) -> None
-```
-
-Add an existing PageElement object to the list of elements.
-
-**Arguments**:
-
-- `element` - The PageElement to add.
-- `index` - If set, insert the element at this index. Else append to the list. Defaults to None.
-- `ro` - If set to true, add the element to the reading order at the specified index.
-  Only if the element is a region.
-
-<a id="pypxml.pagexml.PageXML.remove_element"></a>
-
-#### remove\_element
-
-```python
-def remove_element(element: Union[PageElement, int]) -> Optional[PageElement]
-```
-
-Remove an element from the list of elements.
-
-**Arguments**:
-
-- `element` - The PageElement or the index of the PageElement to remove.
-
-**Returns**:
-
-  The removed element, if it was found. Else None.
-
-<a id="pypxml.pagexml.PageXML.clear_elements"></a>
-
-#### clear\_elements
-
-```python
-def clear_elements() -> None
-```
-
-Remove all elements from the list of elements. This will not remove the element itself.
-
-<a id="pypxml.pagexml.PageXML.get_attribute"></a>
-
-#### get\_attribute
-
-```python
-def get_attribute(key: str) -> Optional[str]
-```
-
-Get an attribute value by its key.
-
-**Arguments**:
-
-- `key` - Key of the attribute.
-
-**Returns**:
-
-  The value of the attribute. Returns None, if no match was found.
-
-<a id="pypxml.pagexml.PageXML.set_attribute"></a>
-
-#### set\_attribute
-
-```python
-def set_attribute(key: str, value: Optional[str]) -> None
-```
-
-Set an attribute value.
-
-**Arguments**:
-
-- `key` - Key of the attribute. Creates a new attribute if it does not exist.
-- `value` - Value of the attribute. If None, remove the attribute.
-
-<a id="pypxml.pagexml.PageXML.remove_attribute"></a>
-
-#### remove\_attribute
-
-```python
-def remove_attribute(key: str) -> Optional[str]
-```
-
-Remove an attribute by its key.
-
-**Arguments**:
-
-- `key` - Key of the attribute.
-
-**Returns**:
-
-  The value of the removedattribute. Returns None, if no match was found.
-
-<a id="pypxml.pagexml.PageXML.clear_attributes"></a>
-
-#### clear\_attributes
-
-```python
-def clear_attributes() -> None
-```
-
-Remove all attributes from the PageXML object.
