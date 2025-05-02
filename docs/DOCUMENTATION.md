@@ -1,129 +1,130 @@
 # Table of Contents
 
-* [pypxml.pagexml](#pypxml.pagexml)
-  * [PageXML](#pypxml.pagexml.PageXML)
-    * [\_\_init\_\_](#pypxml.pagexml.PageXML.__init__)
-    * [\_\_repr\_\_](#pypxml.pagexml.PageXML.__repr__)
-    * [\_\_str\_\_](#pypxml.pagexml.PageXML.__str__)
-    * [\_\_len\_\_](#pypxml.pagexml.PageXML.__len__)
-    * [\_\_iter\_\_](#pypxml.pagexml.PageXML.__iter__)
-    * [\_\_next\_\_](#pypxml.pagexml.PageXML.__next__)
-    * [\_\_getitem\_\_](#pypxml.pagexml.PageXML.__getitem__)
-    * [\_\_setitem\_\_](#pypxml.pagexml.PageXML.__setitem__)
-    * [\_\_contains\_\_](#pypxml.pagexml.PageXML.__contains__)
-    * [height](#pypxml.pagexml.PageXML.height)
-    * [height](#pypxml.pagexml.PageXML.height)
-    * [width](#pypxml.pagexml.PageXML.width)
-    * [width](#pypxml.pagexml.PageXML.width)
-    * [filename](#pypxml.pagexml.PageXML.filename)
-    * [filename](#pypxml.pagexml.PageXML.filename)
-    * [xml](#pypxml.pagexml.PageXML.xml)
-    * [xml](#pypxml.pagexml.PageXML.xml)
-    * [created](#pypxml.pagexml.PageXML.created)
-    * [created](#pypxml.pagexml.PageXML.created)
-    * [last\_change](#pypxml.pagexml.PageXML.last_change)
-    * [last\_change](#pypxml.pagexml.PageXML.last_change)
-    * [attributes](#pypxml.pagexml.PageXML.attributes)
-    * [attributes](#pypxml.pagexml.PageXML.attributes)
-    * [reading\_order](#pypxml.pagexml.PageXML.reading_order)
-    * [elements](#pypxml.pagexml.PageXML.elements)
-    * [regions](#pypxml.pagexml.PageXML.regions)
-    * [from\_etree](#pypxml.pagexml.PageXML.from_etree)
-    * [to\_etree](#pypxml.pagexml.PageXML.to_etree)
-    * [from\_file](#pypxml.pagexml.PageXML.from_file)
-    * [to\_file](#pypxml.pagexml.PageXML.to_file)
-    * [find\_by\_id](#pypxml.pagexml.PageXML.find_by_id)
-    * [find\_by\_type](#pypxml.pagexml.PageXML.find_by_type)
-    * [create\_element](#pypxml.pagexml.PageXML.create_element)
-    * [set\_element](#pypxml.pagexml.PageXML.set_element)
-    * [delete\_element](#pypxml.pagexml.PageXML.delete_element)
-    * [clear\_elements](#pypxml.pagexml.PageXML.clear_elements)
-    * [apply\_reading\_order](#pypxml.pagexml.PageXML.apply_reading_order)
-    * [create\_reading\_order](#pypxml.pagexml.PageXML.create_reading_order)
-    * [clear\_reading\_order](#pypxml.pagexml.PageXML.clear_reading_order)
-    * [set\_reading\_order](#pypxml.pagexml.PageXML.set_reading_order)
-    * [sort\_reading\_order](#pypxml.pagexml.PageXML.sort_reading_order)
-* [pypxml.pageelement](#pypxml.pageelement)
-  * [PageElement](#pypxml.pageelement.PageElement)
-    * [\_\_init\_\_](#pypxml.pageelement.PageElement.__init__)
-    * [\_\_repr\_\_](#pypxml.pageelement.PageElement.__repr__)
-    * [\_\_str\_\_](#pypxml.pageelement.PageElement.__str__)
-    * [\_\_len\_\_](#pypxml.pageelement.PageElement.__len__)
-    * [\_\_iter\_\_](#pypxml.pageelement.PageElement.__iter__)
-    * [\_\_next\_\_](#pypxml.pageelement.PageElement.__next__)
-    * [\_\_getitem\_\_](#pypxml.pageelement.PageElement.__getitem__)
-    * [\_\_setitem\_\_](#pypxml.pageelement.PageElement.__setitem__)
-    * [\_\_contains\_\_](#pypxml.pageelement.PageElement.__contains__)
-    * [pagetype](#pypxml.pageelement.PageElement.pagetype)
-    * [pagetype](#pypxml.pageelement.PageElement.pagetype)
-    * [is\_region](#pypxml.pageelement.PageElement.is_region)
-    * [parent](#pypxml.pageelement.PageElement.parent)
-    * [attributes](#pypxml.pageelement.PageElement.attributes)
-    * [attributes](#pypxml.pageelement.PageElement.attributes)
-    * [elements](#pypxml.pageelement.PageElement.elements)
-    * [text](#pypxml.pageelement.PageElement.text)
-    * [text](#pypxml.pageelement.PageElement.text)
-    * [from\_etree](#pypxml.pageelement.PageElement.from_etree)
-    * [to\_etree](#pypxml.pageelement.PageElement.to_etree)
-    * [find\_by\_id](#pypxml.pageelement.PageElement.find_by_id)
-    * [find\_by\_type](#pypxml.pageelement.PageElement.find_by_type)
-    * [find\_coords](#pypxml.pageelement.PageElement.find_coords)
-    * [find\_baseline](#pypxml.pageelement.PageElement.find_baseline)
-    * [find\_text](#pypxml.pageelement.PageElement.find_text)
-    * [create\_element](#pypxml.pageelement.PageElement.create_element)
-    * [set\_element](#pypxml.pageelement.PageElement.set_element)
-    * [delete\_element](#pypxml.pageelement.PageElement.delete_element)
-    * [clear\_elements](#pypxml.pageelement.PageElement.clear_elements)
-* [pypxml.pagetype](#pypxml.pagetype)
-  * [PageType](#pypxml.pagetype.PageType)
-    * [ReadingOrder](#pypxml.pagetype.PageType.ReadingOrder)
-    * [RegionRef](#pypxml.pagetype.PageType.RegionRef)
-    * [OrderedGroup](#pypxml.pagetype.PageType.OrderedGroup)
-    * [UnorderedGroup](#pypxml.pagetype.PageType.UnorderedGroup)
-    * [OrderedGroupIndexed](#pypxml.pagetype.PageType.OrderedGroupIndexed)
-    * [UnorderedGroupIndexed](#pypxml.pagetype.PageType.UnorderedGroupIndexed)
-    * [RegionRefIndexed](#pypxml.pagetype.PageType.RegionRefIndexed)
-    * [AdvertRegion](#pypxml.pagetype.PageType.AdvertRegion)
-    * [ChartRegion](#pypxml.pagetype.PageType.ChartRegion)
-    * [ChemRegion](#pypxml.pagetype.PageType.ChemRegion)
-    * [CustomRegion](#pypxml.pagetype.PageType.CustomRegion)
-    * [GraphicRegion](#pypxml.pagetype.PageType.GraphicRegion)
-    * [ImageRegion](#pypxml.pagetype.PageType.ImageRegion)
-    * [LineDrawingRegion](#pypxml.pagetype.PageType.LineDrawingRegion)
-    * [MapRegion](#pypxml.pagetype.PageType.MapRegion)
-    * [MathsRegion](#pypxml.pagetype.PageType.MathsRegion)
-    * [MusicRegion](#pypxml.pagetype.PageType.MusicRegion)
-    * [NoiseRegion](#pypxml.pagetype.PageType.NoiseRegion)
-    * [SeparatorRegion](#pypxml.pagetype.PageType.SeparatorRegion)
-    * [TableRegion](#pypxml.pagetype.PageType.TableRegion)
-    * [TextRegion](#pypxml.pagetype.PageType.TextRegion)
-    * [UnknownRegion](#pypxml.pagetype.PageType.UnknownRegion)
-    * [AlternativeImage](#pypxml.pagetype.PageType.AlternativeImage)
-    * [Baseline](#pypxml.pagetype.PageType.Baseline)
-    * [Border](#pypxml.pagetype.PageType.Border)
-    * [Coords](#pypxml.pagetype.PageType.Coords)
-    * [Glyph](#pypxml.pagetype.PageType.Glyph)
-    * [GraphemeGroup](#pypxml.pagetype.PageType.GraphemeGroup)
-    * [Grapheme](#pypxml.pagetype.PageType.Grapheme)
-    * [Grid](#pypxml.pagetype.PageType.Grid)
-    * [GridPoints](#pypxml.pagetype.PageType.GridPoints)
-    * [Label](#pypxml.pagetype.PageType.Label)
-    * [Labels](#pypxml.pagetype.PageType.Labels)
-    * [Layer](#pypxml.pagetype.PageType.Layer)
-    * [Layers](#pypxml.pagetype.PageType.Layers)
-    * [Metadata](#pypxml.pagetype.PageType.Metadata)
-    * [NonPrintingChar](#pypxml.pagetype.PageType.NonPrintingChar)
-    * [PlainText](#pypxml.pagetype.PageType.PlainText)
-    * [PrintSpace](#pypxml.pagetype.PageType.PrintSpace)
-    * [Relations](#pypxml.pagetype.PageType.Relations)
-    * [Roles](#pypxml.pagetype.PageType.Roles)
-    * [TextEquiv](#pypxml.pagetype.PageType.TextEquiv)
-    * [TextLine](#pypxml.pagetype.PageType.TextLine)
-    * [TextStyle](#pypxml.pagetype.PageType.TextStyle)
-    * [Unicode](#pypxml.pagetype.PageType.Unicode)
-    * [UserAttribute](#pypxml.pagetype.PageType.UserAttribute)
-    * [UserDefined](#pypxml.pagetype.PageType.UserDefined)
-    * [Word](#pypxml.pagetype.PageType.Word)
+- [Table of Contents](#table-of-contents)
+- [pypxml.pagexml](#pypxmlpagexml)
+  - [PageXML Objects](#pagexml-objects)
+      - [\_\_init\_\_](#__init__)
+      - [\_\_repr\_\_](#__repr__)
+      - [\_\_str\_\_](#__str__)
+      - [\_\_len\_\_](#__len__)
+      - [\_\_iter\_\_](#__iter__)
+      - [\_\_next\_\_](#__next__)
+      - [\_\_getitem\_\_](#__getitem__)
+      - [\_\_setitem\_\_](#__setitem__)
+      - [\_\_contains\_\_](#__contains__)
+      - [imageHeight](#imageheight)
+      - [imageHeight](#imageheight-1)
+      - [imageWidth](#imagewidth)
+      - [imageWidth](#imagewidth-1)
+      - [imageFilename](#imagefilename)
+      - [imageFilename](#imagefilename-1)
+      - [xml](#xml)
+      - [xml](#xml-1)
+      - [created](#created)
+      - [created](#created-1)
+      - [last\_change](#last_change)
+      - [last\_change](#last_change-1)
+      - [attributes](#attributes)
+      - [attributes](#attributes-1)
+      - [reading\_order](#reading_order)
+      - [elements](#elements)
+      - [regions](#regions)
+      - [from\_etree](#from_etree)
+      - [to\_etree](#to_etree)
+      - [from\_file](#from_file)
+      - [to\_file](#to_file)
+      - [find\_by\_id](#find_by_id)
+      - [find\_by\_type](#find_by_type)
+      - [create\_element](#create_element)
+      - [set\_element](#set_element)
+      - [delete\_element](#delete_element)
+      - [clear\_elements](#clear_elements)
+      - [apply\_reading\_order](#apply_reading_order)
+      - [create\_reading\_order](#create_reading_order)
+      - [clear\_reading\_order](#clear_reading_order)
+      - [set\_reading\_order](#set_reading_order)
+      - [sort\_reading\_order](#sort_reading_order)
+- [pypxml.pageelement](#pypxmlpageelement)
+  - [PageElement Objects](#pageelement-objects)
+      - [\_\_init\_\_](#__init__-1)
+      - [\_\_repr\_\_](#__repr__-1)
+      - [\_\_str\_\_](#__str__-1)
+      - [\_\_len\_\_](#__len__-1)
+      - [\_\_iter\_\_](#__iter__-1)
+      - [\_\_next\_\_](#__next__-1)
+      - [\_\_getitem\_\_](#__getitem__-1)
+      - [\_\_setitem\_\_](#__setitem__-1)
+      - [\_\_contains\_\_](#__contains__-1)
+      - [pagetype](#pagetype)
+      - [pagetype](#pagetype-1)
+      - [is\_region](#is_region)
+      - [parent](#parent)
+      - [attributes](#attributes-2)
+      - [attributes](#attributes-3)
+      - [elements](#elements-1)
+      - [text](#text)
+      - [text](#text-1)
+      - [from\_etree](#from_etree-1)
+      - [to\_etree](#to_etree-1)
+      - [find\_by\_id](#find_by_id-1)
+      - [find\_by\_type](#find_by_type-1)
+      - [find\_coords](#find_coords)
+      - [find\_baseline](#find_baseline)
+      - [find\_text](#find_text)
+      - [create\_element](#create_element-1)
+      - [set\_element](#set_element-1)
+      - [delete\_element](#delete_element-1)
+      - [clear\_elements](#clear_elements-1)
+- [pypxml.pagetype](#pypxmlpagetype)
+  - [PageType Objects](#pagetype-objects)
+      - [ReadingOrder](#readingorder)
+      - [RegionRef](#regionref)
+      - [OrderedGroup](#orderedgroup)
+      - [UnorderedGroup](#unorderedgroup)
+      - [OrderedGroupIndexed](#orderedgroupindexed)
+      - [UnorderedGroupIndexed](#unorderedgroupindexed)
+      - [RegionRefIndexed](#regionrefindexed)
+      - [AdvertRegion](#advertregion)
+      - [ChartRegion](#chartregion)
+      - [ChemRegion](#chemregion)
+      - [CustomRegion](#customregion)
+      - [GraphicRegion](#graphicregion)
+      - [ImageRegion](#imageregion)
+      - [LineDrawingRegion](#linedrawingregion)
+      - [MapRegion](#mapregion)
+      - [MathsRegion](#mathsregion)
+      - [MusicRegion](#musicregion)
+      - [NoiseRegion](#noiseregion)
+      - [SeparatorRegion](#separatorregion)
+      - [TableRegion](#tableregion)
+      - [TextRegion](#textregion)
+      - [UnknownRegion](#unknownregion)
+      - [AlternativeImage](#alternativeimage)
+      - [Baseline](#baseline)
+      - [Border](#border)
+      - [Coords](#coords)
+      - [Glyph](#glyph)
+      - [GraphemeGroup](#graphemegroup)
+      - [Grapheme](#grapheme)
+      - [Grid](#grid)
+      - [GridPoints](#gridpoints)
+      - [Label](#label)
+      - [Labels](#labels)
+      - [Layer](#layer)
+      - [Layers](#layers)
+      - [Metadata](#metadata)
+      - [NonPrintingChar](#nonprintingchar)
+      - [PlainText](#plaintext)
+      - [PrintSpace](#printspace)
+      - [Relations](#relations)
+      - [Roles](#roles)
+      - [TextEquiv](#textequiv)
+      - [TextLine](#textline)
+      - [TextStyle](#textstyle)
+      - [Unicode](#unicode)
+      - [UserAttribute](#userattribute)
+      - [UserDefined](#userdefined)
+      - [Word](#word)
 
 <a id="pypxml.pagexml"></a>
 
@@ -144,10 +145,7 @@ Represents a PageXML file and the "Page" element.
 #### \_\_init\_\_
 
 ```python
-def __init__(height: Union[str, int],
-             width: Union[str, int],
-             filename: Union[Path, str],
-             xml: Optional[Union[str, Path]] = None,
+def __init__(xml: Optional[Union[str, Path]] = None,
              creator: str = "pypxml",
              created: Optional[Union[str, datetime]] = None,
              last_change: Optional[Union[str, datetime]] = None,
@@ -158,9 +156,6 @@ Create a new empty PageXML object.
 
 **Arguments**:
 
-- `height` - The height of the image in pixels.
-- `width` - The width of the image in pixels.
-- `filename` - The name of the image file, including the file extension.
   If a Path object is provided, only the filename is used.
 - `xml` - Optionally, the path to the matching XML file can be provided. Defaults to None.
 - `creator` - The creator of the PageXML. Defaults to "pypxml".
@@ -277,66 +272,66 @@ Checks if a child element or an attribute exists.
 
 <a id="pypxml.pagexml.PageXML.height"></a>
 
-#### height
+#### imageHeight
 
 ```python
 @property
-def height() -> int
+def imageHeight() -> int
 ```
 
 The height of the image in pixels.
 
 <a id="pypxml.pagexml.PageXML.height"></a>
 
-#### height
+#### imageHeight
 
 ```python
-@height.setter
-def height(value: Union[str, int]) -> None
+@imageHeight.setter
+def imageHeight(value: Union[str, int]) -> None
 ```
 
 Sets the height of the image in pixels.
 
 <a id="pypxml.pagexml.PageXML.width"></a>
 
-#### width
+#### imageWidth
 
 ```python
 @property
-def width() -> int
+def imageWidth() -> int
 ```
 
 The width of the image in pixels.
 
 <a id="pypxml.pagexml.PageXML.width"></a>
 
-#### width
+#### imageWidth
 
 ```python
-@width.setter
-def width(value: Union[str, int]) -> None
+@imageWidth.setter
+def imageWidth(value: Union[str, int]) -> None
 ```
 
 Sets the width of the image in pixels.
 
 <a id="pypxml.pagexml.PageXML.filename"></a>
 
-#### filename
+#### imageFilename
 
 ```python
 @property
-def filename() -> str
+def imageFilename() -> str
 ```
 
 The name of the image file, including the file extension.
 
 <a id="pypxml.pagexml.PageXML.filename"></a>
 
-#### filename
+#### imageFilename
 
 ```python
-@filename.setter
-def filename(value: Union[Path, str]) -> None
+@imageFilename.setter
+def imageFilename(value: Union[Path, str]) -> None
 ```
 
 Sets the name of the image file, including the file extension.
