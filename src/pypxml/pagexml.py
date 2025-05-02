@@ -36,27 +36,20 @@ class PageXML:
     """
     
     def __init__(self, 
-                 height: Union[str, int], 
-                 width: Union[str, int], 
-                 filename: Union[Path, str],
-                 xml: Optional[Union[str, Path]] = None,
                  creator: str = "pypxml", 
                  created: Optional[Union[str, datetime]] = None, 
                  last_change: Optional[Union[str, datetime]] = None,
+                 xml: Optional[Union[str, Path]] = None,
                  **attributes: str) -> Self:
         """
         Create a new empty PageXML object.
         Args:
-            height: The height of the image in pixels.
-            width: The width of the image in pixels.
-            filename: The name of the image file, including the file extension. 
-                If a Path object is provided, only the filename is used.
-            xml: Optionally, the path to the matching XML file can be provided. Defaults to None.
             creator: The creator of the PageXML. Defaults to "pypxml".
             created: The timestamp (ISO 8601) of the creation of the PageXML file. The timestamp must be in UTC
                 (Coordinated Universal Time) and not local time. Defaults to the current time.
             last_change: The timestamp (ISO 8601) of the last change. The timestamp must be in UTC 
                 (Coordinated Universal Time) and not local time. Defaults to the current time.
+            xml: Optionally, the path to the matching XML file can be provided. Defaults to None.
             attributes: Named arguments that represent the optional attributes of the "Page" element.
         Returns:
             An empty PageXML object.
@@ -64,10 +57,7 @@ class PageXML:
         self.creator: str = "pypxml" if creator is None else str(creator)
         
         # class setters for the equivalent private values
-        self.attributes = attributes  # height, width and filename have higher priority
-        self.height = height
-        self.width = width
-        self.filename = filename
+        self.attributes = attributes
         self.xml = xml
         self.created = created
         self.last_change = last_change
@@ -136,50 +126,50 @@ class PageXML:
             return key in self.__elements
         else:
             key = str(key)
-            return key in self.__attributes or key in ["imageFilename", "imageHeight", "imageWidth"]
+            return key in self.__attributes
         
     @property
-    def height(self) -> int:
+    def imageHeight(self) -> int:
         """ The height of the image in pixels. """
-        return self.__height
+        return int(self.__attributes["imageHeight"])
     
-    @height.setter
-    def height(self, value: Union[str, int]) -> None:
+    @imageHeight.setter
+    def imageHeight(self, value: Union[str, int]) -> None:
         """ Sets the height of the image in pixels. """
         if isinstance(value, (str, int)):
             value = int(value)
             if value < 0:
                 logger.warning("Negative imageWidth attribute was set to 0")
-            self.__height = max(0, value)
+            self.__attributes["imageHeight"] = str(max(0, value))
         else:
             raise TypeError(f"Expected an integer or string, got {type(value).__name__}")
     
     @property
-    def width(self) -> int:
+    def imageWidth(self) -> int:
         """ The width of the image in pixels. """
-        return self.__width
+        return int(self.__attributes["imageWidth"])
     
-    @width.setter
-    def width(self, value: Union[str, int]) -> None:
+    @imageWidth.setter
+    def imageWidth(self, value: Union[str, int]) -> None:
         """ Sets the width of the image in pixels. """
         if isinstance(value, (str, int)):
             value = int(value)
             if value < 0:
                 logger.warning("Negative imageWidth attribute was set to 0")
-            self.__width = max(0, value)
+            self.__attributes["imageWidth"] = str(max(0, value))
         else:
             raise TypeError(f"Expected an integer or string, got {type(value).__name__}")
         
     @property
-    def filename(self) -> str:
+    def imageFilename(self) -> str:
         """ The name of the image file, including the file extension. """
-        return self.__filename
+        return self.__attributes["imageFilename"]
     
-    @filename.setter
-    def filename(self, value: Union[Path, str]) -> None:
+    @imageFilename.setter
+    def imageFilename(self, value: Union[Path, str]) -> None:
         """ Sets the name of the image file, including the file extension. """
         if isinstance(value, (Path, str)):
-            self.__filename = value if isinstance(value, str) else value.name
+            self.__attributes["imageFilename"] = value if isinstance(value, str) else value.name
         else:
             raise TypeError(f"Expected a Path or string, got {type(value).__name__}") 
         
@@ -227,28 +217,33 @@ class PageXML:
             self.__last_change: str = value
         else:
             self.__last_change: str = datetime.now(timezone.utc).isoformat()
+            
+    @property
+    def xml(self) -> Optional[Path]:
+        """ Optionally, the path to the matching XML file. """
+        return self.__xml
+    
+    @xml.setter
+    def xml(self, value: Optional[Union[Path, str]]) -> None:
+        """ Sets the path to the matching XML file. """
+        if value is None:
+            self.__xml = None
+        elif isinstance(value, (Path, str)):
+            self.__xml = Path(value).absolute()
+        else:
+            raise TypeError(f"Expected a Path or string, got {type(value).__name__}") 
     
     @property
     def attributes(self) -> dict[str, str]:
         """ Gets a copy of the attributes of the page element. """
-        attribs = self.__attributes.copy()
-        attribs["imageFilename"] = self.__filename
-        attribs["imageHeight"] = str(self.__height)
-        attribs["imageWidth"] = str(self.__width)
-        return attribs
+        return self.__attributes
     
     @attributes.setter
-    def attributes(self, attributes: Optional[dict[str, str]]) -> None:
+    def attributes(self, value: Optional[dict[str, str]]) -> None:
         """ Sets the attributes of the page element. """
-        self.__attributes = {} if attributes is None else {str(k): str(v) 
-                                                           for k, v in attributes.items() if v is not None 
-                                                           and k not in ["imageFilename", "imageHeight", "imageWidth"]}
-        if "imageFilename" in attributes and attributes["imageFilename"] is not None:
-            self.__filename = attributes["imageFilename"]
-        if "imageHeight" in attributes and attributes["imageHeight"] is not None:
-            self.__height = attributes["imageHeight"]
-        if "imageWidth" in attributes and attributes["imageWidth"] is not None:
-            self.__width = attributes["imageWidth"]
+        if any(k not in value for k in ["imageFilename", "imageHeight", "imageWidth"]):
+            raise ValueError(f"A PageXML requires 'imageFilename', 'imageHeight' and 'imageWidth' attributes, got {value}")
+        self.__attributes = {} if value is None else {str(k): str(v) for k, v in value.items() if v is not None}
             
     @property
     def reading_order(self) -> list[str]:
@@ -278,8 +273,7 @@ class PageXML:
             A PageXML object that represents the passed etree element.
         """
         if (page := tree.find("./{*}Page")) is not None:
-            attributes = {str(k): str(v) for k, v in dict(page.items()).items() 
-                          if v is not None and k not in ["imageFilename", "imageHeight", "imageWidth"]}
+            attributes = {str(k): str(v) for k, v in dict(page.items()).items() if v is not None}
             # Metadata
             creator = None
             created = None
@@ -291,8 +285,7 @@ class PageXML:
                     created = created.text
                 if (last_change := md_tree.find("./{*}LastChange")) is not None:
                     last_change = last_change.text
-            pagexml = cls(page.get("imageHeight"), page.get("imageWidth"), page.get("imageFilename"),
-                          creator=creator, created=created, last_change=last_change, **attributes)
+            pagexml = cls(creator=creator, created=created, last_change=last_change, **attributes)
             # ReadingOrder
             if (ro := page.find("./{*}ReadingOrder")) is not None:
                 if (ro_elements := ro.findall(".//{*}RegionRefIndexed")) is not None:
@@ -330,8 +323,7 @@ class PageXML:
         etree.SubElement(metadata, "Created").text = self.__created
         etree.SubElement(metadata, "LastChange").text = self.__last_change
         # Page
-        page = etree.Element("Page", imageFilename=self.__filename, imageWidth=str(self.__width), 
-                             imageHeight=str(self.__height), **self.__attributes)
+        page = etree.Element("Page", **self.__attributes)
         root.append(page)
         # ReadingOrder
         if len(self.__reading_order) > 0:
