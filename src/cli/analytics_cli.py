@@ -204,8 +204,93 @@ def get_regions(files: list[Path], glob: str = "*.xml", output: Optional[Path] =
         print(";".join(header))
         for row in data:
             print(";".join(row))
-    
 
+
+@click.command("get-custom", short_help="List all custom region attributes in PageXML files.")
+@click.help_option("--help", hidden=True)
+@click.argument(
+    "files",
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
+    callback=util.callback_paths, 
+    nargs=-1, 
+    required=True
+)
+@click.option(
+    "-g", "--glob", "glob",
+    help="Glob pattern to match files within directories. Applies only to directory inputs passed as FILES.",
+    type=click.STRING, 
+    default="*.xml", show_default=True
+)
+@click.option(
+    "-o", "--output", "output",
+    help="CSV file or directory where the results are saved. If a directory is given, the file 'customs.csv' will be "
+         "created inside it. If omitted, results are printed to stdout.",
+    type=click.Path(exists=False, dir_okay=True, file_okay=True, resolve_path=True),
+    callback=util.callback_path
+)
+@click.option(
+    "-l", "--level", "level",
+    help="Set the aggregation level for the output. 'total' combines all files, 'directory' aggregates by parent "
+         "directory, and 'file' lists results per individual file.",
+    type=click.Choice(["total", "directory", "file"]), 
+    default="total", show_default=True
+)
+@click.option(
+    "-f", "--frequencies", "frequencies",
+    help="Also output the frequency (count) of each region type.",
+    type=click.BOOL, is_flag=True
+)
+def get_custom(files: list[Path], glob: str = "*.xml", output: Optional[Path] = None, 
+                level: Literal["total", "directory", "file"] = "", frequencies: bool = False, types: bool = False):
+    """
+    Analyzes PageXML files and lists the custom region types found.
+    
+    Optionally outputs frequencies and group by file, directory, or globally.
+    """
+    files = util.expand_paths(files, glob)
+    if output and output.is_dir():
+        output = output.joinpath("regions.csv")
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+
+    results = {}
+    with util.progress as bar:
+        task = bar.add_task("Processing", total=len(files), filename="")
+        for fp in files:
+            bar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
+            pagexml = PageXML.from_file(fp, raise_on_error=False)
+            found_regions = []
+            for region in pagexml.regions:
+                found_regions.append(region["custom"] if "custom" in region else "None")
+            results[str(fp)] = Counter(found_regions)
+            bar.update(task, advance=1)
+        bar.update(task, filename="Done")
+
+    format_count = lambda c: str(c) if frequencies else ("x" if c > 0 else "")
+    if level in ["file", "directory"]:
+        groups = results if level == "file" else {}
+        if level == "directory":
+            for fp, count in results.items():
+                groups.setdefault(str(Path(fp).parent), Counter()).update(count)
+        header = [level] + sorted({r for c in results.values() for r in c})
+        data = [[name] + [format_count(counter.get(k, 0)) for k in header[1:]]
+                for name, counter in groups.items()]
+    else:
+        header = ["type", "frequency"] if frequencies else ["type"]
+        total = Counter()
+        for count in results.values():
+            total.update(count)
+        data = [[r, str(total[r])] if frequencies else [r] 
+                for r in sorted(total, key=lambda x: -total[x] if frequencies else x)]
+
+    if output:        
+        util.csv_write(data, output, header=header, delimiter=",")
+    else:
+        print(";".join(header))
+        for row in data:
+            print(";".join(row))
+
+    
 @click.command("get-text", short_help="Extract text from PageXML files.")
 @click.help_option("--help", hidden=True)
 @click.argument(

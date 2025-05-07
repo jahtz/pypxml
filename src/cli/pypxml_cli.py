@@ -17,11 +17,11 @@ import logging
 import rich_click as click
 from rich.logging import RichHandler
 
-from .analytics_cli import get_codec, get_regions, get_text
+from .analytics_cli import get_codec, get_regions, get_custom, get_text
 from .regularize_cli import regularize_codec, regularize_regions
 
 
-__version__ = "4.2.0"
+__version__ = "4.2.1"
 __prog__ = "pypxml"
 __footer__ = "Developed at Centre for Philology and Digitality (ZPD), University of Würzburg"
 
@@ -65,6 +65,7 @@ def cli(**kwargs):
 # analytics
 cli.add_command(get_codec)
 cli.add_command(get_regions)
+cli.add_command(get_custom)
 cli.add_command(get_text)
 
 # regularize

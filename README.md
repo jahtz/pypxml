@@ -32,11 +32,12 @@ $ pypxml --help
 │ --version    Show the version and exit.                                                │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ─────────────────────────────────────────────────────────────────────────────╮
-│ get-codec                 Extract the character set from PageXML files.                │
-│ get-regions               List all regions in PageXML files.                           │
-│ get-text                  Extract text from PageXML files.                             │
-│ regularize-codec          Regularize character encodings in PageXML files.             │
-│ regularize-regions        Regularize region types in PageXML files.                    │
+│ get-codec                Extract the character set from PageXML files.                 │
+│ get-custom               List all custom region attributes in PageXML files.           │
+│ get-regions              List all regions in PageXML files.                            │
+│ get-text                 Extract text from PageXML files.                              │
+│ regularize-codec         Regularize character encodings in PageXML files.              │
+│ regularize-regions       Regularize region types in PageXML files.                     │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -107,9 +108,39 @@ $ pypxml get-regions --help
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
+#### get-custom
+```
+$ pypxml get-custom --help
+                                                                                          
+ Usage: pypxml get-custom [OPTIONS] FILES...                                              
+                                                                                          
+ Analyzes PageXML files and lists the custom region types found.                          
+ Optionally outputs frequencies and group by file, directory, or globally.                
+                                                                                          
+╭─ Input ────────────────────────────────────────────────────────────────────────────────╮
+│ *  FILES        (PATH) [required]                                                      │
+│    --glob   -g  Glob pattern to match files within directories. Applies only to        │
+│                 directory inputs passed as FILES.                                      │
+│                 (TEXT)                                                                 │
+│                 [default: *.xml]                                                       │
+│    --level  -l  Set the aggregation level for the output. 'total' combines all files,  │
+│                 'directory' aggregates by parent directory, and 'file' lists results   │
+│                 per individual file.                                                   │
+│                 (total|directory|file)                                                 │
+│                 [default: total]                                                       │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────────╮
+│ --output       -o  CSV file or directory where the results are saved. If a directory   │
+│                    is given, the file 'customs.csv' will be created inside it. If      │
+│                    omitted, results are printed to stdout.                             │
+│                    (PATH)                                                              │
+│ --frequencies  -f  Also output the frequency (count) of each region type.              │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
 #### get-text
 ```
-pypxml get-text --help
+$ pypxml get-text --help
                                                                                           
  Usage: pypxml get-text [OPTIONS] FILES...                                                
                                                                                           
@@ -215,6 +246,5 @@ $ pypxml regularize-regions --help
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-  
 ## ZPD
 Developed at Centre for [Philology and Digitality](https://www.uni-wuerzburg.de/en/zpd/) (ZPD), [University of Würzburg](https://www.uni-wuerzburg.de/en/).
