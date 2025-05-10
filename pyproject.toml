@@ -6,14 +6,14 @@ build-backend = "hatchling.build"
 name = "pypxml"
 version = "4.2.3"
 description = "A python library for parsing, converting and modifying PageXML files. "
-keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
+keywords = ["PageXML", "XML"]
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [
-    { name = "Janik Haitz", email = "jahtz.dev@proton.me" },
     { name = "Centre for Philology and Digitality (ZPD), University of Würzburg" },
+    { name = "Janik Haitz", email = "jahtz.dev@proton.me" },
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -28,7 +28,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://www.uni-wuerzburg.de/zpd/"
-Repository = "https://github.com/jahtz/nlbin"
+Repository = "https://github.com/jahtz/pypxml"
 
 [tool.hatch.build.targets.wheel]
 include = ["pypxml", "resources/schema.json", "cli"]
