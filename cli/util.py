@@ -13,17 +13,17 @@
 # limitations under the License.
 
 import csv
+from glob import glob
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
-import rich_click as click
+import click
 from rich.progress import Progress, TextColumn, BarColumn, MofNCompleteColumn, TimeRemainingColumn, TimeElapsedColumn
 
 from pypxml import PageType
 
 
-# Progressbar
-progress = Progress(TextColumn("[progress.description]{task.description}"),
+PROGRESS = Progress(TextColumn("[progress.description]{task.description}"),
                     BarColumn(),
                     TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
                     MofNCompleteColumn(),
@@ -33,22 +33,24 @@ progress = Progress(TextColumn("[progress.description]{task.description}"),
                     TimeRemainingColumn(),
                     TextColumn("• {task.fields[filename]}"))
 
-# Callbacks
-def callback_path(ctx, param, value: Optional[str]) -> Optional[Path]:
-    """ Parses a click path into a pathlib Path object. """
-    return None if value is None else Path(value)
 
-def callback_paths(ctx, param, value: Optional[list[str]]) -> list[Path]:
-    """ Parses a list of click paths into a list of pathlib Path objects. """
-    return [] if value is None else list([Path(p) for p in value])
+# CALLBACK
+def callback_paths(ctx, param, value) -> list[Path]:
+    if not value:
+        raise click.BadParameter("", param=param)
+    paths = []
+    for pattern in value:
+        expanded = glob(pattern, recursive=True)
+        if not expanded:
+            p = Path(pattern)
+            if p.exists() and p.is_file():
+                paths.append(p)
+        else:
+            paths.extend(Path(p) for p in expanded if Path(p).is_file())
+    if not paths:
+        raise click.BadParameter("None of the provided paths or patterns matched existing files.")
+    return paths
 
-def callback_suffix(ctx, param, value: Optional[str]) -> Optional[str]:
-    """ Parses a string into a valid suffix. """
-    return None if value is None else (value if value.startswith('.') else f".{value}")
-
-def callback_logging(ctx, param, value: Optional[int]) -> int:
-    """ Returns the logging level based on a verbosity counter ("0": ERROR, "1": WARNING, "2": INFO, ">2": DEBUG). """
-    return 40 if value is None else 40 - (min(3, value) * 10)
 
 def callback_pagetype(ctx, param, value: Optional[str]) -> Optional[PageType]:
     """ Returns a PageType from a string. """
@@ -59,6 +61,7 @@ def callback_pagetype(ctx, param, value: Optional[str]) -> Optional[PageType]:
     else:
         raise click.BadOptionUsage(param, f"{value} is not a valid PageType")
     
+
 def callback_region_rules(ctx, param, value: tuple[str]) -> dict[str, tuple[PageType, Optional[str]]]:
     """ 
     Parses a list or tuple with rule strings into a dictionary (keys are strings of format pagetype.subtype or pagetype 
@@ -98,23 +101,8 @@ def callback_region_rules(ctx, param, value: tuple[str]) -> dict[str, tuple[Page
             result[source] = target
     return result
 
-# Helper
-def expand_paths(paths: Union[Path, list[Path]], glob: str = '*') -> list[Path]:
-    """ Expands a list of paths by unpacking directories. """
-    result = []
-    if isinstance(paths, list):
-        for path in paths:
-            if path.is_dir():
-                result.extend([p for p in path.glob(glob) if p.is_file()])
-            else:
-                result.append(path)
-    elif isinstance(paths, Path):
-        if paths.is_dir():
-            result.extend([p for p in paths.glob(glob) if p.is_file()])
-        else:
-            result.append(paths)
-    return sorted(result)
 
+# HELPER
 def csv_write(data: list[list], output: Path, header: Optional[list[str]] = None, delimiter: str = ",") -> None:
     """
     Writes a list of lists to a csv file.

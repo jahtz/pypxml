@@ -19,7 +19,7 @@ from typing import Optional, Literal
 import unicodedata as ud
 
 from pypxml import PageXML, PageType
-import rich_click as click
+import click
 
 from . import util
 
@@ -34,17 +34,10 @@ from . import util
     required=True
 )
 @click.option(
-    "-g", "--glob", "glob",
-    help="Glob pattern to match files within directories. Applies only to directory inputs passed as FILES.",
-    type=click.STRING, 
-    default="*.xml", show_default=True
-)
-@click.option(
     "-o", "--output", "output",
     help="Path to a CSV file to save the results. If omitted, results are printed to stdout. "
          "If a directory is given, the file 'codec.csv' will be created inside it.",
-    type=click.Path(exists=False, dir_okay=False, file_okay=True, resolve_path=True),
-    callback=util.callback_path
+    type=click.Path(exists=False, dir_okay=False, file_okay=True, resolve_path=True, path_type=Path)
 )
 @click.option(
     "-l", "--level", "level", 
@@ -73,26 +66,33 @@ from . import util
     help="Normalize unicode before analyzing text.",
     type=click.Choice(["NFC", "NFD", "NFKC", "NFKD"])
 )
-def get_codec(files: list[Path], glob: str = "*.xml", output: Optional[Path] = None, 
-              level: PageType = PageType.TextLine, index: Optional[int] = None, remove_whitespace: bool = False, 
-              frequencies: bool = False, normalize: Optional[Literal["NFC", "NFD", "NFKC", "NFKD"]] = None):
+def get_codec(
+    files: list[Path], 
+    output: Optional[Path] = None, 
+    level: PageType = PageType.TextLine, 
+    index: Optional[int] = None, 
+    remove_whitespace: bool = False, 
+    frequencies: bool = False, 
+    normalize: Optional[Literal["NFC", "NFD", "NFKC", "NFKD"]] = None
+) -> None:
     """
     This tool analyzes the text content of PageXML files and extracts the set of characters used.
     
     It can optionally normalize unicode, remove whitespace, and output character frequencies.
     Results are printed to the console or saved as a CSV file.
+    
+    FILES: List of PageXML file paths to process. Accepts individual files, glob wildcards, or directories.
     """
-    files = util.expand_paths(files, glob)
     if output and output.is_dir():
         output = output.joinpath("codec.csv")
     if output:
         output.parent.mkdir(parents=True, exist_ok=True)
 
     results = Counter()
-    with util.progress as bar:
-        task = bar.add_task("Processing", total=len(files), filename="")
+    with util.PROGRESS as progressbar:
+        task = progressbar.add_task("Processing", total=len(files), filename="")
         for fp in files:
-            bar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
+            progressbar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
             pagexml = PageXML.from_file(fp, raise_on_error=False)
             for element in pagexml.find_by_type(level, depth=-1):
                 if text := element.find_text(index=index):
@@ -101,8 +101,8 @@ def get_codec(files: list[Path], glob: str = "*.xml", output: Optional[Path] = N
                     if remove_whitespace:
                         text = text.translate(str.maketrans('', '', string.whitespace))
                     results.update(text)
-            bar.update(task, advance=1)
-        bar.update(task, filename="Done")
+            progressbar.advance(task)
+        progressbar.update(task, filename="Done")
     
     codec_dict = {k: v for k, v in results.most_common(None)}
     data = sorted([[k, v] for k, v in codec_dict.items()], reverse=True, key=lambda x: x[1])
@@ -125,24 +125,18 @@ def get_codec(files: list[Path], glob: str = "*.xml", output: Optional[Path] = N
     required=True
 )
 @click.option(
-    "-g", "--glob", "glob",
-    help="Glob pattern to match files within directories. Applies only to directory inputs passed as FILES.",
-    type=click.STRING, 
-    default="*.xml", show_default=True
-)
-@click.option(
     "-o", "--output", "output",
     help="CSV file or directory where the results are saved. If a directory is given, the file 'regions.csv' will be "
          "created inside it. If omitted, results are printed to stdout.",
-    type=click.Path(exists=False, dir_okay=True, file_okay=True, resolve_path=True),
-    callback=util.callback_path
+    type=click.Path(exists=False, dir_okay=True, file_okay=True, resolve_path=True, path_type=Path)
 )
 @click.option(
     "-l", "--level", "level",
     help="Set the aggregation level for the output. 'total' combines all files, 'directory' aggregates by parent "
          "directory, and 'file' lists results per individual file.",
     type=click.Choice(["total", "directory", "file"]), 
-    default="total", show_default=True
+    default="total", 
+    show_default=True
 )
 @click.option(
     "-f", "--frequencies", "frequencies",
@@ -154,32 +148,38 @@ def get_codec(files: list[Path], glob: str = "*.xml", output: Optional[Path] = N
     help="Include subtypes by printing them as 'PageType.type' if available.",
     type=click.BOOL, is_flag=True
 )
-def get_regions(files: list[Path], glob: str = "*.xml", output: Optional[Path] = None, 
-                level: Literal["total", "directory", "file"] = "", frequencies: bool = False, types: bool = False):
+def get_regions(
+    files: list[Path], 
+    output: Optional[Path] = None, 
+    level: Literal["total", "directory", "file"] = "", 
+    frequencies: bool = False, 
+    types: bool = False
+) -> None:
     """
     Analyzes PageXML files and lists the region types found.
     
     Optionally includes subtypes, outputs frequencies, and group by file, directory, or globally.
+    
+    FILES: List of PageXML file paths to process. Accepts individual files, glob wildcards, or directories.
     """
-    files = util.expand_paths(files, glob)
     if output and output.is_dir():
         output = output.joinpath("regions.csv")
     if output:
         output.parent.mkdir(parents=True, exist_ok=True)
 
     results = {}
-    with util.progress as bar:
-        task = bar.add_task("Processing", total=len(files), filename="")
+    with util.PROGRESS as progressbar:
+        task = progressbar.add_task("Processing", total=len(files), filename="")
         for fp in files:
-            bar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
+            progressbar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
             pagexml = PageXML.from_file(fp, raise_on_error=False)
             found_regions = []
             for region in pagexml.regions:
                 t = f"{region.pagetype.value}.{region['type']}" if types and "type" in region else region.pagetype.value
                 found_regions.append(t)
             results[str(fp)] = Counter(found_regions)
-            bar.update(task, advance=1)
-        bar.update(task, filename="Done")
+            progressbar.advance(task)
+        progressbar.update(task, filename="Done")
 
     format_count = lambda c: str(c) if frequencies else ("x" if c > 0 else "")
     if level in ["file", "directory"]:
@@ -216,17 +216,10 @@ def get_regions(files: list[Path], glob: str = "*.xml", output: Optional[Path] =
     required=True
 )
 @click.option(
-    "-g", "--glob", "glob",
-    help="Glob pattern to match files within directories. Applies only to directory inputs passed as FILES.",
-    type=click.STRING, 
-    default="*.xml", show_default=True
-)
-@click.option(
     "-o", "--output", "output",
     help="CSV file or directory where the results are saved. If a directory is given, the file 'customs.csv' will be "
          "created inside it. If omitted, results are printed to stdout.",
-    type=click.Path(exists=False, dir_okay=True, file_okay=True, resolve_path=True),
-    callback=util.callback_path
+    type=click.Path(exists=False, dir_okay=True, file_okay=True, resolve_path=True, path_type=Path)
 )
 @click.option(
     "-l", "--level", "level",
@@ -240,31 +233,36 @@ def get_regions(files: list[Path], glob: str = "*.xml", output: Optional[Path] =
     help="Also output the frequency (count) of each region type.",
     type=click.BOOL, is_flag=True
 )
-def get_custom(files: list[Path], glob: str = "*.xml", output: Optional[Path] = None, 
-                level: Literal["total", "directory", "file"] = "", frequencies: bool = False, types: bool = False):
+def get_custom(
+    files: list[Path], 
+    output: Optional[Path] = None, 
+    level: Literal["total", "directory", "file"] = "", 
+    frequencies: bool = False
+) -> None:
     """
     Analyzes PageXML files and lists the custom region types found.
     
     Optionally outputs frequencies and group by file, directory, or globally.
+    
+    FILES: List of PageXML file paths to process. Accepts individual files, glob wildcards, or directories.
     """
-    files = util.expand_paths(files, glob)
     if output and output.is_dir():
         output = output.joinpath("regions.csv")
     if output:
         output.parent.mkdir(parents=True, exist_ok=True)
 
     results = {}
-    with util.progress as bar:
-        task = bar.add_task("Processing", total=len(files), filename="")
+    with util.PROGRESS as progressbar:
+        task = progressbar.add_task("Processing", total=len(files), filename="")
         for fp in files:
-            bar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
+            progressbar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
             pagexml = PageXML.from_file(fp, raise_on_error=False)
             found_regions = []
             for region in pagexml.regions:
                 found_regions.append(region["custom"] if "custom" in region else "None")
             results[str(fp)] = Counter(found_regions)
-            bar.update(task, advance=1)
-        bar.update(task, filename="Done")
+            progressbar.advance(task)
+        progressbar.update(task, filename="Done")
 
     format_count = lambda c: str(c) if frequencies else ("x" if c > 0 else "")
     if level in ["file", "directory"]:
@@ -301,18 +299,11 @@ def get_custom(files: list[Path], glob: str = "*.xml", output: Optional[Path] = 
     required=True
 )
 @click.option(
-    "-g", "--glob", "glob",
-    help="Glob pattern to match files within directories. Applies only to directory inputs passed as FILES.",
-    type=click.STRING, 
-    default="*.xml", show_default=True
-)
-@click.option(
     "-o", "--output", "output",
     help="Output destination. If a directory is specified, a separate text file is created for each PageXML file, "
          "ignoring the page separator. If a file is specified, the text from all files is concatenated into that file. "
          "If omitted, the text is printed to stdout.",
-    type=click.Path(exists=False, dir_okay=True, file_okay=True, resolve_path=True),
-    callback=util.callback_path
+    type=click.Path(exists=False, dir_okay=True, file_okay=True, resolve_path=True, path_type=Path)
 )
 @click.option(
     "-i", "--index", "index",
@@ -330,15 +321,21 @@ def get_custom(files: list[Path], glob: str = "*.xml", output: Optional[Path] = 
          "Ignored when outputting multiple files. Use \"\" for an empty line, \"\\n\" for two empty lines, ...",
     type=click.STRING
 )
-def get_text(files: list[Path], glob: str = "*.xml", output: Optional[Path] = None, index: Optional[int] = None,
-             region_separator: Optional[str] = None, page_separator: Optional[str] = None):
+def get_text(
+    files: list[Path], 
+    output: Optional[Path] = None, 
+    index: Optional[int] = None,
+    region_separator: Optional[str] = None, 
+    page_separator: Optional[str] = None
+) -> None:
     """
     Extract text from PageXML files at the TextLine level.
     
     Outputs to individual text files, a single file, or prints to the console, 
     with optional separators between regions and pages.
+    
+    FILES: List of PageXML file paths to process. Accepts individual files, glob wildcards, or directories.
     """
-    files = util.expand_paths(files, glob)
     region_sep = None if region_separator is None else region_separator.replace("\\n", "\n")
     page_sep = None if page_separator is None else page_separator.replace("\\n", "\n")
     
@@ -355,10 +352,10 @@ def get_text(files: list[Path], glob: str = "*.xml", output: Optional[Path] = No
         mode = "print"
     
     results = []
-    with util.progress as bar:
-        task = bar.add_task("Processing", total=len(files), filename="")
+    with util.PROGRESS as progressbar:
+        task = progressbar.add_task("Processing", total=len(files), filename="")
         for i, fp in enumerate(files, start=1):
-            bar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
+            progressbar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
             pagexml = PageXML.from_file(fp, raise_on_error=False)
             ptext = False
             for j, region in enumerate(pagexml.regions, start=1):
@@ -377,8 +374,8 @@ def get_text(files: list[Path], glob: str = "*.xml", output: Optional[Path] = No
             if mode == "multi":  # write the content of the current file
                 output.joinpath(fp.name.split(".")[0] + ".txt").write_text("\n".join(results), encoding="utf-8")
                 results.clear()
-            bar.update(task, advance=1)
-        bar.update(task, filename="Done")
+            progressbar.advance(task)
+        progressbar.update(task, filename="Done")
 
     if mode == "print":  # print all text to the console
         for line in results:

@@ -14,14 +14,14 @@
 
 import logging
 
-import rich_click as click
+import click
 from rich.logging import RichHandler
 
 from .analytics_cli import get_codec, get_regions, get_custom, get_text
 from .regularize_cli import regularize_codec, regularize_regions
 
 
-__version__ = "4.2.1"
+__version__ = "4.2.2"
 __prog__ = "pypxml"
 __footer__ = "Developed at Centre for Philology and Digitality (ZPD), University of Würzburg"
 
@@ -33,28 +33,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("pagexml")
 
-click.rich_click.SHOW_ARGUMENTS = True
-click.rich_click.MAX_WIDTH = 90
-click.rich_click.RANGE_STRING = ""
-click.rich_click.SHOW_METAVARS_COLUMN = False
-click.rich_click.APPEND_METAVARS_HELP = True
-click.rich_click.FOOTER_TEXT = __footer__
-click.rich_click.OPTION_GROUPS = {
-    "pypxml *": [
-        {
-            "name": "Input",
-            "options": ["files", "--glob", "--index", "--level", "--plaintext"]
-        }
-    ],
-}
-
 
 @click.group()
 @click.help_option("--help")
-@click.version_option(__version__,
-                      "--version",
-                      prog_name=__prog__,
-                      message=f"{__prog__} v{__version__}\n{__footer__}")
+@click.version_option(
+    __version__, "--version",
+    prog_name=__prog__,
+    message=f"{__prog__} v{__version__}\n{__footer__}"
+)
 def cli(**kwargs):
     """
     A python library for parsing, converting and modifying PageXML files.

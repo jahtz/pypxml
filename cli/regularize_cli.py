@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Optional
 
 from pypxml import PageXML, PageType
-import rich_click as click
+import click
 
 from . import util
 
@@ -31,17 +31,9 @@ from . import util
     required=True
 )
 @click.option(
-    "-g", "--glob", "glob",
-    help="Glob pattern for matching files within directories. Applies only to directory inputs passed as FILES.",
-    type=click.STRING, 
-    default="*.xml", 
-    show_default=True,
-)
-@click.option(
     "-o", "--output", "output",
     help="Directory to save the modified PageXML files. If omitted, input files will be overwritten.",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    callback=util.callback_path, 
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True, path_type=Path)
 )
 @click.option(
     "-i", "--index", "index",
@@ -66,26 +58,34 @@ from . import util
     "-r", "--rule", "rules",
     help="Define substring replacement rules. Each rule is a pair of strings: '--rule SOURCE TARGET'. "
          "Multiple rules can be specified by repeating the option.",
-    type=click.STRING, nargs=2, 
+    type=click.STRING, 
+    nargs=2, 
     multiple=True, 
     required=True
 )
-def regularize_codec(files: list[Path], glob: str = "*.xml", output: Optional[Path] = None, index: Optional[int] = None, 
-                     level: PageType = PageType.TextLine, rules: list[tuple[str, str]] = None, plaintext: bool = False):
+def regularize_codec(
+    files: list[Path], 
+    output: Optional[Path] = None, 
+    index: Optional[int] = None, 
+    level: PageType = PageType.TextLine, 
+    rules: list[tuple[str, str]] = None, 
+    plaintext: bool = False
+) -> None:
     """
     Apply character replacement rules to text elements in PageXML files.
     
     Supports selecting PlainText or Unicode elements and limiting replacements to specific element levels.
+    
+    FILES: List of PageXML file paths to process. Accepts individual files, glob wildcards, or directories.
     """
-    files = util.expand_paths(files, glob)
     if output:
         output.mkdir(parents=True, exist_ok=True)
         
-    with util.progress as bar:
-        task = bar.add_task("Processing", total=len(files), filename="")
+    with util.progress as progressbar:
+        task = progressbar.add_task("Processing", total=len(files), filename="")
         replacements = 0
         for fp in files:
-            bar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
+            progressbar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
             pagexml = PageXML.from_file(fp, raise_on_error=False)
             for element in pagexml.find_by_type(level, depth=-1):
                 for textequiv in element.find_by_type(PageType.TextEquiv, index=index):
@@ -95,8 +95,8 @@ def regularize_codec(files: list[Path], glob: str = "*.xml", output: Optional[Pa
                                 replacements += count
                                 textelement.text = textelement.text.replace(rule[0], rule[1])
             pagexml.to_file(output.joinpath(fp.name) if output else fp)
-            bar.update(task, advance=1)
-        bar.update(task, filename="Done")
+            progressbar.advance(task)
+        progressbar.update(task, filename="Done")
     print(f"Replacements: {replacements}")
             
 
@@ -110,19 +110,9 @@ def regularize_codec(files: list[Path], glob: str = "*.xml", output: Optional[Pa
     required=True
 )
 @click.option(
-    "-g", "--glob", "glob",
-    help="Glob pattern to match files within directories. Applies only to directory inputs passed as FILES.",
-    type=click.STRING, 
-    default="*.xml", 
-    show_default=True, 
-    required=False
-)
-@click.option(
     "-o", "--output", "output",
     help="Directory to save the modified PageXML files. If omitted, input files will be overwritten.",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    callback=util.callback_path, 
-    required=False
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True, path_type=Path)
 )
 @click.option(
     "-r", "--rule", "rules",
@@ -134,23 +124,27 @@ def regularize_codec(files: list[Path], glob: str = "*.xml", output: Optional[Pa
     callback=util.callback_region_rules,
     multiple=True
 )
-def regularize_regions(files: list[Path], glob: str = "*.xml", output: Optional[Path] = None,
-                       rules: dict[str, Optional[tuple[PageType, Optional[str]]]] = None):
+def regularize_regions(
+    files: list[Path], 
+    output: Optional[Path] = None,
+    rules: dict[str, Optional[tuple[PageType, Optional[str]]]] = None
+) -> None:
     """
     This tool processes PageXML files and updates or removes regions based on specified rules.
     
     Regions are matched by their PageType and optional subtype. Regions matching the source specification are either
     updated to a new type or deleted if no target is given.
+    
+    FILES: List of PageXML file paths to process. Accepts individual files, glob wildcards, or directories.
     """
-    files = util.expand_paths(files, glob)
     if output:
         output.mkdir(parents=True, exist_ok=True)
     deleted = 0
     changed = 0
-    with util.progress as bar:
-        task = bar.add_task("Processing", total=len(files), filename="")
+    with util.progress as progressbar:
+        task = progressbar.add_task("Processing", total=len(files), filename="")
         for fp in files:
-            bar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
+            progressbar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))
             pagexml = PageXML.from_file(fp, raise_on_error=False)
             for region in pagexml.regions:
                 key = f"{region.pagetype.value}.{region['type']}" if 'type' in region else region.pagetype.value
@@ -164,6 +158,6 @@ def regularize_regions(files: list[Path], glob: str = "*.xml", output: Optional[
                         region["type"] = value[1]
                         changed += 1
             pagexml.to_file(output.joinpath(fp.name) if output else fp)
-            bar.update(task, advance=1)
-        bar.update(task, filename="Done")
+            progressbar.advance(task)
+        progressbar.update(task, filename="Done")
     print(f"Changed: {changed}\nDeleted: {deleted}")
