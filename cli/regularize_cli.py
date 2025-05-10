@@ -81,7 +81,7 @@ def regularize_codec(
     if output:
         output.mkdir(parents=True, exist_ok=True)
         
-    with util.progress as progressbar:
+    with util.PROGRESS as progressbar:
         task = progressbar.add_task("Processing", total=len(files), filename="")
         replacements = 0
         for fp in files:
@@ -116,13 +116,15 @@ def regularize_codec(
 )
 @click.option(
     "-r", "--rule", "rules",
-    help="Define rules for region regularization. Format: SOURCE[,SOURCE...]:TARGET "
-         "where SOURCE is one or more region types (e.g., TextRegion.paragraph, ImageRegion), "
-         "and TARGET is the new region type. Use an empty TARGET to delete matching regions. "
+    help="Define rules for region regularization. Format: --rule SOURCE TARGET "
+         "where SOURCE is the original region type (e.g., TextRegion.paragraph, ImageRegion), "
+         "and TARGET is the new region type. Use an 'None' TARGET to delete the region. "
          "Only region PageTypes are allowed. Multiple rules can be specified by repeating this option.",
     type=click.STRING,
     callback=util.callback_region_rules,
-    multiple=True
+    nargs=2, 
+    multiple=True, 
+    required=True
 )
 def regularize_regions(
     files: list[Path], 
@@ -133,7 +135,7 @@ def regularize_regions(
     This tool processes PageXML files and updates or removes regions based on specified rules.
     
     Regions are matched by their PageType and optional subtype. Regions matching the source specification are either
-    updated to a new type or deleted if no target is given.
+    updated to a new type or deleted if target is set to 'None'.
     
     FILES: List of PageXML file paths to process. Accepts individual files, glob wildcards, or directories.
     """
@@ -141,7 +143,7 @@ def regularize_regions(
         output.mkdir(parents=True, exist_ok=True)
     deleted = 0
     changed = 0
-    with util.progress as progressbar:
+    with util.PROGRESS as progressbar:
         task = progressbar.add_task("Processing", total=len(files), filename="")
         for fp in files:
             progressbar.update(task, filename=Path("/", *fp.parts[-min(len(fp.parts), 4):]))

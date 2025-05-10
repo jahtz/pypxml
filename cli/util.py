@@ -85,20 +85,12 @@ def callback_region_rules(ctx, param, value: tuple[str]) -> dict[str, tuple[Page
     
     result = {}
     for rule in value:
-        if rule.count(':') != 1:
-            raise click.BadOptionUsage(param, f"Invalid format: expected exactly one `:`, got {rule.count(':')}")
-        sources, target = rule.split(':')
-        sources = [s.strip() for s in sources.split(',') if s.strip()]
-        if not sources:
-            raise click.BadOptionUsage(param, f"Invalid format: at least one non-empty source is required, got `{rule}`")
-        if ',' in target:
-            raise click.BadOptionUsage(param, f"Invalid format: only one target can be specified, got `{target}`")
-        target = parse_type(target) if target else None
-        for source in sources:
-            parse_type(source)  # validate
-            if source in result:
-                raise click.BadOptionUsage(param, f"Invalid format: `{source}` cannot declared multiple times as a source")
-            result[source] = target
+        source, target = rule
+        parse_type(source)  # validate source
+        if source in result:
+            raise click.BadOptionUsage(param, f"Invalid format: `{source}` cannot declared multiple times as a source")
+        target = parse_type(target) if target.lower() != "none" else None
+        result[source] = target
     return result
 
 

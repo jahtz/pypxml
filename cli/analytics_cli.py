@@ -230,7 +230,7 @@ def get_regions(
 )
 @click.option(
     "-f", "--frequencies", "frequencies",
-    help="Also output the frequency (count) of each region type.",
+    help="Also output the frequency (count) of each custom attribute.",
     type=click.BOOL, is_flag=True
 )
 def get_custom(

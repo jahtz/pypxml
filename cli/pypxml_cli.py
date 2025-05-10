@@ -21,7 +21,7 @@ from .analytics_cli import get_codec, get_regions, get_custom, get_text
 from .regularize_cli import regularize_codec, regularize_regions
 
 
-__version__ = "4.2.2"
+__version__ = "4.2.3"
 __prog__ = "pypxml"
 __footer__ = "Developed at Centre for Philology and Digitality (ZPD), University of Würzburg"
 
@@ -34,7 +34,7 @@ logging.basicConfig(
 logger = logging.getLogger("pagexml")
 
 
-@click.group()
+@click.group(epilog=__footer__)
 @click.help_option("--help")
 @click.version_option(
     __version__, "--version",
