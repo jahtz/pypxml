@@ -27,10 +27,11 @@ from .pagetype import PageType
 
 
 logging.basicConfig(level=logging.ERROR, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(markup=True)])
-logger = logging.getLogger("pagexml")
+logger = logging.getLogger("pypxml")
 
 PRE_RO = [PageType.AlternativeImage, PageType.Border, PageType.PrintSpace]
 POST_RO = [PageType.Layers, PageType.Relations, PageType.TextStyle, PageType.UserDefined, PageType.Labels]
+
 
 class PageXML:
     """

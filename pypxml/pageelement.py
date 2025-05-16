@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from .pagexml import PageXML
    
  
-logger = logging.getLogger("pagexml")
+logger = logging.getLogger("pypxml")
     
     
 class PageElement:

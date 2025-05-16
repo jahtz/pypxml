@@ -31,7 +31,7 @@ logging.basicConfig(
     datefmt="[%X]",
     handlers=[RichHandler(markup=True)]
 )
-logger = logging.getLogger("pagexml")
+logger = logging.getLogger("pypxml")
 
 
 @click.group(epilog=__footer__)
