@@ -335,3 +335,11 @@ class PageElement:
     def clear_elements(self) -> None:
         """ Removes all elements from the list of child elements. """
         self.__elements.clear()
+        
+    def delete(self) -> Optional[Self]:
+        """ Delete the current element. """
+        if self.parent:
+            self.parent.delete_element(self)
+            return self
+        return None
+    
