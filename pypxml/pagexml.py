@@ -29,6 +29,8 @@ from .pagetype import PageType
 logging.basicConfig(level=logging.ERROR, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(markup=True)])
 logger = logging.getLogger("pagexml")
 
+PRE_RO = [PageType.AlternativeImage, PageType.Border, PageType.PrintSpace]
+POST_RO = [PageType.Layers, PageType.Relations, PageType.TextStyle, PageType.UserDefined, PageType.Labels]
 
 class PageXML:
     """
@@ -274,6 +276,7 @@ class PageXML:
         """
         if (page := tree.find("./{*}Page")) is not None:
             attributes = {str(k): str(v) for k, v in dict(page.items()).items() if v is not None}
+            
             # Metadata
             creator = None
             created = None
@@ -286,6 +289,7 @@ class PageXML:
                 if (last_change := md_tree.find("./{*}LastChange")) is not None:
                     last_change = last_change.text
             pagexml = cls(creator=creator, created=created, last_change=last_change, **attributes)
+            
             # ReadingOrder
             if (ro := page.find("./{*}ReadingOrder")) is not None:
                 if (ro_elements := ro.findall(".//{*}RegionRefIndexed")) is not None:
@@ -293,6 +297,7 @@ class PageXML:
                                                             for e in sorted(list(ro_elements), 
                                                                             key=lambda x: int(x.get("index")))])
                 page.remove(ro)
+                
             # PageElements
             for element in page:
                 if (pe := PageElement.from_etree(element, parent=pagexml, raise_on_error=raise_on_error)) is not None:
@@ -317,23 +322,37 @@ class PageXML:
         xsi_qname = etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")
         nsmap = {None: schema["xmlns"], "xsi": schema["xmlns_xsi"]}
         root = etree.Element( "PcGts", {xsi_qname: schema["xsi_schema_location"]}, nsmap=nsmap)
+        
         # Metadata
         metadata = etree.SubElement(root, "Metadata")
         etree.SubElement(metadata, "Creator").text = self.creator
         etree.SubElement(metadata, "Created").text = self.__created
         etree.SubElement(metadata, "LastChange").text = self.__last_change
+        
         # Page
         page = etree.Element("Page", **self.__attributes)
-        root.append(page)
+        root.append(page) 
+        
+        # Pre ReadingOrder elements
+        for ptype in PRE_RO:
+            for element in self.find_by_type(ptype):
+                page.append(element.to_etree())
+                
         # ReadingOrder
         if len(self.__reading_order) > 0:
             reading_order = etree.SubElement(page, "ReadingOrder")
             order_group = etree.SubElement(reading_order, "OrderedGroup", id="g0")
             for i, rid in enumerate(self.__reading_order):
                 etree.SubElement(order_group, "RegionRefIndexed", index=str(i), regionRef=rid)
+                
+        # Post Pre ReadingOrder elements
+        for ptype in POST_RO:
+            for element in self.find_by_type(ptype):
+                page.append(element.to_etree())
+                
         # PageElements
-        for element in self.__elements:
-            page.append(element.to_etree())
+        for region in self.regions:
+            page.append(region.to_etree())
         return root
     
     @classmethod
