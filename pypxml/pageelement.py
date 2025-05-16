@@ -185,7 +185,8 @@ class PageElement:
         element = cls(PageType[pagetype], parent, **dict(tree.items()))
         element.text = tree.text
         for child in tree:
-            element.set_element(PageElement.from_etree(child, element, raise_on_error=raise_on_error))
+            if (pe := PageElement.from_etree(child, element, raise_on_error=raise_on_error)) is not None:
+                element.set_element(pe)
         return element
         
     def to_etree(self) -> etree.Element:
