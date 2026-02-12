@@ -1,33 +1,44 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pypxml"
-description = "A python library for parsing, converting and modifying PageXML files. "
-keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
-version = "4.0.0"
+description = "A python library for reading, writing, and modifying PageXML files."
 readme = "README.md"
-license = { text = "Apache 2.0" }
+keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+dynamic = ["dependencies", "version"]
+
 authors = [
-    { name = "Janik Haitz", email = "jahtz.dev@proton.me" }
+    { name = "jahtz", email = "jahtz.dev@proton.me" }
 ]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
 ]
-dependencies = [
-    "lxml ~= 5.3.1",
-]
-requires-python = ">=3.11"
 
 [project.urls]
 Repository = "https://github.com/jahtz/pypxml"
 
+[project.optional-dependencies]
+cli = ["click >= 8.0", "rich >= 14.0.0"]
+dev = ["pytest", "pytest-cov", "mypy", "ruff"]
+
+[project.scripts]
+pypxml = "pypxml.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["tests", "assets"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.txt" }
+version = { attr = "pypxml.__version__.__version__" }
 
 [tool.setuptools.package-data]
-pypxml = ["../resources/schema.json"]
+pypxml = ["py.typed"]

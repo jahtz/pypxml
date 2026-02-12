@@ -1,161 +1,176 @@
-# Copyright 2025 Janik Haitz
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
 
 from enum import Enum
-from typing import Union, Self
 
 
 class PageType(Enum):
     """
-    Reference: https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
-    """
+    Enumeration of PAGE-XML element and region types.
 
-    # ReadingOrder
-    ReadingOrder = "ReadingOrder"
+    This enum mirrors the element and region names defined in the PAGE-XML schema (PcGtsType / Page content model) as 
+    specified by the OCR-D ground truth guidelines:
+
+    https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
+
+    It provides a typed and Pythonic representation of PAGE-XML node names and structural elements such as:
+
+    - Structural containers (e.g. ReadingOrder, OrderedGroup)
+    - Region types (e.g. TextRegion, ImageRegion, TableRegion)
+    - Layout primitives (e.g. Coords, Baseline, Border)
+    - Textual elements (e.g. TextLine, Word, Unicode)
+    - Metadata and user-defined structures
+
+    The enum values correspond exactly to the XML tag names.
+
+    Design notes:
+    - `str(PageType.X)` returns the enum name.
+    - Equality supports comparison with both `PageType` and `str`.
+    - `is_region` indicates whether the value represents a PAGE region type.
+    - `is_valid(string)` checks whether a string corresponds to a known PageType.
+
+    This enum is intended to:
+    - Avoid magic strings
+    - Improve type safety
+    - Enable IDE autocompletion
+    - Make filtering and querying PAGE-XML documents more robust
+    """
+    
+    # Page
+    ReadingOrder = 'ReadingOrder'
     """
     Definition of the reading order within the page. To express a reading order between elements they have to be 
     included in an OrderedGroup. Groups may contain further groups.
     """
     
-    RegionRef = "RegionRef"
+    RegionRef = 'RegionRef'
     """
     Region reference.
     """
     
-    OrderedGroup = "OrderedGroup"
+    OrderedGroup = 'OrderedGroup'
     """
     Numbered group (contains ordered elements).
     """
     
-    UnorderedGroup = "UnorderedGroup"
+    UnorderedGroup = 'UnorderedGroup'
     """
     Numbered group (contains ordered elements)
     """
     
-    OrderedGroupIndexed = "OrderedGroupIndexed"
+    OrderedGroupIndexed = 'OrderedGroupIndexed'
     """
     Indexed group containing ordered elements.
     """
     
-    UnorderedGroupIndexed = "UnorderedGroupIndexed"
+    UnorderedGroupIndexed = 'UnorderedGroupIndexed'
     """
     Indexed group containing unordered elements.
     """
     
-    RegionRefIndexed = "RegionRefIndexed"
+    RegionRefIndexed = 'RegionRefIndexed'
     """
     Numbered region.
     """
 
     # Regions
-    AdvertRegion = "AdvertRegion"
+    AdvertRegion = 'AdvertRegion'
     """
     Regions containing advertisements.
     """
     
-    ChartRegion = "ChartRegion"
+    ChartRegion = 'ChartRegion'
     """
     Regions containing charts or graphs of any type, should be marked as chart regions.
     """
     
-    ChemRegion = "ChemRegion"
+    ChemRegion = 'ChemRegion'
     """
     Regions containing chemical formulas.
     """
     
-    CustomRegion = "CustomRegion"
+    CustomRegion = 'CustomRegion'
     """
     Regions containing content that is not covered by the default types (text, graphic, image, line drawing, chart, 
     table, separator, maths, map, music, chem, advert, noise, unknown).
     """
     
-    GraphicRegion = "GraphicRegion"
+    GraphicRegion = 'GraphicRegion'
     """
     Regions containing simple graphics, such as company logo, should be marked as graphic regions.
     """
     
-    ImageRegion = "ImageRegion"
+    ImageRegion = 'ImageRegion'
     """
     An image is considered to be more intricated and complex than a graphic. These can be photos or drawings.
     """
     
-    LineDrawingRegion = "LineDrawingRegion"
+    LineDrawingRegion = 'LineDrawingRegion'
     """
     A line drawing is a single colour illustration without solid areas.
     """
     
-    MapRegion = "MapRegion"
+    MapRegion = 'MapRegion'
     """
     Regions containing maps.
     """
     
-    MathsRegion = "MathsRegion"
+    MathsRegion = 'MathsRegion'
     """
     Regions containing equations and mathematical symbols should be marked as maths regions.
     """
     
-    MusicRegion = "MusicRegion"
+    MusicRegion = 'MusicRegion'
     """
     Regions containing musical notations.
     """
     
-    NoiseRegion = "NoiseRegion"
+    NoiseRegion = 'NoiseRegion'
     """
     Noise regions are regions where no real data lies, only false data created by artifacts on the document or scanner 
     noise.
     """
     
-    SeparatorRegion = "SeparatorRegion"
+    SeparatorRegion = 'SeparatorRegion'
     """
     Separators are lines that lie between columns and paragraphs and can be used to logically separate different 
     articles from each other.
     """
     
-    TableRegion = "TableRegion"
+    TableRegion = 'TableRegion'
     """
     Tabular data in any form is represented with a table region. Rows and columns may or may not have separator lines; 
     these lines are not separator regions.
     """
     
-    TextRegion = "TextRegion"
+    TextRegion = 'TextRegion'
     """
     Pure text is represented as a text region. This includes drop capitals, but practically ornate text may be 
     considered as a graphic.
     """
     
-    UnknownRegion = "UnknownRegion"
+    UnknownRegion = 'UnknownRegion'
     """
     To be used if the region type cannot be ascertained.
     """
 
     # Elements
-    AlternativeImage = "AlternativeImage"
+    AlternativeImage = 'AlternativeImage'
     """
     Alternative region images (e.g. black-and-white)
     """
     
-    Baseline = "Baseline"
+    Baseline = 'Baseline'
     """
     Multiple connected points that mark the baseline of the glyphs.
     """
     
-    Border = "Border"
+    Border = 'Border'
     """
     Border of the actual page (if the scanned image contains parts not belonging to the page).
     """
     
-    Coords = "Coords"
+    Coords = 'Coords'
     """
     Polygon outline of the element as a path of points. No points may lie outside the outline of its parent, which in 
     the case of Border is the bounding rectangle of the root image. Paths are closed by convention, i.e. the last point 
@@ -163,70 +178,70 @@ class PageType(Enum):
     Paths must be planar (i.e. must not self-intersect).
     """
     
-    Glyph = "Glyph"
+    Glyph = 'Glyph'
     """
     No official annotation.
     """
     
-    GraphemeGroup = "GraphemeGroup"
+    GraphemeGroup = 'GraphemeGroup'
     """
     No official annotation.
     """
     
-    Grapheme = "Grapheme"
+    Grapheme = 'Grapheme'
     """
     No official annotation.
     """
 
-    Grid = "Grid"
+    Grid = 'Grid'
     """
     Table grid (visible or virtual grid lines).
     """
     
-    GridPoints = "GridPoints"
+    GridPoints = 'GridPoints'
     """
     One row in the grid point matrix. Points with x,y coordinates.
     """
     
-    Label = "Label"
+    Label = 'Label'
     """
     A semantic label / tag
     """
     
-    Labels = "Labels"
+    Labels = 'Labels'
     """
     Semantic labels / tags
     """
     
-    Layer = "Layer"
+    Layer = 'Layer'
     """
     No official annotation.
     """
     
-    Layers = "Layers"
+    Layers = 'Layers'
     """
     Unassigned regions are considered to be in the (virtual) default layer which is to be treated as below any other 
     layers.
     """
     
-    Metadata = "Metadata"
+    Metadata = 'Metadata'
     """
     No official annotation.
     """
     
-    NonPrintingChar = "NonPrintingChar"
+    NonPrintingChar = 'NonPrintingChar'
     """
     A glyph component without visual representation but with Unicode code point. 
     Non-visual / non-printing / control character. Part of grapheme container (of glyph) or grapheme sub group.
     """
     
-    PlainText = "PlainText"
+    PlainText = 'PlainText'
     """
-    Text in a "simple" form (ASCII or extended ASCII as mostly used for typing). I.e. no use of special characters for 
+    Text in a 'simple' form (ASCII or extended ASCII as mostly used for typing). I.e. no use of special characters for 
     ligatures (should be stored as two separate characters) etc.
     """
     
-    PrintSpace = "PrintSpace"
+    PrintSpace = 'PrintSpace'
     """
     Determines the effective area on the paper of a printed page. Its size is equal for all pages of a book 
     (exceptions: titlepage, multipage pictures). It contains all living elements (except marginals) like body type, 
@@ -234,72 +249,72 @@ class PageType(Enum):
     signature mark, preview words.   
     """
     
-    Relations = "Relations"
+    Relations = 'Relations'
     """
     Container for one-to-one relations between layout objects (for example: DropCap - paragraph, caption - image).
     """
     
-    Roles = "Roles"
+    Roles = 'Roles'
     """
     Roles the region takes (e.g. in context of a parent region)
     """
     
-    TextEquiv = "TextEquiv"
+    TextEquiv = 'TextEquiv'
     """
     No official annotation.
     """
     
-    TextLine = "TextLine"
+    TextLine = 'TextLine'
     """
     No official annotation.
     """
     
-    TextStyle = "TextStyle"
+    TextStyle = 'TextStyle'
     """
     Monospace (fixed-pitch, non-proportional) or proportional font.
     """
     
-    Unicode = "Unicode"
+    Unicode = 'Unicode'
     """
     Correct encoding of the original, always using the corresponding Unicode code point. I.e. ligatures have to be 
     represented as one character etc.
     """
     
-    UserAttribute = "UserAttribute"
+    UserAttribute = 'UserAttribute'
     """
     Structured custom data defined by name, type and value.
     """
     
-    UserDefined = "UserDefined"
+    UserDefined = 'UserDefined'
     """
     Container for user-defined attributes.
     """
     
-    Word = "Word"
+    Word = 'Word'
     """
     No official annotation.
     """
     
-    def __repr__(self):
-        return self.name
-    
     def __str__(self):
         return self.name
     
-    def __eq__(self, other: Union[str, Self]):
+    def __repr__(self):
+        return str(self)
+    
+    def __eq__(self, other: PageType | str):
         if isinstance(other, str):
             return self.value == other
         return super().__eq__(other)
     
-    @classmethod
-    def is_valid(cls, value: str) -> bool:
-        """ Returns True if the input is a valid PageXML type """
-        return value in cls.__members__
+    @property
+    def is_region(self):
+        return self.value in [
+            'AdvertRegion', 'ChartRegion', 'ChemRegion', 'CustomRegion', 'GraphicRegion', 'ImageRegion', 
+            'LineDrawingRegion', 'MapRegion', 'MathsRegion', 'MusicRegion', 'NoiseRegion', 'SeparatorRegion', 
+            'TableRegion', 'TextRegion', 'UnknownRegion'
+        ]
     
     @classmethod
-    def is_region(cls, value: Union[Self, str]) -> bool:
-        """ Returns True if the input is a PageXML region type """
-        return value in [PageType.AdvertRegion, PageType.ChartRegion, PageType.ChemRegion, PageType.CustomRegion,
-                         PageType.GraphicRegion, PageType.ImageRegion, PageType.LineDrawingRegion, PageType.MapRegion,
-                         PageType.MathsRegion, PageType.MusicRegion, PageType.NoiseRegion, PageType.SeparatorRegion,
-                         PageType.TableRegion, PageType.TextRegion, PageType.UnknownRegion]
+    def is_valid(cls, value: str) -> bool:
+        return value in cls.__members__
+        
