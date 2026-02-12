@@ -9,11 +9,11 @@ from typing import Literal
 from lxml import etree
 
 from .pageelement import PageElement
-from .schema import PageSchema
+from .pageschema import PageSchema
 from .pagetypes import PageType
 
 
-logger = logging.getLogger('pypxml')
+logger = logging.getLogger(__name__)
 
 
 class PageXML:
@@ -315,7 +315,7 @@ class PageXML:
             encoding: Set file encofing. Defaults to 'utf-8'.
             schema: Select a schema version (currently supported: `2017`, `2019`) or pass a custom schema. 
         """
-        with open(file, "wb") as f:
+        with open(file, 'wb') as f:
             tree = etree.tostring(self._to_etree(schema), pretty_print=True, encoding=encoding, xml_declaration=True)
             f.write(tree)
     
@@ -382,7 +382,7 @@ class PageXML:
     def create(
         self, 
         pagetype: PageType, 
-        index: int | None = None, 
+        i: int | None = None, 
         reading_order: bool = True, 
         **attributes: str
     ) -> PageElement:
@@ -390,7 +390,7 @@ class PageXML:
         Create a new child `PageElement` and add it to the list of elements.
         Args:
             pagetype: The `PageType` of the new child element.
-            index: If set, insert the new element at this index. Otherwise, append it to the list. Defaults to None.
+            i: If set, insert the new element at this index. Otherwise, append it to the list. Defaults to None.
             reading_order: If set to True, add the element to the reading order at the specified index. 
                 Only applies if the element is a region. Defaults to True.
             attributes: Named arguments that represent the attributes of the child object.
@@ -398,23 +398,23 @@ class PageXML:
             The newly created `PageElement` child object.
         """
         element = PageElement(pagetype, self, **attributes)
-        self.set(element=element, index=index, reading_order=reading_order)
+        self.set(element=element, i=i, reading_order=reading_order)
         return element
     
-    def set(self, element: PageElement, index: int | None = None, reading_order: bool = True) -> None:
+    def set(self, element: PageElement, i: int | None = None, reading_order: bool = True) -> None:
         """
         Add an existing `PageElement` object to the list of child elements.
         Args:
             element: The element to add as a child element.
-            index: If set, insert the element at this index. Otherwise, append it to the list. Defaults to None.
+            i: If set, insert the element at this index. Otherwise, append it to the list. Defaults to None.
             reading_order: If set to True, add the element to the reading order at the specified index. 
                 Only applies if the element is a region. Defaults to True.
         """
         if reading_order and element.is_region and 'id' in element:
             if element['id'] in self.__reading_order:
                 raise ValueError(f'Element with id {element["id"]} already exists')
-            self.__reading_order.insert(index if index is not None else len(self.__reading_order), element['id'])
-        self.__elements.insert(index if index is not None else len(self.__elements), element)
+            self.__reading_order.insert(i if i is not None else len(self.__reading_order), element['id'])
+        self.__elements.insert(i if i is not None else len(self.__elements), element)
         if element.parent is not self:
             element._PageElement__parent = self
             

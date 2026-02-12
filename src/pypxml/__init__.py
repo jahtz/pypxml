@@ -4,5 +4,5 @@ from .__version__ import __version__
 from .pagexml import PageXML
 from .pageelement import PageElement
 from .pagetypes import PageType
-from .schema import PageSchema
-from .util import PageUtil
+from .pageschema import PageSchema
+from .pageutil import PageUtil

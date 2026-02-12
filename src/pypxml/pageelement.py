@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 from .pagetypes import PageType
 
 
-logger = logging.getLogger('pypxml')
+logger = logging.getLogger(__name__)
 
 
 class PageElement:
@@ -274,28 +274,28 @@ class PageElement:
         matches = self.find_all(id=id, pagetype=pagetype, depth=depth, **attributes)
         return matches[0] if matches else None
 
-    def create(self, pagetype: PageType, index: int | None = None, **attributes: str) -> PageElement:
+    def create(self, pagetype: PageType, i: int | None = None, **attributes: str) -> PageElement:
         """
         Create a new child `PageElement` and add it to the list of elements.
         Args:
             pagetype: The PageType of the new child element.
-            index: If set, inserts the new element at this index. Otherwise, appends it to the list. Defaults to None.
+            i: If set, inserts the new element at this index. Otherwise, appends it to the list. Defaults to None.
             attributes: Named arguments that represent the attributes of the child object.
         Returns:
             The newly created `PageElement` child object.
         """
         element = PageElement(pagetype, self, **attributes)
-        self.set(element, index)
+        self.set(element, i)
         return element
     
-    def set(self, element: PageElement, index: int | None = None) -> None:
+    def set(self, element: PageElement, i: int | None = None) -> None:
         """
         Adds an existing `PageElement` object to the list of child elements.
         Args:
             element: The element to add as a child element.
             index: If set, inserts the element at this index. Otherwise, appends it to the list. Defaults to None.
         """
-        self.__elements.insert(index if index is not None else len(self.__elements), element)
+        self.__elements.insert(i if i is not None else len(self.__elements), element)
         if element.parent is not self:
             element._PageElement__parent = self
     

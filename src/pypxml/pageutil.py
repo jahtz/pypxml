@@ -6,10 +6,21 @@ from .pageelement import PageElement
 from .pagetypes import PageType
 
 
-logger = logging.getLogger('pypxml')
+logger = logging.getLogger(__name__)
 
 
 class PageUtil:
+    """
+    Utility helper class for common PAGE-XML operations.
+
+    This class provides convenience methods for extracting and resolving
+    textual content from `PageElement` instances, abstracting away the
+    structural complexity of PAGE-XML.
+
+    The methods are stateless and operate purely on the provided
+    `PageElement`, making this class a lightweight functional helper.
+    """
+
     @staticmethod
     def get_text(
         element: PageElement, 

@@ -28,7 +28,7 @@ Repository = "https://github.com/jahtz/pypxml"
 
 [project.optional-dependencies]
 cli = ["click >= 8.0", "rich >= 14.0.0"]
-dev = ["pytest", "pytest-cov", "mypy", "ruff"]
+dev = ["pytest", "pytest-cov"]
 
 [project.scripts]
 pypxml = "pypxml.cli:main"

@@ -28,12 +28,6 @@ class PageType(Enum):
     - Equality supports comparison with both `PageType` and `str`.
     - `is_region` indicates whether the value represents a PAGE region type.
     - `is_valid(string)` checks whether a string corresponds to a known PageType.
-
-    This enum is intended to:
-    - Avoid magic strings
-    - Improve type safety
-    - Enable IDE autocompletion
-    - Make filtering and querying PAGE-XML documents more robust
     """
     
     # Page
@@ -317,4 +311,3 @@ class PageType(Enum):
     @classmethod
     def is_valid(cls, value: str) -> bool:
         return value in cls.__members__
-        
