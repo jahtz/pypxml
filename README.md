@@ -27,6 +27,7 @@ pypxml --help
 - `get-codec` Extract the character set from PAGE-XML files.
 - `get-regions` List all regions in PageXML files.
 - `get-text` Extract text from PageXML files.
+- `reformat` Reformat PAGE-XML files.
 - `regularize-codec` Regularize character encodings in PAGE-XML files.
 - `regularize-regions` Regularize region types in PAGE-XML files.
 
