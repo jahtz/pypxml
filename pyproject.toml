@@ -9,7 +9,8 @@ readme = "README.md"
 keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
-dynamic = ["dependencies", "version"]
+dynamic = ["version"]
+dependencies = ["lxml ~= 6.0.2"]
 
 authors = [
     { name = "jahtz", email = "jahtz.dev@proton.me" }
@@ -37,7 +38,6 @@ pypxml = "pypxml.cli:main"
 where = ["src"]
 
 [tool.setuptools.dynamic]
-dependencies = { file = "requirements.txt" }
 version = { attr = "pypxml.__version__.__version__" }
 
 [tool.setuptools.package-data]
