@@ -10,8 +10,8 @@ except ImportError as e:
 from pypxml import __version__
 
 from .analytics import get_codec, get_regions, get_text
-from .format import reformat
-from .regularize import regularize_codec, regularize_regions
+from .misc import prettify
+from .regularise import regularise_codec, regularise_regions
 
 
 logging.basicConfig(
@@ -40,9 +40,14 @@ def main(ctx, level, **kwargs) -> None:
     logging.getLogger().setLevel(level)
 
 
+# analytics
 main.add_command(get_codec)
 main.add_command(get_regions)
 main.add_command(get_text)
-main.add_command(reformat)
-main.add_command(regularize_codec)
-main.add_command(regularize_regions)
+
+# misc
+main.add_command(prettify)
+
+# regularise
+main.add_command(regularise_codec)
+main.add_command(regularise_regions)
