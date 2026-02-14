@@ -52,7 +52,7 @@ pip install pypxml[cli]
 ```
 
 ### Usage
-```shell
+```
 $ pypxml --help
 Usage: pypxml [OPTIONS] COMMAND [ARGS]...
 
