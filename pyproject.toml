@@ -26,19 +26,20 @@ classifiers = [
 
 [project.urls]
 Repository = "https://github.com/jahtz/pypxml"
+Documentation = "https://github.com/jahtz/pypxml/tree/main/docs"
 
 [project.optional-dependencies]
 cli = ["click >= 8.0", "rich >= 14.0.0"]
 dev = ["pytest", "pytest-cov"]
 
 [project.scripts]
-pypxml = "pypxml.cli:main"
+pypxml = "cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.dynamic]
-version = { attr = "pypxml.__version__.__version__" }
+version = { attr = "pypxml.__version__" }
 
 [tool.setuptools.package-data]
 pypxml = ["py.typed"]
