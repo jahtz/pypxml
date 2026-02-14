@@ -84,14 +84,14 @@ def regularise_codec(
         task = pb.add_task('Processing', total=len(files), status='')
         for fp in files:
             pb.update(task, status=Path('/', *fp.parts[-min(len(fp.parts), 4):]))
-            pxml = PageXML.open(fp, raise_on_error=False)
-            for e in pxml.find_all(pagetype=targets, depth=-1):
+            page = PageXML.open(fp, raise_on_error=False)
+            for e in page.find_all(pagetype=targets, depth=-1):
                 for te in e.find_all(pagetype=PageType.TextEquiv, index=index):
                     for t in te.find_all(pagetype=elements):
                         for rule in rules:
                             replacements += t.text.count(rule[0])
                             t.text = t.text.replace(rule[0], rule[1])
-            pxml.save(output.joinpath(fp.name) if output else fp)
+            page.save(output.joinpath(fp.name) if output else fp)
             pb.advance(task)
         pb.update(task, status='Done')
     print(f'Replacements: {replacements}')
@@ -148,8 +148,8 @@ def regularise_regions(
         task = pb.add_task('Processing', total=len(files), status='')
         for fp in files:
             pb.update(task, status=Path('/', *fp.parts[-min(len(fp.parts), 4):]))
-            pxml = PageXML.open(fp, raise_on_error=False)
-            for r in pxml.regions:
+            page = PageXML.open(fp, raise_on_error=False)
+            for r in page.regions:
                 old = f'{r.pagetype.value}.{r["type"]}' if 'type' in r else r.pagetype.value
                 if old in rules.keys():
                     new = rules[old]
@@ -159,7 +159,7 @@ def regularise_regions(
                     else:
                         r.pagetype, r['type'] = new
                         changed += 1
-            pxml.save(output.joinpath(fp.name) if output else fp)
+            page.save(output.joinpath(fp.name) if output else fp)
             pb.advance(task)
         pb.update(task, status='Done')
         width = max(len(str(changed)), len(str(deleted)))

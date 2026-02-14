@@ -88,8 +88,8 @@ def get_codec(
         task = pb.add_task('Processing', total=len(files), status='')
         for fp in files:
             pb.update(task, status=Path('/', *fp.parts[-min(len(fp.parts), 4):]))
-            pxml = PageXML.open(fp, raise_on_error=False)
-            for e in pxml.find_all(pagetype=source, depth=-1):
+            page = PageXML.open(fp, raise_on_error=False)
+            for e in page.find_all(pagetype=source, depth=-1):
                 text = PageUtil.get_text(e, index=index, source=PageType.PlainText if plaintext else PageType.Unicode)
                 if text is not None:
                     if normalize is not None:
@@ -169,10 +169,10 @@ def get_regions(
         task = pb.add_task('Processing', total=len(files), status='')
         for fp in files:
             pb.update(task, status=Path('/', *fp.parts[-min(len(fp.parts), 4):]))
-            pxml = PageXML.open(fp, raise_on_error=False)
+            page = PageXML.open(fp, raise_on_error=False)
             result[fp.as_posix()] = Counter([
                 f'{r.pagetype.value}.{r["type"]}' if subtypes and 'type' in r else r.pagetype.value 
-                for r in pxml.regions
+                for r in page.regions
             ])
             pb.advance(task)
         pb.update(task, status='Done')
@@ -254,13 +254,13 @@ def get_text(
     """
     ClickUtil.validate_file(output, 'txt')
     
-    pxml = PageXML.open(file, raise_on_error=False)
-    pxml.reading_order_apply()
+    page = PageXML.open(file, raise_on_error=False)
+    page.reading_order_apply()
     
     result: list[str] = []
     with PROGRESSBAR as pb:
-        task = pb.add_task('Processing', total=len(pxml.regions), status='')
-        for r in pxml.regions:
+        task = pb.add_task('Processing', total=len(page.regions), status='')
+        for r in page.regions:
             rtext = []
             for tl in r.find_all(pagetype=PageType.TextLine):
                 text = PageUtil.get_text(tl, index=index, source=PageType.PlainText if plaintext else PageType.Unicode)
