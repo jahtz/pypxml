@@ -7,158 +7,73 @@ A modern, powerful Python library for reading, writing, and modifying [PAGE-XML]
 
 PAGE-XML is the standard format for storing layout and text information from OCR and document analysis systems. _pypxml_ makes it easy to work with these files programmatically.
 
-## Installation
-### From PyPI (Recommended)
-```bash
-pip install pypxml  # pypxml[cli] for cli support
+## Python API
+```shell
+pip install pypxml
 ```
 
-### From Source
-```bash
-git clone https://github.com/jahtz/pypxml
-cd pypxml
-pip install .  # .[cli] for cli support
-```
-
-## CLI
-```bash
-pypxml --help
-```
-- `get-codec` Extract the character set from PAGE-XML files.
-- `get-regions` List all regions in PageXML files.
-- `get-text` Extract text from PageXML files.
-- `reformat` Reformat PAGE-XML files.
-- `regularize-codec` Regularize character encodings in PAGE-XML files.
-- `regularize-regions` Regularize region types in PAGE-XML files.
-
-
-## API Demo
-### Reading a PAGE-XML File
-
+### Example
 ```python
 from pypxml import PageXML, PageType, PageUtil
 
-# Open and parse a PAGE-XML file
-pagexml = PageXML.open("document.xml")
+# Open an existing PAGE-XML file
+page = PageXML.open('document.xml')
 
-# Access metadata
-print(f"Creator: {pagexml.creator}")
-print(f"Created: {pagexml.created}")
+# Access page metadata
+print(f"Creator: {page.creator}")
+print(f"Image: {page['imageFilename']}")
 
-# Get all text regions
-regions = pagexml.find_all(pagetype=PageType.TextRegion, type=)
-print(f"Found {len(regions)} text regions")
-
-# Extract text from the document
-for region in pagexml.regions:
-    lines = region.find_all(pagetype=PageType.TextLine)
-    for line in lines:
+# Find all text regions of type marginalia and extract their text
+for region in page.find_all(pagetype=PageType.TextRegion, type='marginalia'):
+    print(f"\nRegion {region['id']}:")
+    
+    # Get all text lines in this region
+    for line in region.find_all(pagetype=PageType.TextLine, depth=-1):
         text = PageUtil.get_text(line)
-        print(text)
+        if text:
+            print(f"  {text}")
+
+# Sort regions by position
+page.reading_order_sort(direction='top-bottom')
+
+# Save with schema validation
+page.save('output.xml', schema='2019')
 ```
 
-### Creating a New PAGE-XML Document
+### Documentation
+- [API Documentation](/docs/api/README.md)
+- [PageXML Class Documentation](/docs/api/PageXML.md)
+- [PageElement Class Documentation](/docs/api/PageElement.md)
 
-```python
-from pypxml import PageXML, PageType
 
-# Create a new PAGE-XML document
-pagexml = PageXML(
-    creator="MyApplication",
-    imageFilename="scan_001.jpg",
-    imageWidth="2000",
-    imageHeight="3000"
-)
-
-# Add a text region
-region = pagexml.create(
-    PageType.TextRegion,
-    id="r1",
-    custom="paragraph"
-)
-
-# Add coordinates
-region.create(
-    PageType.Coords,
-    points="100,100 500,100 500,300 100,300"
-)
-
-# Add a text line with content
-line = region.create(PageType.TextLine, id="l1")
-line.create(PageType.Coords, points="100,100 500,100 500,130 100,130")
-
-textequiv = line.create(PageType.TextEquiv, index="0")
-unicode_elem = textequiv.create(PageType.Unicode)
-unicode_elem.text = "Hello, PAGE-XML!"
-
-# Save the document
-pagexml.save("output.xml", schema="2019")
+## Command Line Interface
+```shell
+pip install pypxml[cli]
 ```
 
-### Searching and Filtering
+### Usage
+```shell
+$ pypxml --help
+Usage: pypxml [OPTIONS] COMMAND [ARGS]...
 
-```python
-from pypxml import PageXML, PageType
+  A python library for reading, writing, and modifying PageXML files.
 
-pagexml = PageXML.open("document.xml")
+Options:
+  --help                          Show this message and exit.
+  --version                       Show the version and exit.
+  --logging [ERROR|WARNING|INFO]  Set logging level.  [default: ERROR]
 
-# Find elements by ID
-region = pagexml.find(id="r1")
-
-# Find all elements of a specific type
-text_regions = pagexml.find_all(pagetype=PageType.TextRegion)
-
-# Search with depth control
-# depth=0: only direct children
-# depth=-1: unlimited depth (recursive)
-# depth=2: search 2 levels deep
-all_lines = pagexml.find_all(
-    pagetype=PageType.TextLine,
-    depth=-1  # Search recursively
-)
-
-# Find by custom attributes
-paragraphs = pagexml.find_all(
-    pagetype=PageType.TextRegion,
-    depth=-1,
-    custom="paragraph"
-)
-
-# Find multiple types at once
-elements = pagexml.find_all(
-    pagetype=[PageType.TextRegion, PageType.ImageRegion]
-)
+Commands:
+  get-codec           Extract character set from PAGE-XML files.
+  get-regions         Extract region types from PAGE-XML files.
+  get-text            Extract text from a PAGE-XML file.
+  prettify            Prettify formatting of PAGE-XML files.
+  regularise-codec    Regularise character encodings in PAGE-XML files.
+  regularise-regions  Regularise region types in PAGE-XML files.
 ```
 
-### Working with Reading Order
-
-```python
-from pypxml import PageXML
-
-pagexml = PageXML.open("document.xml")
-
-# Create reading order from current element sequence
-pagexml.reading_order_create()
-
-# Sort reading order by position (top to bottom)
-pagexml.reading_order_sort(
-    reference='centroid',    # or 'minimum', 'maximum'
-    direction='top-bottom'   # or 'bottom-top', 'left-right', 'right-left'
-)
-
-# Manually set reading order
-pagexml.reading_order_set(["r3", "r1", "r2"])
-
-# Apply reading order to element sequence
-pagexml.reading_order_apply()
-
-# Clear reading order
-pagexml.reading_order_clear()
-
-# Get current reading order
-ro = pagexml.reading_order
-print(f"Reading order: {ro}")
-```
+### Documentation
+- [CLI Documentation](/docs/cli/README.md)
 
 ## Related Projects
 
