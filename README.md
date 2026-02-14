@@ -20,18 +20,18 @@ from pypxml import PageXML, PageType, PageUtil
 page = PageXML.open('document.xml')
 
 # Access page metadata
-print(f"Creator: {page.creator}")
-print(f"Image: {page['imageFilename']}")
+print(f'Creator: {page.creator}')
+print(f'Image: {page["imageFilename"]}')
 
 # Find all text regions of type marginalia and extract their text
 for region in page.find_all(pagetype=PageType.TextRegion, type='marginalia'):
-    print(f"\nRegion {region['id']}:")
+    print(f'\nRegion {region["id"]}:')
     
     # Get all text lines in this region
     for line in region.find_all(pagetype=PageType.TextLine, depth=-1):
         text = PageUtil.get_text(line)
         if text:
-            print(f"  {text}")
+            print(f'\t{text}')
 
 # Sort regions by position
 page.reading_order_sort(direction='top-bottom')
