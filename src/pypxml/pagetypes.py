@@ -13,33 +13,66 @@ class PageType(Enum):
 
     https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
 
-    It provides a typed and Pythonic representation of PAGE-XML node names and structural elements such as:
-
-    - Structural containers (e.g. ReadingOrder, OrderedGroup)
-    - Region types (e.g. TextRegion, ImageRegion, TableRegion)
-    - Layout primitives (e.g. Coords, Baseline, Border)
-    - Textual elements (e.g. TextLine, Word, Unicode)
-    - Metadata and user-defined structures
-
-    The enum values correspond exactly to the XML tag names.
-
-    Design notes:
-    - `str(PageType.X)` returns the enum name.
-    - Equality supports comparison with both `PageType` and `str`.
-    - `is_region` indicates whether the value represents a PAGE region type.
-    - `is_valid(string)` checks whether a string corresponds to a known PageType.
+    It provides a typed representation of PAGE-XML node names and structural elements.
     """
     
-    # Page
+    Metadata = 'Metadata'
+    """
+    No official annotation.
+    """
+    
+    UserDefined = 'UserDefined'
+    """
+    Container for user-defined attributes.
+    """
+    
+    UserAttribute = 'UserAttribute'
+    """
+    Structured custom data defined by name, type and value.
+    """
+    
+    MetadataItem = 'MetadataItem'
+    """
+    No official annotation.
+    """
+    
+    Labels = 'Labels'
+    """
+    Semantic labels
+    """
+    
+    Label = 'Label'
+    """
+    A semantic label
+    """
+    
+    AlternativeImage = 'AlternativeImage'
+    """
+    Alternative region images (e.g. black-and-white)
+    """
+    
+    Border = 'Border'
+    """
+    Border of the actual page (if the scanned image contains parts not belonging to the page).
+    """
+    
+    Coords = 'Coords'
+    """
+    No official annotation.
+    """
+    
+    PrintSpace = 'PrintSpace'
+    """
+    Determines the effective area on the paper of a printed page. Its size is equal for all pages of a book 
+    (exceptions: titlepage, multipage pictures). It contains all living elements (except marginals) like body type, 
+    footnotes, headings, running titles. It does not contain pagenumber (if not part of running title), marginals, 
+    signature mark, preview words.   
+    """
+    
     ReadingOrder = 'ReadingOrder'
     """
     Definition of the reading order within the page. To express a reading order between elements they have to be 
     included in an OrderedGroup. Groups may contain further groups.
-    """
-    
-    RegionRef = 'RegionRef'
-    """
-    Region reference.
     """
     
     OrderedGroup = 'OrderedGroup'
@@ -47,9 +80,9 @@ class PageType(Enum):
     Numbered group (contains ordered elements).
     """
     
-    UnorderedGroup = 'UnorderedGroup'
+    RegionRefIndexed = 'RegionRefIndexed'
     """
-    Numbered group (contains ordered elements)
+    Numbered region.
     """
     
     OrderedGroupIndexed = 'OrderedGroupIndexed'
@@ -62,36 +95,62 @@ class PageType(Enum):
     Indexed group containing unordered elements.
     """
     
-    RegionRefIndexed = 'RegionRefIndexed'
+    RegionRef = 'RegionRef'
     """
-    Numbered region.
-    """
-
-    # Regions
-    AdvertRegion = 'AdvertRegion'
-    """
-    Regions containing advertisements.
+    No official annotation.
     """
     
-    ChartRegion = 'ChartRegion'
+    UnorderedGroup = 'UnorderedGroup'
     """
-    Regions containing charts or graphs of any type, should be marked as chart regions.
-    """
-    
-    ChemRegion = 'ChemRegion'
-    """
-    Regions containing chemical formulas.
+    Numbered group (contains ordered elements)
     """
     
-    CustomRegion = 'CustomRegion'
+    Layers = 'Layers'
     """
-    Regions containing content that is not covered by the default types (text, graphic, image, line drawing, chart, 
-    table, separator, maths, map, music, chem, advert, noise, unknown).
+    Can be used to express the z-index of overlapping regions. An element with a greater z-index is always in
+    front of another element with lower z-index.
     """
     
-    GraphicRegion = 'GraphicRegion'
+    Layer = 'Layer'
     """
-    Regions containing simple graphics, such as company logo, should be marked as graphic regions.
+    No official annotation.
+    """
+    
+    Relations = 'Relations'
+    """
+    Container for one-to-one relations between layout objects (for example: DropCap - paragraph, caption - image).
+    """
+    
+    Relation = 'Relation'
+    """
+    One-to-one relation between to layout object. Use 'link' for loose relations and 'join' for strong relations
+    (where something is fragmented for instance). Examples for 'link': caption - image floating - paragraph paragraph - 
+    paragraph (when a paragraph is split across columns and the last word of the first paragraph DOES NOT continue in 
+    the second paragraph) drop-cap - paragraph (when the drop-cap is a whole word) Examples for 'join': word - word 
+    (separated word at the end of a line) drop-cap - paragraph (when the drop-cap is not a whole word) paragraph - 
+    paragraph (when a pragraph is split across columns and the last word of the first paragraph DOES continue in the 
+    second paragraph)
+    """
+    
+    TextStyle = 'TextStyle'
+    """
+    Monospace (fixed-pitch, non-proportional) or proportional font.
+    """
+    
+    TextRegion = 'TextRegion'
+    """
+    Pure text is represented as a text region. This includes drop capitals, but practically ornate text may be 
+    considered as a graphic.
+    """
+    
+    Roles = 'Roles'
+    """
+    No official annotation.
+    """
+    
+    TableCellRole = 'TableCellRole'
+    """
+    Data for a region that takes on the role of a table cell within a parent table region.
     """
     
     ImageRegion = 'ImageRegion'
@@ -104,31 +163,9 @@ class PageType(Enum):
     A line drawing is a single colour illustration without solid areas.
     """
     
-    MapRegion = 'MapRegion'
+    GraphicRegion = 'GraphicRegion'
     """
-    Regions containing maps.
-    """
-    
-    MathsRegion = 'MathsRegion'
-    """
-    Regions containing equations and mathematical symbols should be marked as maths regions.
-    """
-    
-    MusicRegion = 'MusicRegion'
-    """
-    Regions containing musical notations.
-    """
-    
-    NoiseRegion = 'NoiseRegion'
-    """
-    Noise regions are regions where no real data lies, only false data created by artifacts on the document or scanner 
-    noise.
-    """
-    
-    SeparatorRegion = 'SeparatorRegion'
-    """
-    Separators are lines that lie between columns and paragraphs and can be used to logically separate different 
-    articles from each other.
+    Regions containing simple graphics, such as company logo, should be marked as graphic regions.
     """
     
     TableRegion = 'TableRegion'
@@ -137,39 +174,77 @@ class PageType(Enum):
     these lines are not separator regions.
     """
     
-    TextRegion = 'TextRegion'
+    ChartRegion = 'ChartRegion'
     """
-    Pure text is represented as a text region. This includes drop capitals, but practically ornate text may be 
-    considered as a graphic.
+    Regions containing charts or graphs of any type, should be marked as chart regions.
+    """
+    
+    SeparatorRegion = 'SeparatorRegion'
+    """
+    Separators are lines that lie between columns and paragraphs and can be used to logically separate different 
+    articles from each other.
+    """
+    
+    MathsRegion = 'MathsRegion'
+    """
+    Regions containing equations and mathematical symbols should be marked as maths regions.
+    """
+    
+    ChemRegion = 'ChemRegion'
+    """
+    Regions containing chemical formulas.
+    """
+    
+    MusicRegion = 'MusicRegion'
+    """
+    Regions containing musical notations.
+    """
+    
+    AdvertRegion = 'AdvertRegion'
+    """
+    Regions containing advertisements.
+    """
+    
+    NoiseRegion = 'NoiseRegion'
+    """
+    Noise regions are regions where no real data lies, only false data created by artifacts on the document or scanner 
+    noise.
     """
     
     UnknownRegion = 'UnknownRegion'
     """
     To be used if the region type cannot be ascertained.
     """
-
-    # Elements
-    AlternativeImage = 'AlternativeImage'
+    
+    CustomRegion = 'CustomRegion'
     """
-    Alternative region images (e.g. black-and-white)
+    Regions containing content that is not covered by the default types (text, graphic, image, line drawing, chart, 
+    table, separator, maths, map, music, chem, advert, noise, unknown).
+    """
+    
+    Grid = 'Grid'
+    """
+    Matrix of grid points defining the table grid on the page.
+    """
+    
+    GridPoints = 'GridPoints'
+    """
+    Points with x,y coordinates.
+    """
+    
+    TextLine = 'TextLine'
+    """
+    No official annotation.
     """
     
     Baseline = 'Baseline'
     """
-    Multiple connected points that mark the baseline of the glyphs.
+    No official annotation.
     """
     
-    Border = 'Border'
+    Word = 'Word'
     """
-    Border of the actual page (if the scanned image contains parts not belonging to the page).
-    """
-    
-    Coords = 'Coords'
-    """
-    Polygon outline of the element as a path of points. No points may lie outside the outline of its parent, which in 
-    the case of Border is the bounding rectangle of the root image. Paths are closed by convention, i.e. the last point 
-    logically connects with the first (and at least 3 points are required to span an area). 
-    Paths must be planar (i.e. must not self-intersect).
+    No official annotation.
     """
     
     Glyph = 'Glyph'
@@ -177,48 +252,17 @@ class PageType(Enum):
     No official annotation.
     """
     
-    GraphemeGroup = 'GraphemeGroup'
+    Graphemes = 'Graphemes'
     """
-    No official annotation.
+    Container for graphemes, grapheme groups and non-printing characters.
     """
     
     Grapheme = 'Grapheme'
     """
-    No official annotation.
-    """
-
-    Grid = 'Grid'
-    """
-    Table grid (visible or virtual grid lines).
+    Represents a sub-element of a glyph. Smallest graphical unit that can be assigned a Unicode code point.
     """
     
-    GridPoints = 'GridPoints'
-    """
-    One row in the grid point matrix. Points with x,y coordinates.
-    """
-    
-    Label = 'Label'
-    """
-    A semantic label / tag
-    """
-    
-    Labels = 'Labels'
-    """
-    Semantic labels / tags
-    """
-    
-    Layer = 'Layer'
-    """
-    No official annotation.
-    """
-    
-    Layers = 'Layers'
-    """
-    Unassigned regions are considered to be in the (virtual) default layer which is to be treated as below any other 
-    layers.
-    """
-    
-    Metadata = 'Metadata'
+    TextEquiv = 'TextEquiv'
     """
     No official annotation.
     """
@@ -229,64 +273,26 @@ class PageType(Enum):
     Non-visual / non-printing / control character. Part of grapheme container (of glyph) or grapheme sub group.
     """
     
+    GraphemeGroup = 'GraphemeGroup'
+    """
+    No official annotation.
+    """
+    
+    MapRegion = 'MapRegion'
+    """
+    Regions containing maps.
+    """
+ 
     PlainText = 'PlainText'
     """
     Text in a 'simple' form (ASCII or extended ASCII as mostly used for typing). I.e. no use of special characters for 
     ligatures (should be stored as two separate characters) etc.
     """
-    
-    PrintSpace = 'PrintSpace'
-    """
-    Determines the effective area on the paper of a printed page. Its size is equal for all pages of a book 
-    (exceptions: titlepage, multipage pictures). It contains all living elements (except marginals) like body type, 
-    footnotes, headings, running titles. It does not contain pagenumber (if not part of running title), marginals, 
-    signature mark, preview words.   
-    """
-    
-    Relations = 'Relations'
-    """
-    Container for one-to-one relations between layout objects (for example: DropCap - paragraph, caption - image).
-    """
-    
-    Roles = 'Roles'
-    """
-    Roles the region takes (e.g. in context of a parent region)
-    """
-    
-    TextEquiv = 'TextEquiv'
-    """
-    No official annotation.
-    """
-    
-    TextLine = 'TextLine'
-    """
-    No official annotation.
-    """
-    
-    TextStyle = 'TextStyle'
-    """
-    Monospace (fixed-pitch, non-proportional) or proportional font.
-    """
-    
+
     Unicode = 'Unicode'
     """
     Correct encoding of the original, always using the corresponding Unicode code point. I.e. ligatures have to be 
     represented as one character etc.
-    """
-    
-    UserAttribute = 'UserAttribute'
-    """
-    Structured custom data defined by name, type and value.
-    """
-    
-    UserDefined = 'UserDefined'
-    """
-    Container for user-defined attributes.
-    """
-    
-    Word = 'Word'
-    """
-    No official annotation.
     """
     
     def __str__(self):
