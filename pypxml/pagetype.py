@@ -243,6 +243,11 @@ class PageType(Enum):
     """
     Roles the region takes (e.g. in context of a parent region)
     """
+
+    TableCellRole = "TableCellRole"
+    """
+    Roles within a TableCell"
+    """
     
     TextEquiv = "TextEquiv"
     """
