@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pypxml"
 description = "A python library for reading, writing, and modifying PageXML files."
+version = "5.0.0"
 readme = "README.md"
 keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
-dynamic = ["version"]
 dependencies = ["lxml ~= 6.0.2"]
 
 authors = [
@@ -37,9 +37,6 @@ pypxml = "cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.dynamic]
-version = { attr = "pypxml.__version__" }
 
 [tool.setuptools.package-data]
 pypxml = ["py.typed"]
