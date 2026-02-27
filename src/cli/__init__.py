@@ -5,7 +5,7 @@ import logging
 try:
     import click
     from rich.logging import RichHandler
-except ImportError as e:
+except ImportError:
     raise SystemExit('The pypxml CLI requires the optional dependencies. Install it via `pip install pypxml[cli]`')
 
 from .analytics import get_codec, get_regions, get_text

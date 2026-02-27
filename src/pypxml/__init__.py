@@ -4,3 +4,5 @@ from .pageelement import PageElement
 from .pagetypes import PageType
 from .pageschema import PageSchema
 from .pageutil import PageUtil
+
+__all__: list[str] = ['PageXML', 'PageElement', 'PageType', 'PageSchema', 'PageUtil']

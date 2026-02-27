@@ -176,7 +176,7 @@ class PageElement:
         tree: etree.Element, 
         parent: PageXML | PageElement, 
         raise_on_error: bool = True
-    ) -> PageElement:
+    ) -> PageElement | None:
         """
         Create a new `PageElement` object from a lxml etree element.
         Args:
@@ -308,7 +308,7 @@ class PageElement:
             The `PageElement` if it was deleted. Otherwise, None.
         """
         if element is None and self.parent:
-            self.parent.delete_element(self)
+            self.parent.delete(self)
             return self
         elif element in self.__elements:
             self.__elements.remove(element)

@@ -70,7 +70,7 @@ class PageXML:
         return repr(self)
     
     def __repr__(self) -> str:
-        s = f'PcGts {str({'creator': self.__creator, 'created': self.__created, 'last_change': self.__last_change})}\n'\
+        s = f'PcGts {str({"creator": self.__creator, "created": self.__created, "last_change": self.__last_change})}\n'\
             + f'Page {str(self.__attributes)}'
         return s
     

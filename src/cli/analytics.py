@@ -162,6 +162,9 @@ def get_regions(
     
     FILES: List of PAGE-XML file paths to process.
     """
+    def format_count(count: int) -> str:
+        return count if frequency else ('x' if count > 0 else '')
+    
     ClickUtil.validate_file(output, 'csv')
     
     result: dict[str, Counter] = {}
@@ -176,8 +179,6 @@ def get_regions(
             ])
             pb.advance(task)
         pb.update(task, status='Done')
-        
-    format_count = lambda count: count if frequency else ('x' if count > 0 else '')
     
     if level == 'total':
         total = Counter()
@@ -271,7 +272,9 @@ def get_text(
         pb.update(task, status='Done')
     
     if output:
-        output.write_text(f'{"\n" if separator is None else f"\n{separator}\n"}'.join(result), encoding='utf-8')
+        sep = "\n" if separator is None else "\n" + separator + "\n"
+        output.write_text(sep.join(result), encoding="utf-8")
         print(f'Results written to {output.as_posix()}')
     else:
-        print(f'{"\n" if separator is None else f"\n{separator}\n"}'.join(result))
+        sep = "\n" if separator is None else "\n" + separator + "\n"
+        print(sep.join(result), encoding="utf-8")

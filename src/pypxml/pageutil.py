@@ -43,7 +43,7 @@ class PageUtil:
         if element.pagetype == PageType.TextEquiv:
             textequivs = [element]
         else:
-            textequivs = element.find_all(pagetype=PageType.TextEquiv, index=index)
+            textequivs = element.find_all(pagetype=PageType.TextEquiv, index=str(index))
         if len(textequivs) > 1:
             logger.warning('Multiple TextEquiv elements found. Selecting the element with the lowest index')
             textequivs.sort(key = lambda x: -1 if 'index' not in x else int(x['index']))
