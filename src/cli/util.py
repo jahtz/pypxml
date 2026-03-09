@@ -1,177 +1,169 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
+import glob
+import logging
 from pathlib import Path
-from typing import Callable
+from typing import Any
 
 import click
 from pypxml import PageType
 from rich.progress import Progress, TextColumn, BarColumn, MofNCompleteColumn, TimeRemainingColumn, TimeElapsedColumn
 
 
-PROGRESSBAR = Progress(
-    TextColumn('[progress.description]{task.description}'),
-    BarColumn(),
+columns: list[Any] = [
+    BarColumn(bar_width=30),
     TextColumn('[progress.percentage]{task.percentage:>3.0f}%'),
     MofNCompleteColumn(),
-    TextColumn('•'),
     TimeElapsedColumn(),
-    TextColumn('•'),
     TimeRemainingColumn(),
-    TextColumn('• {task.fields[status]}')
-)
+    TextColumn('• {task.fields[status]}'),
+]
+progressbar = Progress(*columns)
+logger: logging.Logger = logging.getLogger(__name__)
+
+
+class ClickCallback:
+    """ Collection of useful click callback methods """
+    @staticmethod
+    def expand_glob(ctx: click.Context, param: click.Parameter, patterns: list[str]) -> list[Path]:
+        """ Expand glob expressions in path strings """
+        paths: list[Path] = []
+        for pattern in patterns:
+            if glob.has_magic(pattern):
+                for match in glob.iglob(pattern, recursive=True):
+                    path: Path = Path(match)
+                    if path.is_file():
+                        paths.append(path.resolve())
+            else:
+                path: Path = Path(pattern)
+                if path.is_file() and path.exists():
+                    paths.append(path.resolve())
+        return paths
+    
+    @staticmethod
+    def __parse_pagetype(ctx: click.Context, param: click.Parameter, value: str) -> tuple[PageType, str | None]:
+        parts: list[str] = value.split('.', 1)
+        pt: str = parts[0]
+        st: str | None = parts[1] if len(parts) == 2 else None
+        if not pt or (st == '') or (st and '.' in st):
+            raise click.BadParameter(f'Error parsing PageType "{value}"', ctx, param)
+        if not PageType.validate(pt):
+            raise click.BadParameter(f'Unknown PageType "{pt}"', ctx, param)
+        return PageType[pt], st
+
+    @staticmethod
+    def parse_pagetype(
+        ctx: click.Context, 
+        param: click.Parameter, 
+        value: str | None
+    ) -> tuple[PageType, str | None] | PageType | None:
+        """ Parse a string of type PageType or PageType.subtype to a PageType object """
+        if value is None:
+            return None
+        return ClickCallback.__parse_pagetype(ctx, param, value)
+
+    @staticmethod
+    def parse_pagetypes(
+        ctx: click.Context, 
+        param: click.Parameter,
+        value: tuple[str,...]
+    ) -> list[tuple[PageType, str | None]] | list[PageType]:
+        """ Parse a list of string of type PageType or PageType.subtype to PageType objects """
+        return [ClickCallback.__parse_pagetype(ctx, param, p) for p in value]
+    
+    @staticmethod
+    def parse_pagetype_rules(
+        ctx: click.Context, 
+        param: click.Parameter, 
+        value: tuple[tuple[str, str],...]
+    ) -> dict[str, tuple[PageType, str | None] | None]:
+        """ Parse a list of rules (from, to) with PageTypes. """
+        rules: dict[str, tuple[PageType, str | None] | None] = {}
+        for old, new in value:
+            ClickCallback.__parse_pagetype(ctx, param, old)  # just for validation
+            if old in rules:
+                raise click.BadParameter(f'"{old}" can not be declared multiple times as a source', ctx, param)
+            rules[old] = None if new.lower() == 'none' else ClickCallback.__parse_pagetype(ctx, param, new)
+        return rules
 
 
 class ClickUtil:
     @staticmethod
-    def validate_file(
-        target: str | Path | None, 
-        extension: list[str] | str | None = None,
+    def validate_path(
+        path: Path | None,
+        directory: bool = False,
+        mkdir: bool = False,
+        extensions: list[str] | None = None
     ) -> None:
         """
-        Validates a file path and creates the target directory.
-        Args:
-            target: The file target to validate.
-            extension: A whitelisted extension or a list of extensions without leading dots. Defaults to None.
-        """
-        if target is None:
-            return
-        if isinstance(target, str):
-            target = Path(target)
-        if isinstance(extension, str):
-            extension = [extension]
-        ext = target.name.split('.', maxsplit=1)[1].lower()
-        if extension is not None and ext not in extension:
-            raise click.BadOptionUsage('', f'Allowed file extensions: {extension}, got \'{ext}\'')
-        target.parent.mkdir(parents=True, exist_ok=True)
-        
-    @staticmethod
-    def validate_directory(
-        target: str | Path | None
-    ) -> None:
-        """
-        Validates a diretory and creates it if it does not exist.
-        Args:
-            target: The directory target to validate.
-        """
-        if target is None:
-            return
-        if isinstance(target, str):
-            target = Path(target)
-        target.mkdir(parents=True, exist_ok=True)
+        Helper method for validating paths
 
-    @staticmethod
-    def write_csv(data: list[list], output: Path, header: list[str] | None = None, delimiter: str = ',') -> None:
-        """
-        Write a list of lists to a CSV file.
         Args:
-            data: The data to be written.
-            output: The output file path.
-            header: The header of the data. If None, no header will be written. Defaults to None.
-            delimiter: The delimiter to be used. Defaults to ",".
+            path: Path object to validate. If it is None, nothing happens.
+            file: Check if `path` is a directory, else it has to be a file. Defaults to False.
+            mkdir: Create the directory if a directory `path` is passed (and `file` is set to False), else create the 
+                file's parents. Defaults to False.
+            extensions: If `path` is a file, check if it has one of the passed file extensions. Defaults to None.
+
+        Raises:
+            click.BadOptionUsage: The path does not meet the requirements.
         """
-        if header and len(header) != len(data[0]):
-            raise ValueError(f'Header length {len(header)} does not match data length {len(data[0])}!')
+        if path is None:
+            return
+        is_dir: bool = path.is_dir()
+        if is_dir != directory:
+            click.BadOptionUsage('', f'Passed path is not a {"file" if is_dir else "directory"}')
+        if mkdir:
+            parent: Path = path if is_dir else path.parent
+            parent.mkdir(parents=True, exist_ok=True)
+        if not is_dir and extensions is not None:
+            extensions: list[str] = [e.lower().replace('.', '') for e in extensions]
+            ext: str = path.name.split('.')[-1].lower()
+            if ext not in extensions:
+                raise click.BadOptionUsage('', f'Allowed file extensions: {extensions}, got \'{ext}\'')
+    
+    @staticmethod
+    def write_csv(
+        data: list[Any], 
+        out: Path, 
+        header: list[str] | None = None, 
+        delimiter: str = ',',
+        encoding: str = 'utf-8'
+    ) -> None:
+        """ Write data to a CSV file """
+        if header and len(header) != max(len(d) for d in data):
+            raise ValueError(f'Header length {len(header)} does not match data length {max(len(d) for d in data)}!')
         
-        with open(output, 'w', encoding='utf-8') as f:
-            writer = csv.writer(f, delimiter=delimiter)
+        with open(out, 'w', encoding='utf-8') as f:
+            writer= csv.writer(f, delimiter=delimiter)
             if header:
                 writer.writerow(header)
             writer.writerows(data)
-        print(f'Results written to {output.as_posix()}')
-
+        logger.info(f'Results written to {out.as_posix()}')
+        
     @staticmethod
-    def print_table(data: list[list], header: list[str] | None = None) -> None:
-        """
-        Pretty print a table to stdout.
-        Args:
-            data: The data to be printed.
-            header: The header of the data. If None, no header will be printed. Defaults to None. Defaults to None.
-        """
+    def print_table(data: list[Any], header: list[str] | None = None) -> None:
+        """ Pretty print a table to stdout """
         if not data:
-            print('No data to output')
+            logger.error('No data to print')
             return
         
-        str_header = [str(h) for h in header] if header else None
-        num_cols = len(str_header) if str_header else max(len(row) for row in data)
-
-        col_widths = []
-        for col in range(num_cols):
-            max_width = 0
-            if str_header:
-                max_width = len(str_header[col])
-            for row in data:
-                max_width = max(max_width, len(str(row[col])))
-            col_widths.append(max_width)
-            
-        col_widths = [max(len(str(header[col])) if header else 0,
-                        *(len(str(row[col])) for row in data))
-                    for col in range(num_cols)]
+        str_header: list[str] | None = [str(h) for h in header] if header else None
+        num_cols: int = len(str_header) if str_header else max(len(row) for row in data)
+        col_widths: list[int] = [
+            max(len(str(header[col])) if header else 0, *(len(str(row[col])) for row in data)) 
+            for col in range(num_cols)
+        ]
+        
         if str_header:
             print(' '.join([f'{str(x):<{col_widths[i]}}' for i, x in enumerate(str_header)]))
+            
         for row in data:
-            print(' '.join([f'{str(x):>{col_widths[i]}}' if isinstance(x, (int, float)) 
-                            else f'{str(x):<{col_widths[i]}}' 
-                            for i, x in enumerate(row)]))
-
-
-class ClickCallback:
-    @staticmethod
-    def __parse_pagetype(
-        ctx: click.Context, 
-        param: click.Parameter, 
-        value: str
-    ) -> tuple[PageType, str | None]:
-        parts = value.split('.', 1)
-        pt = parts[0]
-        st = parts[1] if len(parts) == 2 else None
-        if not pt or (st == '') or (st and '.' in st):
-            raise click.BadParameter(f'Error parsing PageType "{value}"', ctx, param)
-        if not PageType.is_valid(pt):
-            raise click.BadParameter(f'Unknown PageType "{pt}"', ctx, param)
-        return PageType[pt], st
-    
-    @staticmethod
-    def pagetype(
-        subtype: bool = False, 
-        multiple: bool = False
-    ) -> Callable[
-        [click.Context, click.Parameter, tuple[str, ...] | str | None],
-        list[tuple[PageType, str | None]] | list[PageType] | tuple[PageType, str | None] | PageType | None
-    ]:
-        def _callback(
-            ctx: click.Context, 
-            param: click.Parameter, 
-            value: tuple[str,...] | str | None
-        ) -> list[tuple[PageType, str | None]] | list[PageType] | tuple[PageType, str | None] | PageType | None:
-            if value is None:
-                return None
-            if isinstance(value, tuple):
-                if not multiple:
-                    raise click.BadParameter(f'Expected a string, got a tuple: "{value}"', ctx, param)
-                return [
-                    ClickCallback.__parse_pagetype(ctx, param, p) if subtype else 
-                    ClickCallback.__parse_pagetype(ctx, param, p)[0] for p in value
-                ]
-            elif isinstance(value, str):
-                if multiple:
-                    raise click.BadParameter(f'Expected a tuple, got a string: "{value}"', ctx, param)
-                res = ClickCallback.__parse_pagetype(ctx, param, value)
-                return res if subtype else res[0]
-            raise click.BadParameter(f'Unknown type of input: "{type(value)}"', ctx, param)
-        return _callback
-    
-    @staticmethod
-    def pagetype_rules(
-        ctx: click.Context, 
-        param: click.Parameter,
-        value: tuple[tuple[str, str],...]
-    ) -> dict[str, tuple[PageType, str | None]]:
-        rules: dict[str, tuple[PageType, str | None]] = {}
-        for old, new in value:
-            ClickCallback.__parse_pagetype(ctx, param, old)  # just for validation
-            if old in rules:
-                raise click.BadParameter(
-                    f'"{old}" can not be declared multiple times as a source', ctx, param
-                )
-            rules[old] = None if new.lower() == 'none' else ClickCallback.__parse_pagetype(ctx, param, new)
-        return rules
+            print(
+                ' '.join([
+                    f'{str(x):>{col_widths[i]}}' 
+                    if isinstance(x, (int, float)) 
+                    else f'{str(x):<{col_widths[i]}}' 
+                    for i, x in enumerate(row)
+                ])
+            )

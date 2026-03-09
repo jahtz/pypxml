@@ -9,64 +9,58 @@ import unicodedata
 import click
 from pypxml import PageXML, PageType, PageUtil
 
-from .util import PROGRESSBAR, ClickUtil, ClickCallback
+from .util import ClickCallback, ClickUtil, progressbar
 
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 @click.command('get-codec', short_help='Extract character set from PAGE-XML files.')
 @click.help_option('--help', hidden=True)
-@click.argument(
-    'files',
-    type=click.Path(exists=True, dir_okay=False, resolve_path=True, path_type=Path),
-    nargs=-1,
-    required=True
-)
+@click.argument('xmls', type=click.Path(), callback=ClickCallback.expand_glob, nargs=-1, required=True)
 @click.option(
-    '-o', '--output', 'output',
+    '-o', '--output',
     help='Path to a CSV file to save the results. If omitted, results are printed to stdout.',
     type=click.Path(dir_okay=False, resolve_path=True, path_type=Path)
 )
 @click.option(
-    '-s', '--source', 'source',
+    '-s', '--source',
     help='Define the elements from which the codec is extracted.',
     type=click.Choice(['TextRegion', 'TextLine', 'Word', 'Glyph']),
-    callback=ClickCallback.pagetype(),
+    callback=ClickCallback.parse_pagetype,
     default='TextLine',
     show_default=True
 )
 @click.option(
-    '-i', '--index', 'index',
+    '-i', '--index',
     help='Only consider TextEquiv elements with the specified index.',
     type=click.INT
 )
 @click.option(
-    '--plaintext/--unicode', 'plaintext',
+    '--plaintext/--unicode',
     help='Use text from a Unicode or PlainText element',
-    is_flag=True,
     default=False,
     show_default=True
 )
 @click.option(
-    '-w', '--whitespace', 'whitespace',
-    help='Include whitespace characters when analysing codec. Only if `--source` is set to "TextRegion" or "TextLine"',
+    '-w', '--whitespace',
+    help='Include whitespace characters when analyzing codec. Only if `--source` is set to "TextRegion" or "TextLine"',
     is_flag=True
 )
 @click.option(
-    '-f', '--frequency', 'frequency',
+    '-f', '--frequency',
     help='Output character frequencies.',
     is_flag=True
 )
 @click.option(
-    '-n', '--normalize', 'normalize',
+    '-n', '--normalize',
     help='Normalize unicode before analysing codec.',
     type=click.Choice(['NFC', 'NFD', 'NFKC', 'NFKD'])
 )
 def get_codec(
-    files: list[Path],
+    xmls: list[Path],
     output: Path | None = None,
-    source: Literal[PageType.TextRegion, PageType.TextLine, PageType.Word, PageType.Glyph] = PageType.TextLine,
+    source: tuple[Literal[PageType.TextRegion, PageType.TextLine, PageType.Word, PageType.Glyph], None] = (PageType.TextLine, None),
     index: int | None = None,
     plaintext: bool = False,
     whitespace: bool = False,
@@ -74,62 +68,59 @@ def get_codec(
     normalize: Literal['NFC', 'NFD', 'NFKC', 'NFKD'] | None = None 
 ) -> None:
     """
-    Analyse the text content of PAGE-XML files and extracts the set of characters used.
+    Analyze the text content of PAGE-XML files and extracts the set of used characters.
     
     It can optionally normalize unicode, include whitespace, and output character frequencies.
     Results are saved as a CSV file if `--output` is set, else printed to stdout.
     
-    FILES: List of PAGE-XML file paths to process.
+    XMLS: List of PAGE-XML file paths to process. Supports glob expressions.
     """
-    ClickUtil.validate_file(output, 'csv')
-    
-    result: Counter = Counter()
-    with PROGRESSBAR as pb:
-        task = pb.add_task('Processing', total=len(files), status='')
-        for fp in files:
-            pb.update(task, status=Path('/', *fp.parts[-min(len(fp.parts), 4):]))
-            page = PageXML.open(fp, raise_on_error=False)
-            for e in page.find_all(pagetype=source, depth=-1):
-                text = PageUtil.get_text(e, index=index, source=PageType.PlainText if plaintext else PageType.Unicode)
+    ClickUtil.validate_path(output, mkdir=True, extensions=['csv'])
+    counter: Counter[str] = Counter()
+    with progressbar as pb:
+        task = pb.add_task('', total=len(xmls), status='')
+        for xml in xmls:
+            pb.update(task, status='/'.join(xml.parts[-4:]))
+            pagexml: PageXML = PageXML.open(xml, raise_on_error=False)
+            for element in pagexml.find_all(source[0], -1):
+                text: str | None = PageUtil.find_text(
+                    element, 
+                    index, 
+                    PageType.PlainText if plaintext else PageType.Unicode
+                )
                 if text is not None:
                     if normalize is not None:
-                        text = unicodedata.normalize(normalize, text)
+                        text: str = unicodedata.normalize(normalize, text)
                     if not whitespace:
-                        text = text.translate(str.maketrans('', '', string.whitespace))
-                    result.update(text)
+                        text: str = text.translate(str.maketrans('', '', string.whitespace))
+                    counter.update(text)
             pb.advance(task)
         pb.update(task, status='Done')
-    
-    result = sorted(result.most_common(None), reverse=True, key=lambda r: r[1])
-    if output is None:
-        ClickUtil.print_table(
-            data=result if frequency else [[r[0] for r in result]],
-            header=['char', 'freq'] if frequency else None
+
+    result: list[tuple[str, int]] = counter.most_common()
+    if output:
+        ClickUtil.write_csv(
+            data=result if frequency else [r[0] for r in result],
+            header=['char', 'freq'] if frequency else None,
+            out=output,
         )
     else:
-        ClickUtil.write_csv(
-            data=result if frequency else [[r[0] for r in result]],
-            header=['char', 'freq'] if frequency else None,
-            output=output,
-            delimiter=';'
-        )
+        ClickUtil.print_table(
+            data=result if frequency else [r[0] for r in result],
+            header=['char', 'freq'] if frequency else None
+        )        
 
 
 @click.command('get-regions', short_help='Extract region types from PAGE-XML files.')
 @click.help_option('--help', hidden=True)
-@click.argument(
-    'files',
-    type=click.Path(exists=True, dir_okay=False, resolve_path=True, path_type=Path),
-    nargs=-1,
-    required=True
-)
+@click.argument('xmls', type=click.Path(), callback=ClickCallback.expand_glob, nargs=-1, required=True)
 @click.option(
-    '-o', '--output', 'output',
+    '-o', '--output',
     help='Path to a CSV file to save the results. If omitted, results are printed to stdout.',
     type=click.Path(dir_okay=False, resolve_path=True, path_type=Path)
 )
 @click.option(
-    '-l', '--level', 'level',
+    '-l', '--level',
     help='Set the aggregation level for the output. "total" combines all files, "directory" aggregates by parent '
          'directory, and "file" lists results per individual file.',
     type=click.Choice(['total', 'directory', 'file']), 
@@ -137,18 +128,18 @@ def get_codec(
     show_default=True
 )
 @click.option(
-    '-f', '--frequency', 'frequency',
+    '-f', '--frequency',
     help='Output region frequencies.',
     is_flag=True
 )
 @click.option(
-    '-s', '--subtypes', 'subtypes',
+    '-s', '--subtypes',
     help='Include subtypes by printing them as "PageType.subtype" if available.',
     type=click.BOOL, 
     is_flag=True
 )
 def get_regions(
-    files: list[Path], 
+    xmls: list[Path], 
     output: Path | None = None, 
     level: Literal['total', 'directory', 'file'] = 'total', 
     frequency: bool = False, 
@@ -160,47 +151,47 @@ def get_regions(
     Optionally include subtypes, outputs frequencies, and group numbers by file, directory, or total.
     Results are saved as a CSV file if `--output` is set, else printed to stdout.
     
-    FILES: List of PAGE-XML file paths to process.
+    XMLS: List of PAGE-XML file paths to process. Supports glob expressions.
     """
     def format_count(count: int) -> str:
-        return count if frequency else ('x' if count > 0 else '')
+        return str(count) if frequency else ('x' if count > 0 else '')
     
-    ClickUtil.validate_file(output, 'csv')
+    ClickUtil.validate_path(output, mkdir=True, extensions=['csv'])
     
-    result: dict[str, Counter] = {}
-    with PROGRESSBAR as pb:
-        task = pb.add_task('Processing', total=len(files), status='')
-        for fp in files:
-            pb.update(task, status=Path('/', *fp.parts[-min(len(fp.parts), 4):]))
-            page = PageXML.open(fp, raise_on_error=False)
-            result[fp.as_posix()] = Counter([
+    counter: dict[str, Counter] = {}
+    with progressbar as pb:
+        task = pb.add_task('', total=len(xmls), status='')
+        for xml in xmls:
+            pb.update(task, status='/'.join(xml.parts[-4:]))
+            pagexml: PageXML = PageXML.open(xml, raise_on_error=False)
+            counter[xml.as_posix()] = Counter([
                 f'{r.pagetype.value}.{r["type"]}' if subtypes and 'type' in r else r.pagetype.value 
-                for r in page.regions
+                for r in pagexml.regions
             ])
             pb.advance(task)
         pb.update(task, status='Done')
     
     if level == 'total':
-        total = Counter()
-        for counter in result.values():
-            total.update(counter)
+        total: Counter[str] = Counter()
+        for c in counter.values():
+            total.update(c)
         if frequency:
-            header = ['type', 'frequency']
-            data = sorted(total.most_common(None), reverse=True, key=lambda r: r[1])
+            header: list[str] = ['type', 'frequency']
+            data: list[tuple[str, int]] = total.most_common(None)
         else:
-            header = ['type']
-            data = sorted([[r[0]] for r in total.most_common(None)], key=lambda r: r[0])
+            header: list[str] = ['type']
+            data: list[list[str]] = sorted([[r[0]] for r in total.most_common(None)], key=lambda r: r[0])
     else:
         if level == 'file':
-            groups = result
+            groups: dict[str, Counter[str]] = counter
         else:
             groups: dict[str, Counter] = {}
-            for fp, counter in result.items():
-                groups.setdefault(str(Path(fp).parent), Counter()).update(counter)
-        header = [level.capitalize()] + sorted({rtype for counter in groups.values() for rtype in counter})
-        data = [
-            [name] + [format_count(counter.get(rtype, 0)) for rtype in header[1:]]
-            for name, counter in groups.items()
+            for fp, c in counter.items():
+                groups.setdefault(str(Path(fp).parent), Counter()).update(c)
+        header: list[str] = [level.capitalize()] + sorted({rtype for counter in groups.values() for rtype in counter})
+        data: list[list[str]] = [
+            [name] + [format_count(c.get(rtype, 0)) for rtype in header[1:]]
+            for name, c in groups.items()
         ]
 
     if output:        
@@ -211,35 +202,31 @@ def get_regions(
 
 @click.command('get-text', short_help='Extract text from a PAGE-XML file.')
 @click.help_option('--help', hidden=True) 
-@click.argument(
-    'file',
-    type=click.Path(exists=True, dir_okay=False, resolve_path=True, path_type=Path),
-    required=True
-)
+@click.argument('xml', type=click.Path(exists=True, dir_okay=False, resolve_path=True, path_type=Path), required=True)
 @click.option(
-    '-o', '--output', 'output',
+    '-o', '--output',
     help='Path to a TXT file to save the results. If omitted, results are printed to stdout.',
     type=click.Path(dir_okay=False, resolve_path=True, path_type=Path)
 )
 @click.option(
-    '-i', '--index', 'index',
+    '-i', '--index',
     help='Use only the text from TextEquiv elements at the given index.',
     type=click.INT
 )
 @click.option(
-    '--plaintext/--unicode', 'plaintext',
+    '--plaintext/--unicode',
     help='Use text from a unicode or plaintext element',
     is_flag=True,
     default=False,
     show_default=True
 )
 @click.option(
-    '-s', '--separator', 'separator',
+    '-s', '--separator',
     help='An optional separator string that can be printed between regions. For an empty line, pass an empty string ""',
     type=click.STRING
 )
 def get_text(
-    file: Path,
+    xml: Path,
     output: Path | None = None,
     index: int | None = None,
     plaintext: bool = False,
@@ -251,30 +238,28 @@ def get_text(
     Results are saved as a TXT file if `--output` is set, else printed to stdout.
     Optionally, a separator between regions can be specified.
     
-    FILE: A PageXML file path to process.
+    XML: A PageXML file path to process.
     """
-    ClickUtil.validate_file(output, 'txt')
-    
-    page = PageXML.open(file, raise_on_error=False)
-    page.reading_order_apply()
+    ClickUtil.validate_path(output, mkdir=True, extensions=['txt'])
+    pagexml: PageXML = PageXML.open(xml, raise_on_error=False)
+    pagexml.apply_reading_order()
     
     result: list[str] = []
-    with PROGRESSBAR as pb:
-        task = pb.add_task('Processing', total=len(page.regions), status='')
-        for r in page.regions:
-            rtext = []
+    with progressbar as pb:
+        task = pb.add_task('', total=len(pagexml.regions), status='')
+        for r in pagexml.regions:
+            rtext: list[str] = []
             for tl in r.find_all(pagetype=PageType.TextLine):
-                text = PageUtil.get_text(tl, index=index, source=PageType.PlainText if plaintext else PageType.Unicode)
+                text: str | None = PageUtil.find_text(tl, index, PageType.PlainText if plaintext else PageType.Unicode)
                 if text is not None:
                    rtext.append(text)
             result.append('\n'.join(rtext))
             pb.advance(task)
         pb.update(task, status='Done')
     
+    sep: str = '\n' if separator is None else '\n' + separator + '\n'
     if output:
-        sep = "\n" if separator is None else "\n" + separator + "\n"
         output.write_text(sep.join(result), encoding="utf-8")
         print(f'Results written to {output.as_posix()}')
     else:
-        sep = "\n" if separator is None else "\n" + separator + "\n"
-        print(sep.join(result), encoding="utf-8")
+        print(sep.join(result))

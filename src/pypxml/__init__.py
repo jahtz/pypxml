@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
-from .pagexml import PageXML
 from .pageelement import PageElement
-from .pagetypes import PageType
 from .pageschema import PageSchema
+from .pagetype import PageType
 from .pageutil import PageUtil
+from .pagexml import PageXML
 
-__all__: list[str] = ['PageXML', 'PageElement', 'PageType', 'PageSchema', 'PageUtil']
+__all__: list[str] = ['PageElement', 'PageSchema', 'PageType', 'PageUtil', 'PageXML']

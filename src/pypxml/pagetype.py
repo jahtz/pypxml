@@ -307,13 +307,11 @@ class PageType(Enum):
         return super().__eq__(other)
     
     @property
-    def is_region(self):
-        return self.value in [
-            'AdvertRegion', 'ChartRegion', 'ChemRegion', 'CustomRegion', 'GraphicRegion', 'ImageRegion', 
-            'LineDrawingRegion', 'MapRegion', 'MathsRegion', 'MusicRegion', 'NoiseRegion', 'SeparatorRegion', 
-            'TableRegion', 'TextRegion', 'UnknownRegion'
-        ]
+    def region(self) -> bool:
+        """ True if the `PageType` represents a region, else false """
+        return str(self.value).endswith('Region')
     
     @classmethod
-    def is_valid(cls, value: str) -> bool:
+    def validate(cls, value: str) -> bool:
+        """ Checks if a string is a valid `PageType` """
         return value in cls.__members__
