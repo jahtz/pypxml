@@ -14,8 +14,8 @@ _pypxml_ provides an intuitive Python API to interact with PAGE-XML files.
 ```bash
 uv add pypxml
 ```
-> [!NOTE] Alternative
-> Install with pip: `pip install pypxml`
+> [!NOTE]
+> Alternatively install with pip: `pip install pypxml`
 
 ### Example
 ```python
@@ -52,8 +52,8 @@ For common analytics and regularization operations, the command line interface (
 ```bash
 uv tool install pypxml[cli]
 ```
-> [!NOTE] Alternative
-> Install with pip: `pip install pypxml[cli]`
+> [!NOTE]
+> Alternatively install with pip: `pip install pypxml[cli]`
 
 ### Usage
 ```text
@@ -80,16 +80,17 @@ Commands:
 ```
 
 ## Benchmarks
-Benchmarks where aggregated over 100 randomly selected PAGE-XML files representing common book pages.
+Benchmarks were aggregated over 100 randomly selected PAGE-XML files representing common book pages.
 Below, the average time is listed for each operation and OCR granularity.
 
-| Operation | Lines | Words | Glyphs |
-|-----------|------:|------:|-------:|
-| `open`    |       |       |        |
-| `search`  |       |       |        |
-| `write`   |       |       |        |
+| Operation | Lines | Words | Glyphs | Description                                                                                 |
+| --------- | ----: | ----: | -----: | ------------------------------------------------------------------------------------------- |
+| `open`    | 0.8ms | 3.6ms | 20.6ms | Average time to open (and parse) a PAGE-XML file with OCR on TextLine, Word, or Glyph level |
+| `search`  | 0.1ms | 0.5ms |  2.9ms | Average time to search for _all_ TextLine, Word, or Glyph elements                          |
+| `write`   | 1.6ms | 3.6ms | 13.6ms | Average time to write a PAGE-XML file with OCR on TextLine, Word, or Glyph level            |
 
-
+> [!NOTE]
+> The experiments where conducted on an Intel 12th Gen i7-12700 
 
 ## Related Projects
 
