@@ -1,37 +1,40 @@
 [build-system]
-requires = ["hatchling >= 1.26"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pypxml"
-version = "4.3.2"
-description = "A python library for parsing, converting and modifying PageXML files. "
-keywords = ["PageXML", "XML"]
+description = "A modern, powerful,and extremly fast Python library for reading, writing, and modifying PAGE-XML files."
+version = "5.0.0"
 readme = "README.md"
-license = "Apache-2.0"
-license-files = ["LICENSE"]
+keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
 requires-python = ">=3.11"
+license = { file = "LICENSE" }
+dependencies = ["lxml ~= 6.0.2"]
 authors = [
-    { name = "Centre for Philology and Digitality (ZPD), University of Würzburg" },
-    { name = "Janik Haitz", email = "jahtz.dev@proton.me" },
+    { name = "jahtz", email = "jahtz.dev@proton.me" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
-]
-dependencies = [
-    "lxml ~= 5.4.0",
-    "click ~= 8.1.8",
-    "rich ~= 14.0.0"
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
 ]
 
 [project.urls]
-Homepage = "https://www.uni-wuerzburg.de/zpd/"
 Repository = "https://github.com/jahtz/pypxml"
+Documentation = "https://github.com/jahtz/pypxml/README.md"
 
-[tool.hatch.build.targets.wheel]
-include = ["pypxml", "resources/schema.json", "cli"]
+[project.optional-dependencies]
+cli = ["click >= 8.0", "rich >= 14.0.0"]
+dev = ["types-lxml"]
 
 [project.scripts]
-pypxml = "cli.pypxml_cli:cli"
+pypxml = "cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pypxml = ["py.typed"]
