@@ -1,238 +1,101 @@
-# PyPXML
+# pypxml
+[![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
+[![PyPI version](https://badge.fury.io/py/pypxml.svg)](https://badge.fury.io/py/pypxml)
 
-A python library for parsing, creating and modifying PageXML files.
+A modern, powerful,and extremly fast Python library for reading, writing, and modifying [PAGE-XML](https://github.com/PRImA-Research-Lab/PAGE-XML) files.
 
-## Setup
+PAGE-XML is the standard format for storing layout and text information from OCR and document analysis systems.
 
->[!NOTE]
->Python version `>=3.11`
+## Python API
+_pypxml_ provides an intuitive Python API to interact with PAGE-XML files.
 
-### Install from PyPI
+### Install
+```bash
+uv add pypxml
+```
+> [!NOTE]
+> Alternatively install with pip: `pip install pypxml`
 
-```shell
-pip install pypxml
+### Example
+```python
+from pypxml import PageXML, PageType, PageUtil
+
+# Open an existing PAGE-XML file
+page = PageXML.open('document.xml')
+
+# Access page metadata and attributes
+print(f'Creator: {page.creator}')
+print(f'Image: {page["imageFilename"]}')
+
+# Find all text regions of type marginalia and extract their text
+for region in page.find_all(PageType.TextRegion, type='marginalia'):
+    print(f'\nRegion {region["id"]}:')
+    
+    # Get all text lines in this region
+    for line in region.find_all(PageType.TextLine, depth=-1):
+        text = PageUtil.find_text(line)
+        if text:
+            print(f'\t{text}')
+
+# Sort regions by their position
+PageUtil.sort_regions(page, direction='top-bottom')
+
+# Save with schema validation
+page.save('output.xml', schema='2019')
 ```
 
-### Install upstream from source
+## Command Line Interface
+For common analytics and regularization operations, the command line interface (cli) can be installed
 
-1. Clone repository: `git clone https://github.com/jahtz/pypxml`
-2. Install package: `cd pypxml && pip install .`
+### Setup
+```bash
+uv tool install pypxml[cli]
+```
+> [!NOTE]
+> Alternatively install with pip: `pip install pypxml[cli]`
 
-## API
-
-PyPXML provides a feature rich Python API for working with PageXML files.
-
-Full [documentation](docs/DOCUMENTATION.md)
-
-## CLI
-
-```txt
+### Usage
+```text
 $ pypxml --help
 Usage: pypxml [OPTIONS] COMMAND [ARGS]...
 
-  A python library for parsing, converting and modifying PageXML files.
+  A modern, powerful,and extremly fast Python library for reading, writing,
+  and modifying PAGE-XML files
 
 Options:
-  --help     Show this message and exit.
-  --version  Show the version and exit.
+  --help                          Show this message and exit.
+  --version                       Show the version and exit.
+  --logging [ERROR|WARNING|INFO]  Set logging level.  [default: ERROR]
 
 Commands:
-  get-codec           Extract the character set from PageXML files.
-  get-custom          List all custom region attributes in PageXML files.
-  get-regions         List all regions in PageXML files.
-  get-text            Extract text from PageXML files.
-  regularize-codec    Regularize character encodings in PageXML files.
-  regularize-regions  Regularize region types in PageXML files.
+  get-codec           Extract character set from PAGE-XML files.
+  get-regions         Extract region types from PAGE-XML files.
+  get-text            Extract text from a PAGE-XML file.
+  regularize-codec    Regularize character encodings in PAGE-XML files.
+  regularize-regions  Regularize region types in PAGE-XML files.
+
+  Developed at Centre for Philology and Digitality (ZPD), University of
+  Würzburg
 ```
 
-### analytics
+## Benchmarks
+Benchmarks were aggregated over 100 randomly selected PAGE-XML files representing common book pages.
+Below, the average time is listed for each operation and OCR granularity.
 
-#### get-codec
+| Operation | Lines | Words | Glyphs | Description                                                                                 |
+| --------- | ----: | ----: | -----: | ------------------------------------------------------------------------------------------- |
+| `open`    | 0.8ms | 3.6ms | 20.6ms | Average time to open (and parse) a PAGE-XML file with OCR on TextLine, Word, or Glyph level |
+| `search`  | 0.1ms | 0.5ms |  2.9ms | Average time to search for _all_ TextLine, Word, or Glyph elements                          |
+| `write`   | 1.6ms | 3.6ms | 13.6ms | Average time to write a PAGE-XML file with OCR on TextLine, Word, or Glyph level            |
 
-```txt
-$ pypxml get-codec --help
-Usage: pypxml get-codec [OPTIONS] FILES...
+> [!NOTE]
+> The experiments where conducted on an Intel 12th Gen i7-12700 
 
-  This tool analyzes the text content of PageXML files and extracts the set of
-  characters used.
+## Related Projects
 
-  It can optionally normalize unicode, remove whitespace, and output character
-  frequencies. Results are printed to the console or saved as a CSV file.
-
-  FILES: List of PageXML file paths to process. Accepts individual files, glob
-  wildcards, or directories.
-
-Options:
-  -o, --output FILE               Path to a CSV file to save the results. If
-                                  omitted, results are printed to stdout. If a
-                                  directory is given, the file 'codec.csv'
-                                  will be created inside it.
-  -l, --level [TextRegion|TextLine|Word|Glyph]
-                                  PageXML level from which to extract text.
-                                  [default: TextLine]
-  -i, --index INTEGER             Only consider TextEquiv elements with the
-                                  specified index.
-  -w, --remove-whitespace         Remove all whitespace characters before
-                                  analyzing text.
-  -f, --frequencies               Also output character frequencies.
-  -n, --normalize [NFC|NFD|NFKC|NFKD]
-                                  Normalize unicode before analyzing text.
-```
-
-#### get-regions
-
-```txt
-$ pypxml get-regions --help
-Usage: pypxml get-regions [OPTIONS] FILES...
-
-  Analyzes PageXML files and lists the region types found.
-
-  Optionally includes subtypes, outputs frequencies, and group by file,
-  directory, or globally.
-
-  FILES: List of PageXML file paths to process. Accepts individual files, glob
-  wildcards, or directories.
-
-Options:
-  -o, --output PATH               CSV file or directory where the results are
-                                  saved. If a directory is given, the file
-                                  'regions.csv' will be created inside it. If
-                                  omitted, results are printed to stdout.
-  -l, --level [total|directory|file]
-                                  Set the aggregation level for the output.
-                                  'total' combines all files, 'directory'
-                                  aggregates by parent directory, and 'file'
-                                  lists results per individual file.
-                                  [default: total]
-  -f, --frequencies               Also output the frequency (count) of each
-                                  region type.
-  -t, --types                     Include subtypes by printing them as
-                                  'PageType.type' if available.
-```
-
-#### get-custom
-
-```txt
-$ pypxml get-custom --help
-Usage: pypxml get-custom [OPTIONS] FILES...
-
-  Analyzes PageXML files and lists the custom region types found.
-
-  Optionally outputs frequencies and group by file, directory, or globally.
-
-  FILES: List of PageXML file paths to process. Accepts individual files, glob
-  wildcards, or directories.
-
-Options:
-  -o, --output PATH               CSV file or directory where the results are
-                                  saved. If a directory is given, the file
-                                  'customs.csv' will be created inside it. If
-                                  omitted, results are printed to stdout.
-  -l, --level [total|directory|file]
-                                  Set the aggregation level for the output.
-                                  'total' combines all files, 'directory'
-                                  aggregates by parent directory, and 'file'
-                                  lists results per individual file.
-                                  [default: total]
-  -f, --frequencies               Also output the frequency (count) of each
-                                  custom attribute.
-```
-
-#### get-text
-
-```txt
-$ pypxml get-text --help
-Usage: pypxml get-text [OPTIONS] FILES...
-
-  Extract text from PageXML files at the TextLine level.
-
-  Outputs to individual text files, a single file, or prints to the console,
-  with optional separators between regions and pages.
-
-  FILES: List of PageXML file paths to process. Accepts individual files, glob
-  wildcards, or directories.
-
-Options:
-  -o, --output PATH            Output destination. If a directory is
-                               specified, a separate text file is created for
-                               each PageXML file, ignoring the page separator.
-                               If a file is specified, the text from all files
-                               is concatenated into that file. If omitted, the
-                               text is printed to stdout.
-  -i, --index INTEGER          Use only the text from TextEquiv elements at
-                               the given index.
-  -r, --region-separator TEXT  Separator string inserted between regions. Use
-                               "" for an empty line, "\n" for two empty lines,
-                               ...
-  -p, --page-separator TEXT    Separator string inserted between pages when
-                               outputting to a single file or stdout. Ignored
-                               when outputting multiple files. Use "" for an
-                               empty line, "\n" for two empty lines, ...
-```
-
-### regularize
-
-#### regularize-codec
-
-```txt
-$ pypxml regularize-codec --help
-Usage: pypxml regularize-codec [OPTIONS] FILES...
-
-  Apply character replacement rules to text elements in PageXML files.
-
-  Supports selecting PlainText or Unicode elements and limiting replacements
-  to specific element levels.
-
-  FILES: List of PageXML file paths to process. Accepts individual files, glob
-  wildcards, or directories.
-
-Options:
-  -o, --output DIRECTORY          Directory to save the modified PageXML
-                                  files. If omitted, input files will be
-                                  overwritten.
-  -i, --index INTEGER             Use only TextEquiv elements with the
-                                  specified index. Defaults to all TextEquiv
-                                  elements if not set.
-  -l, --level [TextRegion|TextLine|Word|Glyph]
-                                  PageXML element level to process.  [default:
-                                  TextLine]
-  --plaintext / --unicode         Select the text element to use.Choose from
-                                  PlainText (without formatting) or Unicode
-                                  (formatted).  [default: unicode]
-  -r, --rule TEXT...              Define substring replacement rules. Each
-                                  rule is a pair of strings: '--rule SOURCE
-                                  TARGET'. Multiple rules can be specified by
-                                  repeating the option.  [required]
-```
-
-#### regularize-regions
-
-```txt
-$ pypxml regularize-regions --help
-Usage: pypxml regularize-regions [OPTIONS] FILES...
-
-  This tool processes PageXML files and updates or removes regions based on
-  specified rules.
-
-  Regions are matched by their PageType and optional subtype. Regions matching
-  the source specification are either updated to a new type or deleted if
-  target is set to 'None'.
-
-  FILES: List of PageXML file paths to process. Accepts individual files, glob
-  wildcards, or directories.
-
-Options:
-  -o, --output DIRECTORY  Directory to save the modified PageXML files. If
-                          omitted, input files will be overwritten.
-  -r, --rule TEXT...      Define rules for region regularization. Format:
-                          --rule SOURCE TARGET where SOURCE is the original
-                          region type (e.g., TextRegion.paragraph,
-                          ImageRegion), and TARGET is the new region type. Use
-                          an 'None' TARGET to delete the region. Only region
-                          PageTypes are allowed. Multiple rules can be
-                          specified by repeating this option.  [required]
-```
+- [PAGE-XML](https://github.com/PRImA-Research-Lab/PAGE-XML) - The PAGE-XML format specification
+- [OCR-D](https://ocr-d.de/) - OCR framework using PAGE-XML
 
 ## ZPD
-
 Developed at Centre for [Philology and Digitality](https://www.uni-wuerzburg.de/en/zpd/) (ZPD), [University of Würzburg](https://www.uni-wuerzburg.de/en/).
