@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Any
 
 from lxml import etree
+from lxml.etree import _Element
 
 from .pagetype import PageType
 if TYPE_CHECKING:
@@ -14,6 +15,17 @@ if TYPE_CHECKING:
 logger: logging.Logger = logging.getLogger(__name__)
 
 
+def parse_pagetype(value: PageType | str) -> PageType:
+    if isinstance(value, str):
+        if not PageType.validate(value):
+            raise ValueError(f'Invalid PageType: {value}')
+        return PageType[value]
+    elif isinstance(value, PageType):
+        return value
+    else:
+        raise ValueError(f'Expected value of type PageType or str, got {type(value).__name__}')
+
+
 class PageElement:
     """
     Represents a single structural element within a PAGE-XML document.
@@ -21,103 +33,91 @@ class PageElement:
     def __init__(
         self,
         pagetype: PageType | str,
-        parent: PageXML | PageElement,
-        **attributes: str | None
+        parent: PageXML | PageElement | None = None,
+        text: str | None = None,
+        **attrs: Any
     ) -> None:
         """
-        Create a new `PageElement` object.
+        Create a `PageElement` object.
 
         Args:
             pagetype: PageType of this element.
             parent: Parent object of this element.
             attributes: Named arguments that represent additional attributes of this element.
         """
-        self.pagetype: PageType = pagetype  # ty:ignore[invalid-assignment]
-        self.attributes: dict[str, str] = attributes  # ty:ignore[invalid-assignment]
+        self._pagetype: PageType = parse_pagetype(pagetype)  
+        self._attributes: dict[str, str] = {str(k): str(v) for k, v in attrs.items() if v is not None}  
         
-        self.__parent: PageXML | PageElement = parent
-        self.__elements: list[PageElement] = []
-        self.__text: str | None = None
+        self._parent: PageXML | PageElement | None = parent
+        self._text: str | None = text
+        self._elements: list[PageElement] = []
         
-        logger.info(f'New PageElement ({self.pagetype.value}) object created')
+        logger.info(f'PageElement ({self.pagetype.value}) object created')
         
     def __str__(self) -> str:
         return repr(self)
     
     def __repr__(self) -> str:
-        return f'PageElement ({self.pagetype.value}) {str(self.attributes)}'
+        return f'<PageElement ({self.pagetype.value}) {str(self.attributes)}>'
 
     def __getitem__(self, key: str) -> str | None:
-        return self.__attributes.get(str(key), None)
+        return self._attributes.get(str(key), None)
     
     def __setitem__(self, key: str, value: str | None) -> None:
         if value is None:
-            self.__attributes.pop(str(key), None)
+            self._attributes.pop(str(key), None)
         else:
-            self.__attributes[str(key)] = str(value)
+            self._attributes[str(key)] = str(value)
     
     def __contains__(self, key: str) -> bool:
-        return str(key) in self.__attributes
-    
-    @property
-    def pagetype(self) -> PageType:
-        """ Type of the element """
-        return self.__pagetype
-    
-    @pagetype.setter
-    def pagetype(self, value: PageType | str) -> None:
-        if isinstance(value, str):
-            if not PageType.validate(value):
-                raise ValueError(f'Invalid PageType: {value}')
-            self.__pagetype: PageType = PageType[value]
-        elif isinstance(value, PageType):
-            self.__pagetype: PageType = value
-        else:
-            raise ValueError(f'Expected value of type PageType or str, got {type(value).__name__}')
-    
-    @property
-    def region(self) -> bool:
-        return self.__pagetype.region
+        return str(key) in self._attributes
     
     @property
     def attributes(self) -> dict[str, str]:
         """ Dictionary containing key/value pairs that represent attributes of the PAGE element (copy)"""
-        return self.__attributes.copy()
+        return self._attributes.copy()
     
     @attributes.setter
-    def attributes(self, value: dict[str, str] | None) -> None:
-        if value is None:
-            self.__attributes: dict[str, str] = {}
-        else:
-            self.__attributes: dict[str, str] = {
-                str(k): str(v) for k, v in value.items() 
-                if v is not None
-            }
+    def attributes(self, attrs: dict[str, str]) -> None:
+        self._attributes: dict[str, str] = {str(k): str(v) for k, v in attrs.items() if v is not None}
     
     @property
-    def parent(self) -> PageXML | PageElement:
+    def pagetype(self) -> PageType:
+        """ Type of the element """
+        return self._pagetype
+    
+    @pagetype.setter
+    def pagetype(self, value: PageType | str) -> None:
+        self._pagetype = parse_pagetype(value)
+    
+    @property
+    def is_region(self) -> bool:
+        return self._pagetype.is_region
+    
+    @property
+    def parent(self) -> PageXML | PageElement | None:
         """ Parent element of the current element """
-        return self.__parent
+        return self._parent
 
     @property
     def elements(self) -> list[PageElement]:
         """ List of child `PageElement` objects (copy)"""
-        return self.__elements.copy()
+        return self._elements.copy()
     
     @property
     def text(self) -> str | None:
         """ Text of the element """
-        return self.__text
+        return self._text
     
     @text.setter
-    def text(self, value: str | None) -> None:
+    def text(self, value: Any) -> None:
         """ Text of the element """
-        self.__text: None | str = None if value is None else str(value)
+        self._text: None | str = None if value is None else str(value)
     
     @classmethod
     def _from_etree(
         cls,
-        tree: etree._Element,
+        tree: _Element,
         parent: PageXML | PageElement,
         raise_on_error: bool = True
     ) -> PageElement | None:
@@ -137,14 +137,14 @@ class PageElement:
         return element
     
     def _to_etree(self) -> etree._Element:
-        element: etree._Element = etree.Element(self.__pagetype.value, **self.__attributes)  # type: ignore[arg-type]
-        element.text = self.__text
-        for child in self.__elements:
+        element: etree._Element = etree.Element(self._pagetype.value, **self._attrs)  # ty:ignore[unresolved-attribute]
+        element.text = self._text
+        for child in self._elements:
             element.append(child._to_etree())
         return element
     
     def _find_all(self, pt: list[PageType] | None, d: int, attrs: dict[str, list[str]]) -> Iterator[PageElement]:
-        for element in self.__elements:
+        for element in self._elements:
             if pt is None or element.pagetype in pt:
                 for sk, sv in attrs.items():
                     if sk not in element or element[sk] not in sv:
@@ -158,10 +158,10 @@ class PageElement:
         self,
         pagetype: list[PageType | str] | PageType | str | None = None,
         depth: int = 0,
-        **attributes: list[str] | str
+        **attrs: list[Any] | Any
     ) -> Iterator[PageElement]:
         """
-        Find `PageElements` by their type and attributes.
+        Find `PageElement`s by their type and attributes.
 
         Args:
             pagetype: One or more `PageType`s to look for. Defaults to None.
@@ -170,14 +170,14 @@ class PageElement:
                 - `<0` search all levels recursively
                 - `>0` limit the search to the specified number of levels
                 Defaults to 0.
-            attributes: Named arguments representing the attributes that the found elements must have.
+            attrs: Named arguments representing the attributes that the found elements must have.
         
         Yields:
             The next found `PageElement`.
         """
         attributes: dict[str, list[str]] = {
             k: list(map(str, v)) if isinstance(v, list) else [str(v)] 
-            for k, v in attributes.items()
+            for k, v in attrs.items()
         }
         
         if pagetype is not None:
@@ -191,7 +191,7 @@ class PageElement:
         self,
         pagetype: list[PageType | str] | PageType | str | None = None,
         depth: int = 0,
-        **attributes: str | list[str]
+        **attrs: list[str] | Any
     ) -> PageElement | None:
         """
         Find a `PageElement` by their type and attributes.
@@ -202,23 +202,23 @@ class PageElement:
                 - `<0` search all levels recursively
                 - `>0` limit the search to the specified number of levels
                 Defaults to 0.
-            attributes: Named arguments representing the attributes that the found elements must have.
+            attrs: Named arguments representing the attributes that the found elements must have.
         Returns:
             The first found `PageElement` or None if no match was found.
         """
-        return next(self.find_all(pagetype, depth, **attributes), None)
+        return next(self.find_all(pagetype, depth, **attrs), None)
     
-    def create(self, pagetype: PageType, pos: int | None = None, **attributes: str) -> PageElement:
+    def create(self, pagetype: PageType, pos: int | None = None, **attrs: str) -> PageElement:
         """
         Create a new child `PageElement` and add it to the list of elements.
         Args:
             pagetype: Type of the new child element.
             pos: If set, inserts the new element at this position (start with 0), else append. Defaults to None.
-            attributes: Named arguments that represent the attributes of the child object.
+            attrs: Named arguments that represent the attributes of the child object.
         Returns:
             The newly created child `PageElement`.
         """
-        element: PageElement = PageElement(pagetype, self, **attributes)
+        element: PageElement = PageElement(pagetype, self, **attrs)
         self.set(element, pos)
         return element
     
@@ -231,11 +231,11 @@ class PageElement:
             pos: If set, inserts the new element at this position (start with 0), else append. Defaults to None.
         """
         if pos is None:
-            self.__elements.append(element)
+            self._elements.append(element)
         else:
-            self.__elements.insert(pos, element)
+            self._elements.insert(pos, element)
         if element.parent is not self:
-            element._PageElement__parent = self  # type: ignore[prv-type]
+            element._parent = self
             
     def delete(self, element: PageElement | None = None) -> PageElement | None:
         """
@@ -250,8 +250,8 @@ class PageElement:
         if element is None and self.parent:
             self.parent.delete(self)
             return self
-        elif element in self.__elements:
-            self.__elements.remove(element)
+        elif element in self._elements:
+            self._elements.remove(element)
             return element
         return None
     
@@ -259,4 +259,4 @@ class PageElement:
         """
         Remove all elements from the list of child elements.
         """
-        self.__elements.clear()
+        self._elements.clear()

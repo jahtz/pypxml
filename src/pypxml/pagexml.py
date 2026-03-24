@@ -4,9 +4,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import logging
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Any
 
 from lxml import etree
+from lxml.etree import _Element
 
 from .pageelement import PageElement
 from .pageschema import PageSchema
@@ -16,13 +17,20 @@ from .pagetype import PageType
 logger: logging.Logger = logging.getLogger(__name__)
 
 
+def parse_datetime(value: datetime | str | None) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    elif isinstance(value, str):
+        return datetime.fromisoformat(value)
+    else:
+        return datetime.now(timezone.utc)
+
+
 class PageXML:
     """
     High-level representation of a PAGE-XML document and its top-level 'Page' element.
-    
-    This class models the logical and structural contents of a PAGE-XML file as 
-    defined by the PAGE (Page Analysis and Ground Truth Elements) specification,
-    which can be found here: https://ocr-d.de/de/gt-guidelines/trans/trPage.html
+
+    See PAGE specification: https://ocr-d.de/de/gt-guidelines/trans/trPage.html
     """
     
     def __init__(
@@ -30,120 +38,103 @@ class PageXML:
         creator: str | None = None,
         created: datetime | str | None = None,
         changed: datetime | str | None = None,
-        **attributes: str | None
+        **attrs: Any
     ) -> None:
         """
-        Create a new `PageXML` object.
+        Create a `PageXML` object.
 
         Args:
             creator: Creator of the PAGE-XML. Defaults to None.
             created: Timestamp (ISO 8601) of the creation of the PAGE-XML. Defaults to None.
             changed: Timestamp (ISO 8601) of the last change. Defaults to None.
-            attributes: Named arguments that represent the optional attributes of the 'Page' element.
+            attrs: Named arguments that represent the attributes of the 'Page' element.
         """
-        self.creator: str = creator  # ty:ignore[invalid-assignment]
-        self.created: datetime = created  # ty:ignore[invalid-assignment]
-        self.changed: datetime = changed  # ty:ignore[invalid-assignment]
-        self.attributes: dict[str, str] = attributes  # ty:ignore[invalid-assignment]
+        self._creator: str = 'pypxml' if creator is None else creator
+        self._created: datetime = parse_datetime(created)
+        self._changed: datetime = parse_datetime(changed)
         
-        self.__reading_order: list[str] = []
-        self.__elements: list[PageElement] = []
-        
-        logger.info('New PageXML object created')
-    
+        self._attributes: dict[str, str] = {str(k): str(v) for k, v in attrs.items() if v is not None}
+        self._reading_order: list[str] = []
+        self._elements: list[PageElement] = []
+
+        logger.info('PageXML object created')
+
     def __str__(self) -> str:
         return repr(self)
     
     def __repr__(self) -> str:
-        return f'PAGE-XML {str(self.__attributes)}'
+        return f'<PAGE-XML {str(self._attributes)}>'
     
     def __getitem__(self, key: str) -> str | None:
-        return self.__attributes.get(str(key), None)
+        return self._attributes.get(str(key), None)
     
     def __setitem__(self, key: str, value: str | None) -> None:
         if value is None:
-            self.__attributes.pop(str(key), None)
+            self._attributes.pop(str(key), None)
         else:
-            self.__attributes[str(key)] = str(value)
+            self._attributes[str(key)] = str(value)
     
     def __contains__(self, key: str) -> bool:
-        return str(key) in self.__attributes
+        return str(key) in self._attributes
     
+    @property
+    def attributes(self) -> dict[str, str]:
+        """ A dictionary containing key/value pairs that represent attributes of the PAGE element (copy) """
+        return self._attributes.copy()
+    
+    @attributes.setter
+    def attributes(self, attrs: dict[str, str]) -> None:
+        self._attributes: dict[str, str] = {str(k): str(v) for k, v in attrs.items() if v is not None}
+
     @property
     def creator(self) -> str:
         """ Metadata: Creator of the PAGE-XML """
-        return self.__creator
+        return self._creator
     
     @creator.setter
     def creator(self, value: str | None) -> None:
-        self.__creator: str = 'pypxml' if not value else str(value)
+        self._creator: str = 'pypxml' if not value else str(value)
         
     @property
     def created(self) -> datetime:
         """ Metadata: Timestamp (ISO 8601) of the creation of the PAGE-XML """
-        return self.__created
+        return self._created
     
     @created.setter
     def created(self, value: datetime | str | None) -> None:
-        if isinstance(value, datetime):
-            self.__created: datetime = value
-        elif isinstance(value, str):
-            self.__created: datetime = datetime.fromisoformat(value)
-        else:
-            self.__created: datetime = datetime.now(timezone.utc)
+        self._created: datetime = parse_datetime(value)
     
     @property
     def changed(self) -> datetime:
         """ Metadata: Timestamp (ISO 8601) of the last change """
-        return self.__changed
+        return self._changed
     
     @changed.setter
     def changed(self, value: datetime | str | None) -> None:
-        if isinstance(value, datetime):
-            self.__changed: datetime = value
-        elif isinstance(value, str):
-            self.__changed: datetime = datetime.fromisoformat(value)
-        else:
-            self.__changed: datetime = datetime.now(timezone.utc)
+        self._changed: datetime = parse_datetime(value)
         
-    @property
-    def attributes(self) -> dict[str, str]:
-        """ A dictionary containing key/value pairs that represent attributes of the PAGE element (copy) """
-        return self.__attributes.copy()
-    
-    @attributes.setter
-    def attributes(self, attrs: dict[str, str] | None) -> None:
-        if not attrs:
-            self.__attributes: dict[str, str] = {}
-        else:
-            self.__attributes: dict[str, str] = {
-                str(k): str(v) for k, v in attrs.items() 
-                if v is not None
-            }
-            
     @property
     def reading_order(self) -> list[str]:
         """ List of element id's in the correct order (copy) """
-        return self.__reading_order.copy()
+        return self._reading_order.copy()
     
     @property
     def elements(self) -> list[PageElement]:
         """ List of child `PageElement` objects (copy) """
-        return self.__elements.copy()
+        return self._elements.copy()
     
     @property
     def regions(self) -> list[PageElement]:
         """ List of child `PageElement` region objects (copy) """
-        return list([e for e in self.__elements if e.region])
+        return list([e for e in self._elements if e.is_region])
     
     @classmethod
-    def _from_etree(cls, tree: etree._Element, raise_on_error: bool = True) -> PageXML:
-        page: etree._Element | None = tree.find('./{*}Page')
+    def _from_etree(cls, tree: _Element, raise_on_error: bool = True) -> PageXML:
+        page: _Element | None = tree.find('./{*}Page')
         if page is None:
             raise ValueError('The passed etree object does not contain a Page element')
-        attrs: dict[str, str] = {k: v for k, v in page.items() if v is not None}
         
-        creator,created, changed = None, None, None
+        creator, created, changed = None, None, None
         if (md := tree.find('./{*}Metadata')) is not None:
             if (e := md.find('./{*}Creator')) is not None:
                 creator = e.text
@@ -151,11 +142,11 @@ class PageXML:
                 created = e.text
             if (e := md.find('./{*}LastChange')) is not None:
                 changed = e.text
-        xml: PageXML = cls(creator, created, changed, **attrs)
+        xml: PageXML = cls(creator, created, changed, **dict(page.items()))
         
         if (ro := page.find('./{*}ReadingOrder')) is not None:
-            ro_elements = ro.findall('.//{*}RegionRefIndexed')
-            xml._PageXML__reading_order = [  # type: ignore[prv-type]
+            ro_elements: list[_Element] = ro.findall('.//{*}RegionRefIndexed')
+            xml._reading_order = [ 
                 str(e.get('regionRef'))
                 for e in sorted(ro_elements, key=lambda x: int(x.get('index')))
             ]
@@ -166,40 +157,38 @@ class PageXML:
                 xml.set(pe, reading_order=False)
         return xml
 
-    def _to_etree(self, schema: PageSchema | str = '2019') -> etree._Element:
-        PRE_RO: list[PageType] = [PageType.AlternativeImage, PageType.Border, PageType.PrintSpace]
-        POST_RO: list[PageType] = [PageType.Layers, PageType.Relations, PageType.TextStyle, PageType.UserDefined, PageType.Labels]
-        
-        self.changed: datetime = datetime.now()
+    def _to_etree(self, schema: PageSchema | str = '2019') -> _Element:
+        self._changed: datetime = datetime.now()
         
         if isinstance(schema, str):
             schema: PageSchema = PageSchema.get(schema)
-        xsi_qname = etree.QName('http://www.w3.org/2001/XMLSchema-instance', 'schemaLocation')
+            
+        xsi_qname = etree.QName(
+            'http://www.w3.org/2001/XMLSchema-instance', 
+            'schemaLocation'
+        )
         nsmap: dict[None | str, str] = {None: schema.xmlns, 'xsi': schema.xmlns_xsi}
+        root: _Element = etree.Element('PcGts', {xsi_qname: schema.xsi_schema_location}, nsmap=nsmap)
         
-        root: etree._Element = etree.Element('PcGts', {xsi_qname: schema.xsi_schema_location}, nsmap=nsmap)
-        
-        metadata: etree._Element = etree.SubElement(root, 'Metadata')
+        metadata: _Element = etree.SubElement(root, 'Metadata')
         etree.SubElement(metadata, 'Creator').text = self.creator
         etree.SubElement(metadata, 'Created').text = self.created.isoformat()
         etree.SubElement(metadata, 'LastChange').text = self.changed.isoformat()
         
-        page: etree._Element = etree.Element('Page', **self.__attributes)  # type: ignore[arg-type]
+        page: _Element = etree.Element('Page', **self._attributes)  # ty:ignore[invalid-argument-type]
         root.append(page)
         
-        for pt in PRE_RO:
-            for element in self.find_all(pt):
-                page.append(element._to_etree())
+        for element in self.find_all([PageType.AlternativeImage, PageType.Border, PageType.PrintSpace]):
+            page.append(element._to_etree())
         
-        if len(self.__reading_order) > 0:
-            reading_order: etree._Element = etree.SubElement(page, 'ReadingOrder')
-            order_group: etree._Element = etree.SubElement(reading_order, 'OrderedGroup', id='g0')
-            for i, _id in enumerate(self.__reading_order):
+        if len(self._reading_order) > 0:
+            reading_order: _Element = etree.SubElement(page, 'ReadingOrder')
+            order_group: _Element = etree.SubElement(reading_order, 'OrderedGroup', id='g0')
+            for i, _id in enumerate(self._reading_order):
                 etree.SubElement(order_group, 'RegionRefIndexed', index=str(i), regionRef=_id)
         
-        for pt in POST_RO:
-            for element in self.find_all(pt):
-                page.append(element._to_etree())
+        for element in self.find_all([PageType.Layers, PageType.Relations, PageType.TextStyle, PageType.UserDefined, PageType.Labels]):
+            page.append(element._to_etree())
                 
         for region in self.regions:
             page.append(region._to_etree())
@@ -209,7 +198,7 @@ class PageXML:
     @classmethod
     def open(cls, xml: Path | str, encoding: str = 'utf-8', raise_on_error: bool = True) -> PageXML:
         """
-        Create a `PageXml` object from a PAGE-XML file.
+        Create a `PageXML` object from a PAGE-XML file.
 
         Args:
             xml: The file to open.
@@ -220,14 +209,14 @@ class PageXML:
             ValueError: If the lxml etree object is not a valid PAGE-XML and raise_on_error is True.
             
         Returns:
-            A `PageXml` object that represents the passed PAGE-XML file.
+            A `PageXML` object that represents the passed PAGE-XML file.
         """
-        parser: etree.XMLParser[etree._Element] = etree.XMLParser(remove_blank_text=True, encoding=encoding)
+        parser: etree.XMLParser[_Element] = etree.XMLParser(remove_blank_text=True, encoding=encoding)
         return cls._from_etree(etree.parse(xml, parser).getroot(), raise_on_error)
     
     def save(self, xml: Path | str, encoding: str = 'utf-8', schema: PageSchema | str = '2019') -> None:
         """
-        Write a PAGE-XML file with the data of the current `PageXml` object.
+        Write a PAGE-XML file with the data of the current `PageXML` object.
 
         Args:
             xml: The file to save to.
@@ -244,7 +233,7 @@ class PageXML:
             ))
             
     def _find_all(self, pt: list[PageType] | None, d: int, attrs: dict[str, list[str]]) -> Iterator[PageElement]:
-        for element in self.__elements:
+        for element in self._elements:
             if pt is None or element.pagetype in pt:
                 for sk, sv in attrs.items():
                     if sk not in element or element[sk] not in sv:
@@ -258,10 +247,10 @@ class PageXML:
         self,
         pagetype: list[PageType | str] | PageType | str | None = None,
         depth: int = 0,
-        **attributes: list[str] | str
+        **attrs: list[Any] | Any
     ) -> Iterator[PageElement]:
         """
-        Find `PageElements` by their type and attributes.
+        Find `PageElement`s by their type and attributes.
 
         Args:
             pagetype: One or more `PageType`s to look for. Defaults to None.
@@ -270,28 +259,28 @@ class PageXML:
                 - `<0` search all levels recursively
                 - `>0` limit the search to the specified number of levels
                 Defaults to 0.
-            attributes: Named arguments representing the attributes that the found elements must have.
+            attrs: Named arguments representing the attributes that the found elements must have.
         
         Yields:
             The next found `PageElement`.
         """
         attributes: dict[str, list[str]] = {
             k: list(map(str, v)) if isinstance(v, list) else [str(v)] 
-            for k, v in attributes.items()
+            for k, v in attrs.items()
         }
         
         if pagetype is not None:
             if not isinstance(pagetype, list):
-                pagetype = [pagetype]
+                pagetype: list[PageType | str] = [pagetype]
             pagetype: list[PageType] = [pt if isinstance(pt, PageType) else PageType[pt] for pt in pagetype]
         
         yield from self._find_all(pagetype, depth, attributes)
-        
+
     def find(
         self,
         pagetype: list[PageType | str] | PageType | str | None = None,
         depth: int = 0,
-        **attributes: str | list[str]
+        **attrs: list[Any] | Any
     ) -> PageElement | None:
         """
         Find a `PageElement` by their type and attributes.
@@ -302,32 +291,32 @@ class PageXML:
                 - `<0` search all levels recursively
                 - `>0` limit the search to the specified number of levels
                 Defaults to 0.
-            attributes: Named arguments representing the attributes that the found elements must have.
+            attrs: Named arguments representing the attributes that the found elements must have.
         Returns:
             The first found `PageElement` or None if no match was found.
         """
-        return next(self.find_all(pagetype, depth, **attributes), None)
+        return next(self.find_all(pagetype, depth, **attrs), None)
     
     def create(
         self, 
         pagetype: PageType, 
         pos: int | None = None, 
         reading_order: bool = True, 
-        **attributes: str
+        **attrs: Any
     ) -> PageElement:
         """
-        Create a new child `PageElement` and add it to the list of elements.
+        Create a child `PageElement` and add it to the list of elements.
         
         Args:
-            pagetype: Type of the new child element.
+            pagetype: Type of the child element.
             pos: If set, inserts the new element at this position (start with 0), else append. Defaults to None.
             reading_order: If set to True, add the element to the reading order at the specified index. 
                 Only applies if the element is a region. Defaults to True.
-            attributes: Named arguments that represent the attributes of the child object.
+            attrs: Named arguments that represent the attributes of the child object.
         Returns:
             The newly created child `PageElement`.
         """
-        element = PageElement(pagetype, self, **attributes)
+        element = PageElement(pagetype, self, **attrs)
         self.set(element, pos, reading_order)
         return element
     
@@ -341,19 +330,19 @@ class PageXML:
             reading_order: If set to True, add the element to the reading order at the specified index. 
                 Only applies if the element is a region. Defaults to True.
         """
-        if reading_order and element.region and 'id' in element:
-            if element['id'] in self.__reading_order:
+        if reading_order and element.is_region and 'id' in element:
+            if element['id'] in self._reading_order:
                 raise ValueError(f'Element with id {element["id"]} already exists')
             if pos is None:
-                self.__reading_order.append(str(element['id']))
+                self._reading_order.append(str(element['id']))
             else:
-                self.__reading_order.insert(pos, str(element['id']))
+                self._reading_order.insert(pos, str(element['id']))
         if pos is None:
-            self.__elements.append(element)
+            self._elements.append(element)
         else:
-            self.__elements.insert(pos, element)
+            self._elements.insert(pos, element)
         if element.parent is not self:
-            element._PageElement__parent = self  # type: ignore[arg-type]
+            element._parent = self
             
     def delete(self, element: PageElement) -> PageElement | None:
         """
@@ -365,10 +354,10 @@ class PageXML:
         Returns:
             The `PageElement` if it was deleted. Otherwise, None.
         """
-        if element in self.__elements:
-            self.__elements.remove(element)
-            if 'id' in element and element['id'] in self.__reading_order:
-                self.__reading_order.remove(str(element['id']))
+        if element in self._elements:
+            self._elements.remove(element)
+            if 'id' in element and element['id'] in self._reading_order:
+                self._reading_order.remove(str(element['id']))
             return element
         return None
     
@@ -394,30 +383,35 @@ class PageXML:
         Regions not included in the reading order are placed last.
         """
         # improves performance over list.index()
-        order: dict[str, int] = {_id: index for index, _id in enumerate(self.__reading_order) if _id}
+        order: dict[str, int] = {_id: index for index, _id in enumerate(self._reading_order) if _id}
         
         def sort_key(obj: PageElement):
-            if not obj.region:  # non-region types (e.g., AlternativeImage,...) first
+            if not obj.is_region:  # non-region types (e.g., AlternativeImage,...) first
                 return (0, 0)
             elif 'id' in obj and obj['id'] in order:  # sorted regions next
                 return (1, order[obj['id']])
             else:  # unordered regions at the end
                 return (2, 0)
         
-        self.__elements.sort(key=sort_key)
+        self._elements.sort(key=sort_key)
     
-    def create_reading_order(self, overwrite: bool = False) -> None:
+    def create_reading_order(self, overwrite: bool = False) -> list[str] | None:
         """
         Create a new reading order based on the current element sequence.
         
         Args:
             overwrite: If True, overwrites any existing reading order. If False, only creates a new reading order if 
                 the current one is empty. Defaults to False.
+        
+        Returns:
+            The created reading order (copy)
         """
-        if not self.__reading_order or overwrite:
-            self.__reading_order = list([str(e['id']) for e in self.regions if 'id' in e])
-        elif self.__reading_order:
+        if not self._reading_order or overwrite:
+            self._reading_order = list([str(e['id']) for e in self.regions if 'id' in e])
+            return self._reading_order.copy()
+        elif self._reading_order:
             logger.warning('Could not create reading order: reading order already exists.')
+            return None
     
     def set_reading_order(self, reading_order: list[str] | None, apply: bool = True) -> None:
         """
@@ -429,9 +423,9 @@ class PageXML:
             apply: If True, reorders the elements in the `PageXML` based on the passed reading order. Defaults to True.
         """
         if reading_order is None:
-            self.__reading_order.clear()
+            self._reading_order.clear()
         else:
-            self.__reading_order = reading_order
+            self._reading_order = reading_order
         if apply:
             self.apply_reading_order()
     
@@ -439,4 +433,4 @@ class PageXML:
         """
         Remove all elements from the reading order without deleting the actual elements.
         """
-        self.__reading_order.clear()
+        self._reading_order.clear()

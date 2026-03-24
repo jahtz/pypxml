@@ -6,14 +6,9 @@ from enum import Enum
 
 class PageType(Enum):
     """
-    Enumeration of PAGE-XML element and region types.
-
-    This enum mirrors the element and region names defined in the PAGE-XML schema (PcGtsType / Page content model) as 
-    specified by the OCR-D ground truth guidelines:
+    Enum for PAGE-XML element and region types.
 
     https://ocr-d.de/de/gt-guidelines/pagexml/pagecontent_xsd_Complex_Type_pc_PcGtsType.html#PcGtsType_Page
-
-    It provides a typed representation of PAGE-XML node names and structural elements.
     """
     
     Metadata = 'Metadata'
@@ -307,7 +302,7 @@ class PageType(Enum):
         return super().__eq__(other)
     
     @property
-    def region(self) -> bool:
+    def is_region(self) -> bool:
         """ True if the `PageType` represents a region, else false """
         return str(self.value).endswith('Region')
     

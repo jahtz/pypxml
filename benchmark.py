@@ -2,9 +2,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from pypxml import PageXML, PageType, PageElement
 
+
 LINE_PATHS: list[Path] = list(Path('...').glob('*.xml'))
 WORD_PATHS: list[Path] = list(Path('...').glob('*.xml'))
 GLYPH_PATHS: list[Path] = list(Path('...').glob('*.xml'))
+
 
 def run_test_open(xmls: list[Path]) -> float:
     timings: list[float] = []
@@ -16,7 +18,8 @@ def run_test_open(xmls: list[Path]) -> float:
         delta: timedelta = end - start
         timings.append(delta.total_seconds())
     return sum(timings) / len(timings)
-        
+
+ 
 def run_test_search(xmls: list[Path], pagetype: PageType) -> float:
     timings: list[float] = []
     for xml in xmls:
@@ -29,6 +32,7 @@ def run_test_search(xmls: list[Path], pagetype: PageType) -> float:
         timings.append(delta.total_seconds())
     return sum(timings) / len(timings)
 
+
 def run_test_write(xmls: list[Path]) -> float:
     timings: list[float] = []
     for xml in xmls:
@@ -40,6 +44,7 @@ def run_test_write(xmls: list[Path]) -> float:
         delta: timedelta = end - start
         timings.append(delta.total_seconds())
     return sum(timings) / len(timings)
+
 
 print('Open')
 print(f'LINE: {run_test_open(LINE_PATHS)}')

@@ -74,7 +74,7 @@ class PageUtil:
                 updates the reading order element without changing the actual element order. Defaults to True.
         """
         def sort_key(obj: PageElement):
-            if not obj.region:
+            if not obj.is_region:
                 return (0, 0)
             elif (coords := obj.find(PageType.Coords)) is not None and 'points' in coords:
                 points: list[tuple[int, ...]] = [tuple(map(int, xy.split(','))) for xy in str(coords['points']).split()]
@@ -93,6 +93,6 @@ class PageUtil:
     
         pagexml.elements.sort(key=sort_key)
         pagexml.set_reading_order(
-            [str(e['id']) for e in pagexml.elements if e.region and 'id' in e],
+            [str(e['id']) for e in pagexml.elements if e.is_region and 'id' in e],
             apply
         )
