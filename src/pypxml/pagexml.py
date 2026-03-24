@@ -30,10 +30,10 @@ class PageXML:
         creator: str | None = None,
         created: datetime | str | None = None,
         changed: datetime | str | None = None,
-        **attributes: str
+        **attributes: str | None
     ) -> None:
         """
-        Create a new `PageXml` object.
+        Create a new `PageXML` object.
 
         Args:
             creator: Creator of the PAGE-XML. Defaults to None.
@@ -41,10 +41,10 @@ class PageXML:
             changed: Timestamp (ISO 8601) of the last change. Defaults to None.
             attributes: Named arguments that represent the optional attributes of the 'Page' element.
         """
-        self.creator: str = creator  # type: ignore[arg-type]
-        self.created: datetime = created  # type: ignore[arg-type]
-        self.changed: datetime = changed  # type: ignore[arg-type]
-        self.attributes: dict[str, str] = attributes
+        self.creator: str = creator  # ty:ignore[invalid-assignment]
+        self.created: datetime = created  # ty:ignore[invalid-assignment]
+        self.changed: datetime = changed  # ty:ignore[invalid-assignment]
+        self.attributes: dict[str, str] = attributes  # ty:ignore[invalid-assignment]
         
         self.__reading_order: list[str] = []
         self.__elements: list[PageElement] = []
@@ -155,7 +155,7 @@ class PageXML:
         
         if (ro := page.find('./{*}ReadingOrder')) is not None:
             ro_elements = ro.findall('.//{*}RegionRefIndexed')
-            xml._PageXml__reading_order = [  # type: ignore[prv-type]
+            xml._PageXML__reading_order = [  # type: ignore[prv-type]
                 str(e.get('regionRef'))
                 for e in sorted(ro_elements, key=lambda x: int(x.get('index')))
             ]

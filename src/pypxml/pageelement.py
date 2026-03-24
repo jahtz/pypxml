@@ -22,7 +22,7 @@ class PageElement:
         self,
         pagetype: PageType | str,
         parent: PageXML | PageElement,
-        **attributes: str
+        **attributes: str | None
     ) -> None:
         """
         Create a new `PageElement` object.
@@ -32,8 +32,8 @@ class PageElement:
             parent: Parent object of this element.
             attributes: Named arguments that represent additional attributes of this element.
         """
-        self.pagetype: PageType = pagetype  # type: ignore[arg-type]
-        self.attributes: dict[str, str] = attributes
+        self.pagetype: PageType = pagetype  # ty:ignore[invalid-assignment]
+        self.attributes: dict[str, str] = attributes  # ty:ignore[invalid-assignment]
         
         self.__parent: PageXML | PageElement = parent
         self.__elements: list[PageElement] = []
