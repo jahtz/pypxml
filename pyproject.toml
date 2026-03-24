@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pypxml"
 description = "A modern, powerful,and extremly fast Python library for reading, writing, and modifying PAGE-XML files."
-version = "5.0.0"
+version = "5.0.1"
 readme = "README.md"
 keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
 requires-python = ">=3.11"
