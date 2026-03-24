@@ -1,16 +1,10 @@
-[build-system]
-requires = ["setuptools>=69", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "pypxml"
+version = "5.1.0"
 description = "A modern, powerful,and extremly fast Python library for reading, writing, and modifying PAGE-XML files."
-version = "5.0.1"
-readme = "README.md"
-keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
-requires-python = ">=3.11"
+readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
-dependencies = ["lxml ~= 6.0.2"]
+keywords = ["PageXML", "XML", "OCR", "optical character recognition"]
 authors = [
     { name = "jahtz", email = "jahtz.dev@proton.me" }
 ]
@@ -21,20 +15,27 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Science/Research",
 ]
-
-[project.urls]
-Repository = "https://github.com/jahtz/pypxml"
-Documentation = "https://github.com/jahtz/pypxml/README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "lxml ~= 6.0.2"
+]
 
 [project.optional-dependencies]
 cli = ["click >= 8.0", "rich >= 14.0.0"]
 dev = ["types-lxml"]
 
-[project.scripts]
-pypxml = "cli:main"
+[project.urls]
+Homepage = "https://www.uni-wuerzburg.de/zpd/"
+Repository = "https://github.com/jahtz/pypxml"
+Documentation = "https://github.com/jahtz/pypxml/README.md"
+Issues = "https://github.com/jahtz/pypxml/issues"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[project.scripts]
+pypxml = "pypxml.cli:main"
 
 [tool.setuptools.package-data]
 pypxml = ["py.typed"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
