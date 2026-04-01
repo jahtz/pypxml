@@ -68,7 +68,7 @@ class PageXML:
     def __getitem__(self, key: str) -> str | None:
         return self._attributes.get(str(key), None)
     
-    def __setitem__(self, key: str, value: str | None) -> None:
+    def __setitem__(self, key: str, value: Any) -> None:
         if value is None:
             self._attributes.pop(str(key), None)
         else:
@@ -83,7 +83,7 @@ class PageXML:
         return self._attributes.copy()
     
     @attributes.setter
-    def attributes(self, attrs: dict[str, str]) -> None:
+    def attributes(self, attrs: dict[str, Any]) -> None:
         self._attributes: dict[str, str] = {str(k): str(v) for k, v in attrs.items() if v is not None}
 
     @property
