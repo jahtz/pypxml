@@ -13,9 +13,6 @@ logger: logging.Logger = logging.getLogger(__name__)
 class PageUtil:
     """
     Utility helper class for common PAGE-XML operations.
-
-    This class provides convenience methods for extracting and resolving textual content 
-    from `PageElement` instances, abstracting away the structural complexity of PAGE-XML.
     """
 
     @staticmethod
@@ -90,9 +87,62 @@ class PageUtil:
                 return (1, key) 
             else:
                 return (2, 0)
-    
-        pagexml.elements.sort(key=sort_key)
+
+        elements: list[PageElement] = pagexml.elements
+        if not elements:
+            logger.warning('The provided PAGE-XML does not contain any elements')
+            return
         pagexml.set_reading_order(
-            [str(e['id']) for e in pagexml.elements if e.is_region and 'id' in e],
+            [str(e['id']) for e in sorted(elements, key=sort_key) if e.is_region and 'id' in e], 
             apply
         )
+
+    @staticmethod
+    def sort_lines(
+        region: PageElement,
+        reference: Literal['minimum', 'maximum', 'centroid'] = 'minimum',
+        direction: Literal['top-bottom', 'bottom-top', 'left-right', 'right-left'] = 'top-bottom',
+    ) -> None:
+        """
+        Sort the TextLine elements of a TextRegion.
+
+        Args:
+            region: A TextRegion element.
+            reference: The method for determining the reference point used for sorting:
+                - `minimum` sorts by the minimum coordinate value in the given direction,
+                - `maximum` sorts by the maximum coordinate value in the given direction,
+                - `centroid` sorts by the centroid position of each region.
+                Defaults to 'minimum'.
+            direction: The primary direction in which regions are sorted. Defaults to 'top-bottom'.
+        """
+        def sort_key(obj: PageElement):
+            if obj.pagetype in [PageType.AlternativeImage, PageType.Coords, PageType.UserDefined, PageType.Labels, PageType.Roles]:
+                return (0, 0)
+            elif obj.is_region:
+                return (1, 0)
+            elif obj.pagetype == PageType.TextLine and (coords := obj.find(PageType.Coords)) is not None and 'points' in coords:
+                points: list[tuple[int, ...]] = [tuple(map(int, xy.split(','))) for xy in str(coords['points']).split()]
+                axis: Literal[0, 1] = 1 if direction in ['top-bottom', 'bottom-top'] else 0  # 0: x, 1: y
+                if reference == 'minimum':
+                    key: int | float = min(p[axis] for p in points)
+                elif reference == 'maximum':
+                    key: int | float = max(p[axis] for p in points)
+                else:
+                    key: int | float = sum(p[axis] for p in points) / len(points)
+                if direction in ['bottom-top', 'right-left']:
+                    return (2, -key)
+                return (2, key) 
+            else:
+                return (3, 0)
+            
+        if region.pagetype != PageType.TextRegion:
+            logging.warning('The provided Region is not a TextRegion')
+            return
+        
+        elements: list[PageElement] = region.elements
+        if not elements:
+            logging.warning('The provided Region does not contain any TextLines')
+            return
+        region.clear()
+        for element in sorted(elements, key=sort_key):
+            region.set(element)
