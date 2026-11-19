@@ -6,7 +6,6 @@ from .pageelement import PageElement
 from .pagetype import PageType
 from .pagexml import PageXML
 
-
 logger: logging.Logger = logging.getLogger(__name__)
 
 
@@ -44,7 +43,7 @@ class PageUtil:
             textequivs: list[PageElement] = list(element.find_all(PageType.TextEquiv, 0, **args))
         if len(textequivs) > 1:
             logger.warning('Multiple TextEquiv elements found. Selecting the element with the lowest index')
-            textequivs.sort(key = lambda x: -1 if 'index' not in x else int(x['index']))
+            textequivs.sort(key=lambda x: -1 if 'index' not in x else int(x['index'] or 0))
         
         if textequivs and (textelement := textequivs[0].find(source)) is not None:
             return textelement.text
@@ -136,12 +135,12 @@ class PageUtil:
                 return (3, 0)
             
         if region.pagetype != PageType.TextRegion:
-            logging.warning('The provided Region is not a TextRegion')
+            logger.warning('The provided Region is not a TextRegion')
             return
         
         elements: list[PageElement] = region.elements
         if not elements:
-            logging.warning('The provided Region does not contain any TextLines')
+            logger.warning('The provided Region does not contain any TextLines')
             return
         region.clear()
         for element in sorted(elements, key=sort_key):

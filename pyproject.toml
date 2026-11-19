@@ -1,6 +1,6 @@
 [project]
 name = "pypxml"
-version = "5.1.0"
+version = "5.2.0"
 description = "A modern, powerful,and extremly fast Python library for reading, writing, and modifying PAGE-XML files."
 readme = "README.md"
 license = "Apache-2.0"
@@ -16,13 +16,13 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 requires-python = ">=3.11"
-dependencies = [
-    "lxml ~= 6.0.2"
-]
+dependencies = ["lxml ~= 6.0.4"]
+
+[dependency-groups]
+dev = ["types-lxml>=2026.2.16"]
 
 [project.optional-dependencies]
 cli = ["click >= 8.0", "rich >= 14.0.0"]
-dev = ["types-lxml"]
 
 [project.urls]
 Homepage = "https://www.uni-wuerzburg.de/zpd/"

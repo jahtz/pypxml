@@ -41,8 +41,8 @@ for region in page.find_all(PageType.TextRegion, type='marginalia'):
 # Sort regions by their position
 PageUtil.sort_regions(page, direction='top-bottom')
 
-# Save with schema validation
-page.save('output.xml', schema='2019')
+# Save with custom schema version
+page.save('output.xml', schema='2024')
 ```
 
 ## Command Line Interface

@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import logging
+from collections.abc import Iterator
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterator, Any
+from typing import Any
 
 from lxml import etree
 from lxml.etree import _Element
@@ -12,7 +13,6 @@ from lxml.etree import _Element
 from .pageelement import PageElement
 from .pageschema import PageSchema
 from .pagetype import PageType
-
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ def parse_datetime(value: datetime | str | None) -> datetime:
     elif isinstance(value, str):
         return datetime.fromisoformat(value)
     else:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
 
 
 class PageXML:
@@ -63,7 +63,7 @@ class PageXML:
         return repr(self)
     
     def __repr__(self) -> str:
-        return f'<PAGE-XML {str(self._attributes)}>'
+        return f'<PAGE-XML {self._attributes!s}>'
     
     def __getitem__(self, key: str) -> str | None:
         return self._attributes.get(str(key), None)
@@ -126,7 +126,7 @@ class PageXML:
     @property
     def regions(self) -> list[PageElement]:
         """ List of child `PageElement` region objects (copy) """
-        return list([e for e in self._elements if e.is_region])
+        return [e for e in self._elements if e.is_region]
     
     @classmethod
     def _from_etree(cls, tree: _Element, raise_on_error: bool = True) -> PageXML:
@@ -148,7 +148,7 @@ class PageXML:
             ro_elements: list[_Element] = ro.findall('.//{*}RegionRefIndexed')
             xml._reading_order = [ 
                 str(e.get('regionRef'))
-                for e in sorted(ro_elements, key=lambda x: int(x.get('index')))
+                for e in sorted(ro_elements, key=lambda x: int(x.get('index', 0)))
             ]
             page.remove(ro)
 
@@ -221,7 +221,7 @@ class PageXML:
         Args:
             xml: The file to save to.
             encoding: File encoding. Defaults to 'utf-8'.
-            schema: Select a schema version (currently supported: `2017`, `2019`) or pass a custom schema. 
+            schema: Select a schema version (currently supported: `2017`, `2019`, `2024`) or pass a custom schema. 
                 Defaults to '2019'.
         """
         with open(xml, 'wb') as f:
@@ -407,7 +407,7 @@ class PageXML:
             The created reading order (copy)
         """
         if not self._reading_order or overwrite:
-            self._reading_order = list([str(e['id']) for e in self.regions if 'id' in e])
+            self._reading_order = [str(e['id']) for e in self.regions if 'id' in e]
             return self._reading_order.copy()
         elif self._reading_order:
             logger.warning('Could not create reading order: reading order already exists.')

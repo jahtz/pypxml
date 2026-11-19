@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Iterator, Any
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Any
 
 from lxml import etree
 from lxml.etree import _Element
 
 from .pagetype import PageType
+
 if TYPE_CHECKING:
     from .pagexml import PageXML
 
@@ -23,7 +25,7 @@ def parse_pagetype(value: PageType | str) -> PageType:
     elif isinstance(value, PageType):
         return value
     else:
-        raise ValueError(f'Expected value of type PageType or str, got {type(value).__name__}')
+        raise TypeError(f'Expected value of type PageType or str, got {type(value).__name__}')
 
 
 class PageElement:
@@ -58,7 +60,7 @@ class PageElement:
         return repr(self)
     
     def __repr__(self) -> str:
-        return f'<PageElement ({self.pagetype.value}) {str(self.attributes)}>'
+        return f'<PageElement ({self.pagetype.value}) {self.attributes!s}>'
 
     def __getitem__(self, key: str) -> str | None:
         return self._attributes.get(str(key), None)

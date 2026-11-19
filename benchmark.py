@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
-from pypxml import PageXML, PageType, PageElement
 
+from pypxml import PageElement, PageType, PageXML
 
 LINE_PATHS: list[Path] = list(Path('...').glob('*.xml'))
 WORD_PATHS: list[Path] = list(Path('...').glob('*.xml'))
@@ -12,7 +12,7 @@ def run_test_open(xmls: list[Path]) -> float:
     timings: list[float] = []
     for xml in xmls:
         start: datetime = datetime.now()
-        page: PageXML = PageXML.open(xml)
+        page: PageXML = PageXML.open(xml)  # noqa: F841
         end: datetime = datetime.now()
         
         delta: timedelta = end - start
@@ -25,7 +25,7 @@ def run_test_search(xmls: list[Path], pagetype: PageType) -> float:
     for xml in xmls:
         page: PageXML = PageXML.open(xml)
         start: datetime = datetime.now()
-        findings: list[PageElement] = list(page.find_all(pagetype, -1))
+        findings: list[PageElement] = list(page.find_all(pagetype, -1))  # noqa: F841
         end: datetime = datetime.now()
     
         delta: timedelta = end - start

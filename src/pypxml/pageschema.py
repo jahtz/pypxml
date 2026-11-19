@@ -11,7 +11,7 @@ class PageSchema:
     Immutable representation of a PAGE-XML schema.
 
     Encapsulates XML namespace declarations and schema location for a PAGE-XML
-    document. Supports predefined versions ('2017', '2019') and custom schemas.
+    document. Supports predefined versions ('2017', '2019', '2024) and custom schemas.
     """
 
     xmlns: str
@@ -56,5 +56,15 @@ PageSchema.register(
         xmlns_xsi='http://www.w3.org/2001/XMLSchema-instance',
         xsi_schema_location='http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 '
                             'http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd'
+    )
+)
+
+PageSchema.register(
+    name='2024',
+    schema=PageSchema(
+        xmlns='http://schema.primaresearch.org/PAGE/gts/pagecontent/2024-07-15',
+        xmlns_xsi='http://www.w3.org/2001/XMLSchema-instance',
+        xsi_schema_location='http://schema.primaresearch.org/PAGE/gts/pagecontent/2024-07-15 '
+                            'http://schema.primaresearch.org/PAGE/gts/pagecontent/2024-07-15/pagecontent.xsd'
     )
 )
